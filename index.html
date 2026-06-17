@@ -221,7 +221,6 @@ tr.det>td{padding:0 2px 10px;text-align:left}
       <button class="fpbtn" data-fp="compare">Сравнение</button>
     </div>
     <div id="fp-igg" class="fp-panel">
-      <div id="igg-doc"></div>
       <div id="food-sum" class="foodsum"></div>
       <div class="controls">
         <input id="fq" type="text" placeholder="Поиск продукта…">
@@ -233,9 +232,9 @@ tr.det>td{padding:0 2px 10px;text-align:left}
       </div>
       <div id="food-count" class="secs"></div>
       <div id="food-list"></div>
+      <div id="igg-doc"></div>
     </div>
     <div id="fp-igg4" class="fp-panel" style="display:none">
-      <div id="igg4-doc"></div>
       <div id="igg4-sum" class="foodsum"></div>
       <div class="controls">
         <input id="igg4-q" type="text" placeholder="Поиск продукта…">
@@ -247,9 +246,9 @@ tr.det>td{padding:0 2px 10px;text-align:left}
       </div>
       <div id="igg4-count" class="secs"></div>
       <div id="igg4-list"></div>
+      <div id="igg4-doc"></div>
     </div>
     <div id="fp-ige" class="fp-panel" style="display:none">
-      <div id="ige-doc"></div>
       <div id="ige-sum" class="foodsum"></div>
       <div class="controls">
         <input id="ige-q" type="text" placeholder="Поиск аллергена…">
@@ -261,9 +260,14 @@ tr.det>td{padding:0 2px 10px;text-align:left}
       </div>
       <div id="ige-count" class="secs"></div>
       <div id="ige-list"></div>
+      <div id="ige-doc"></div>
     </div>
     <div id="fp-compare" class="fp-panel" style="display:none">
-      <div class="fgnote">Сравнение продуктов по трём панелям. Показаны продукты, встречающиеся минимум в двух тестах. Сопоставление по названию.</div>
+      <div class="controls">
+        <input id="cmp-q" type="text" placeholder="Поиск продукта…">
+        <select id="cmp-grp"></select>
+      </div>
+      <div id="cmp-count" class="secs"></div>
       <div id="cmp-list" class="fgwrap"></div>
     </div>
   </div>
@@ -820,19 +824,40 @@ function renderPanel(kind){
   $(kind + "-list").innerHTML = arr.length ? panelBody(arr, kind) : '<div class="empty">Ничего не найдено.</div>';
 }
 
+const CMP = { q: "", grp: "" };
 function renderCompare(){
   const norm = (s) => String(s || "").trim().toLowerCase();
   const map = {};
   const get = (ru) => { const k = norm(ru); if (!map[k]) map[k] = { ru: ru, igg: null, igg4: null, ige: null }; return map[k]; };
   FOODS.forEach(m => { const e = get(foodName(m.name)); e.igg = m.last; });
   (DATA.panels || []).forEach(r => { const e = get(panelRu(r)); if (r.panel === "igg4") e.igg4 = r; else if (r.panel === "ige") e.ige = r; });
-  const rows = Object.values(map).filter(e => ((e.igg ? 1 : 0) + (e.igg4 ? 1 : 0) + (e.ige ? 1 : 0)) >= 2).sort((a,b) => a.ru.localeCompare(b.ru, "ru"));
-  if (!rows.length){ $("cmp-list").innerHTML = '<div class="empty">Нет пересечений между панелями.</div>'; return; }
+  const all = Object.values(map);
+  all.forEach(e => { e.grp = (e.igg4 && e.igg4.grp) || (e.ige && e.ige.grp) || (e.igg ? catName(e.igg.cat) : "") || "Прочее"; });
+  if (!all.length){ $("cmp-list").innerHTML = '<div class="empty">Нет данных.</div>'; return; }
+  const sel = $("cmp-grp");
+  if (sel && !sel.dataset.filled){
+    const grps = Array.from(new Set(all.map(e => e.grp))).sort((a,b) => a.localeCompare(b, "ru"));
+    sel.innerHTML = '<option value="">Все группы</option>' + grps.map(g => '<option value="' + esc(g) + '">' + esc(g) + '</option>').join("");
+    sel.dataset.filled = "1";
+  }
+  let arr = all;
+  if (CMP.grp) arr = arr.filter(e => e.grp === CMP.grp);
+  if (CMP.q){ const q = CMP.q.toLowerCase(); arr = arr.filter(e => norm(e.ru).includes(q)); }
+  $("cmp-count").textContent = "Показано " + arr.length + " из " + all.length;
+  if (!arr.length){ $("cmp-list").innerHTML = '<div class="empty">Ничего не найдено.</div>'; return; }
   const cell = (cls, t) => '<td class="num ' + cls + '">' + t + '</td>';
   const iggC = (g) => !g ? cell("na", "—") : (g.f === "high" ? cell("avoid", "выс.") : g.f === "abnormal" ? cell("caution", "повыш.") : cell("ok", "норма"));
   const igg4C = (r) => !r ? cell("na", "—") : (r.level === "strong" ? cell("avoid", "выс.") : r.level === "moderate" ? cell("caution", "умер.") : cell("ok", "норма"));
   const igeC = (r) => { if (!r) return cell("na", "—"); const v = +r.value_num; return v >= 3 ? cell("avoid", "кл." + v) : v >= 1 ? cell("caution", "кл." + v) : cell("ok", "норма"); };
-  const body = rows.map(e => '<tr class="fgr"><td class="fnm"><div class="nm">' + esc(e.ru) + '</div></td>' + iggC(e.igg) + igg4C(e.igg4) + igeC(e.ige) + '</tr>').join("");
+  const groups = {};
+  arr.forEach(e => { (groups[e.grp] = groups[e.grp] || []).push(e); });
+  const order = Object.keys(groups).sort((a,b) => a.localeCompare(b, "ru"));
+  let body = "";
+  order.forEach(g => {
+    const items = groups[g].slice().sort((a,b) => a.ru.localeCompare(b.ru, "ru"));
+    body += '<tr class="grp"><td colspan="4">' + esc(g) + ' · ' + items.length + '</td></tr>';
+    items.forEach(e => { body += '<tr class="fgr"><td class="fnm"><div class="nm">' + esc(e.ru) + '</div></td>' + iggC(e.igg) + igg4C(e.igg4) + igeC(e.ige) + '</tr>'; });
+  });
   $("cmp-list").innerHTML = '<table class="fgtab"><thead><tr><th class="fnm">Продукт</th><th>IgG<br><span class="grpn">synlab</span></th><th>IgG4<br><span class="grpn">Lykon</span></th><th>IgE<br><span class="grpn">Verisana</span></th></tr></thead><tbody>' + body + '</tbody></table>';
 }
 
@@ -883,6 +908,8 @@ document.querySelectorAll("#tab-food [data-pm]").forEach(b => b.addEventListener
   if (q) q.addEventListener("input", (e) => { PAN[kind].q = e.target.value.trim(); renderPanel(kind); });
   if (s) s.addEventListener("change", (e) => { PAN[kind].grp = e.target.value; renderPanel(kind); });
 });
+if ($("cmp-q")) $("cmp-q").addEventListener("input", (e) => { CMP.q = e.target.value.trim(); renderCompare(); });
+if ($("cmp-grp")) $("cmp-grp").addEventListener("change", (e) => { CMP.grp = e.target.value; renderCompare(); });
 $("fq").addEventListener("input", (e) => { FF.q = e.target.value.trim(); renderFood(); });
 $("fcat").addEventListener("change", (e) => { FF.cat = e.target.value; renderFood(); });
 $("fgq").addEventListener("input", (e) => { FG.q = e.target.value.trim(); renderFoodGuide(); });
@@ -895,7 +922,7 @@ $("tab-dates").addEventListener("click", (e) => { const head = e.target.closest(
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "1.5";
+const APP_VERSION = "1.6";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
