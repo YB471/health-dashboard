@@ -189,8 +189,6 @@ tr.det>td{padding:0 2px 10px;text-align:left}
 
   <div id="kpis" class="kpis"></div>
 
-  <div id="highlights"></div>
-
   <div class="tabs">
     <button class="tab active" data-tab="markers">Показатели</button>
     <button class="tab" data-tab="dates">По датам</button>
@@ -239,7 +237,6 @@ tr.det>td{padding:0 2px 10px;text-align:left}
   </div>
 
   <div id="tab-foodguide" class="panel" style="display:none">
-    <div class="fgnote">Матрица по слоям твоих проблем (из анализов): IgG-непереносимость, гистамин, кишечник (FODMAP/раздражение + поджелудочная), лактоза, глютен. Цвет в каждом столбце — насколько продукт проблемен по этому слою; «Итог» — общая оценка. Это ориентир, не предписание: без чрезмерных ограничений, решения с врачом. Нажми на продукт — раскроются детали по слоям.</div>
     <div id="fg-sum" class="fgchips"></div>
     <div id="fg-legend" class="fglegend"></div>
     <div class="controls">
@@ -557,7 +554,9 @@ function fillFoodCats(){
 function renderFood(){
   const ab = FOODS.filter(m => m.last.f === "abnormal").length;
   const hi = FOODS.filter(m => m.last.f === "high").length;
-  $("food-sum").innerHTML = '<span class="chip">Всего продуктов: <b>' + FOODS.length + '</b></span>'
+  const fdate = FOODS.length ? fd(FOODS[0].last.date) : "—";
+  $("food-sum").innerHTML = '<span class="chip">Тестирование: <b>' + fdate + '</b></span>'
+    + '<span class="chip">Всего продуктов: <b>' + FOODS.length + '</b></span>'
     + '<span class="chip warn">Повышено: <b>' + ab + '</b></span>'
     + '<span class="chip hi">Высокое: <b>' + hi + '</b></span>';
   let arr = FOODS;
@@ -616,10 +615,7 @@ function fgLegend(){
   return '<span><span class="sw" style="background:rgba(29,158,117,.45)"></span>ок</span>'
     + '<span><span class="sw" style="background:rgba(186,117,23,.55)"></span>осторожно</span>'
     + '<span><span class="sw" style="background:rgba(212,69,63,.5)"></span>избегать</span>'
-    + '<span><span class="sw" style="background:var(--tk)"></span>не относится</span>'
-    + '<span style="color:var(--tx3)">Цвета слоёв — по свойствам продукта: IgG · Гист (гистамин) · Киш (кишечник/FODMAP) · Лакт (лактоза) · Глют (глютен).</span>'
-    + '<span style="color:var(--tx3)">Реко — врач/лаборатория: ✕ врач не советует · ! лаб. сократить · ✓ лаб. рекомендует. <b>*</b> у «Итога» — по анализам ок, но есть пометка в «Реко».</span>'
-    + '<span style="color:var(--tx3)">Цифры на 100 г: ГИ (≤55 / ≤69 / выше — зел./жёлт./красн.), Белок и Клетчатка (больше — лучше: ≥10 / ≥6 — зел.), Жиры (≤3 / ≤17.5 / выше). «—» — не применимо.</span>';
+    + '<span><span class="sw" style="background:var(--tk)"></span>не относится</span>';
 }
 function fgCell(r){ return '<td><span class="cell ' + (RCLS[r] || "na") + '">' + (RSYM[r] || "") + '</span></td>'; }
 function fgRec(v){ return '<td><span class="cell ' + (RECCLS[v] || "na") + '">' + (RECSYM[v] || "") + '</span></td>'; }
@@ -668,9 +664,7 @@ function prepNote(x){
 function fgDetail(x){
   const ls = LAYERS.map(([k]) => { const v = x[k]; if (!v) return ""; return '<div class="dl"><span class="dk">' + LNAME[k] + ':</span> <b style="color:' + rcol(v) + '">' + LWORD[k][v] + '</b></div>'; }).filter(Boolean).join("");
   const rec = x.rec_note ? '<div class="dl"><span class="dk">Рекомендации:</span> <b style="color:' + rcol(x.r_rec) + '">' + esc(x.rec_note) + '</b></div>' : "";
-  const prep = prepNote(x);
-  const prepHtml = prep ? '<div class="dnote"><b>Приготовление и хранение:</b> ' + esc(prep) + '</div>' : "";
-  return '<div class="detbox">' + ls + rec + prepHtml + '</div>';
+  return '<div class="detbox">' + ls + rec + '</div>';
 }
 function renderFoodGuide(){
   const all = FOODGUIDE || [];
@@ -763,7 +757,6 @@ function renderAll(D){
   Object.keys(dateCache).forEach(k => delete dateCache[k]);
   prep(D);
   renderKPIs();
-  renderHighlights();
   fillCats();
   renderMarkers();
   renderDates();
@@ -794,7 +787,7 @@ $("tab-dates").addEventListener("click", (e) => { const head = e.target.closest(
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "1.2";
+const APP_VERSION = "1.3";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
