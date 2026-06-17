@@ -1,0 +1,761 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Health Dashboard - Yaroslav Burda</title>
+<style>
+:root{--bg:#faf9f7;--card:#fff;--bd:rgba(0,0,0,.1);--bd2:rgba(0,0,0,.2);--tx:#1a1a18;--tx2:#5f5e5a;--tx3:#8a8983;--tk:rgba(0,0,0,.05);--ok:#1d9e75;--okbg:rgba(29,158,117,.16);--hi:#d4453f;--lo:#2f7dd4;--warn:#ba7517}
+@media(prefers-color-scheme:dark){:root{--bg:#1c1c1a;--card:#262624;--bd:rgba(255,255,255,.12);--bd2:rgba(255,255,255,.22);--tx:#ededeb;--tx2:#b4b2a9;--tx3:#88877f;--tk:rgba(255,255,255,.06);--okbg:rgba(29,158,117,.28)}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,BlinkMacSystemFont,system-ui,Roboto,Helvetica,Arial,sans-serif;line-height:1.5}
+.login{display:flex;min-height:100vh;align-items:center;justify-content:center}
+.login form{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:28px 26px;width:280px;text-align:center}
+.login h1{font-size:18px;font-weight:500;margin:0 0 16px}
+.login input{width:100%;box-sizing:border-box;padding:10px 12px;font-size:15px;border:1px solid var(--bd2);border-radius:8px;background:transparent;color:inherit;margin-bottom:12px}
+.login button{width:100%;padding:10px;font-size:15px;border:0;border-radius:8px;background:#1d9e75;color:#fff;cursor:pointer}
+.err{color:var(--hi);font-size:13px;margin:0 0 12px}
+.spin{font-size:14px;color:var(--tx2);padding:20px}
+.wrap{max-width:940px;margin:0 auto;padding:22px 18px 80px}
+.topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.hd{font-size:22px;font-weight:500}
+.sub{font-size:13px;color:var(--tx2);margin-top:3px}
+.btn2{padding:7px 12px;font-size:13px;border:1px solid var(--bd2);border-radius:8px;background:transparent;color:inherit;cursor:pointer;margin-left:6px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin:18px 0 4px}
+.kpi{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:13px 15px}
+.kn{font-size:23px;font-weight:500}
+.kl{font-size:12px;color:var(--tx2);margin-top:3px}
+.tabs{display:flex;gap:2px;margin:22px 0 0;border-bottom:1px solid var(--bd);flex-wrap:wrap}
+.tab{padding:9px 14px;font-size:14px;border:0;background:transparent;color:var(--tx2);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab.active{color:var(--tx);border-bottom-color:var(--ok);font-weight:500}
+.panel{padding-top:16px}
+.arch-h{font-size:13px;color:var(--tx2);margin:2px 0 14px;line-height:1.5}
+.arch-row{display:flex;align-items:center;gap:12px;padding:11px 13px;border:1px solid var(--bd);border-radius:9px;margin-bottom:8px;background:var(--card)}
+.arch-main{flex:1;min-width:0}
+.arch-t{font-weight:600;font-size:14px;color:var(--tx);word-break:break-word}
+.arch-m{font-size:12px;color:var(--tx3);margin-top:3px;word-break:break-word}
+.arch-btn{flex-shrink:0;padding:7px 14px;border:1px solid var(--bd2);border-radius:7px;background:var(--bg);color:var(--tx);font-size:13px;cursor:pointer;white-space:nowrap}
+.arch-btn:hover{border-color:var(--tk)}
+.arch-btn:disabled{opacity:.5;cursor:default}
+.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
+.controls input,.controls select{padding:8px 10px;font-size:14px;border:1px solid var(--bd2);border-radius:8px;background:transparent;color:inherit}
+.controls input{flex:1;min-width:150px}
+.modebtns{display:flex;border:1px solid var(--bd2);border-radius:8px;overflow:hidden}
+.modebtn{padding:8px 11px;font-size:13px;border:0;background:transparent;color:var(--tx2);cursor:pointer}
+.modebtn.active{background:var(--ok);color:#fff}
+.secs{font-size:12px;color:var(--tx3);margin:4px 0 10px}
+.mrow{display:grid;grid-template-columns:minmax(0,1fr) 170px 120px 20px;align-items:center;gap:12px;padding:9px 6px;border-bottom:1px solid var(--bd);cursor:pointer}
+.mrow:hover{background:var(--tk)}
+.m{font-size:13.5px}
+.ref{font-size:11px;color:var(--tx3)}
+.mid{min-width:0}
+.mval{text-align:right;font-size:14px;font-weight:600;min-width:0}
+.mdate{font-size:11px;color:var(--tx3);font-weight:400;margin-top:2px;white-space:nowrap}
+.delta{margin-left:3px;color:var(--tx3);font-weight:500}
+.chev{color:var(--tx3);text-align:center;transition:transform .15s}
+.mrow.open .chev{transform:rotate(180deg)}
+.detail{display:none;padding:8px 8px 18px;border-bottom:1px solid var(--bd);background:var(--tk)}
+.spark{width:100%;height:34px;display:block}
+.single{font-size:11px;color:var(--tx3);text-align:center}
+.dchart{overflow-x:auto;padding:4px 0 2px}
+.bigsvg{width:100%;min-width:300px;height:auto;display:block}
+.axt{font-size:9px;fill:var(--tx3)}
+.xlb{font-size:10px;fill:var(--tx2)}
+.vlt{font-size:9px;font-weight:600}
+.dtab{width:100%;border-collapse:collapse;margin-top:8px;font-size:13px}
+.dtab th{text-align:left;font-weight:500;color:var(--tx2);font-size:11px;padding:4px 8px;border-bottom:1px solid var(--bd)}
+.dtab td{padding:5px 8px;border-bottom:1px solid var(--bd)}
+.dtab .tg{color:var(--tx3);font-size:11px;text-align:right}
+.dcard{border:1px solid var(--bd);border-radius:10px;margin-bottom:10px;overflow:hidden;background:var(--card)}
+.dhead{display:grid;grid-template-columns:1fr auto 20px;align-items:center;gap:10px;padding:12px 14px;cursor:pointer}
+.dhead:hover{background:var(--tk)}
+.dttl{font-size:15px;font-weight:500}
+.dmeta{font-size:12px;color:var(--tx2)}
+.dcats{font-size:12px;color:var(--tx3);margin-top:2px;line-height:1.4}
+.grp{font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--tx2);margin:18px 0 6px;padding-top:10px;border-top:1px solid var(--bd)}
+.grp:first-child{border-top:none;padding-top:0;margin-top:2px}
+.grpn{font-weight:400;text-transform:none;letter-spacing:0;color:var(--tx3)}
+.foodsum{display:flex;gap:8px;flex-wrap:wrap;margin:2px 0 12px}
+.chip{font-size:12px;padding:4px 11px;border-radius:999px;border:1px solid var(--bd);color:var(--tx2);background:var(--card)}
+.chip b{font-weight:600;color:var(--tx)}
+.chip.warn{border-color:var(--warn);color:var(--warn)}
+.chip.warn b{color:var(--warn)}
+.chip.hi{border-color:var(--hi);color:var(--hi)}
+.chip.hi b{color:var(--hi)}
+.frow{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px;align-items:baseline;padding:6px 2px;border-bottom:1px solid var(--bd);font-size:13.5px}
+.fv{font-weight:600;white-space:nowrap}
+.ftag{font-size:11px;white-space:nowrap;min-width:64px;text-align:right}
+.fde{font-size:11px;color:var(--tx3);margin-top:1px}
+.dbody{display:none;padding:4px 14px 12px;border-top:1px solid var(--bd)}
+.drow{display:grid;grid-template-columns:minmax(0,1fr) 120px minmax(0,.8fr);gap:10px;align-items:center;padding:5px 0;border-bottom:1px solid var(--bd);font-size:13px}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px}
+.dgrp{font-size:12px;font-weight:500;color:var(--tx2);margin:0 0 4px}
+.ci{padding:7px 0;border-bottom:1px solid var(--bd)}
+.ct{font-size:13px;font-weight:500}
+.cs{font-size:12px;color:var(--tx2);margin-top:2px}
+.empty{font-size:13px;color:var(--tx3);padding:10px 0}
+.repsum{font-size:13px;color:var(--tx);line-height:1.55;white-space:pre-wrap}
+.repsrc{font-size:11px;color:var(--tx3);margin-top:8px}
+.rephd{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--tx3);margin:12px 0 3px}
+.rephd:first-child{margin-top:0}
+.labrec{margin-top:14px;padding-top:12px;border-top:1px solid var(--bd)}
+.labrec-h{font-size:12.5px;font-weight:600;color:var(--ok);margin-bottom:4px}
+.foot{margin-top:36px;font-size:11px;color:var(--tx3);text-align:center}
+@media(max-width:600px){.mrow{grid-template-columns:minmax(0,1fr) auto 20px}.mid{display:none}.drow{grid-template-columns:minmax(0,1fr) auto}}
+.fgnote{font-size:11.5px;color:var(--tx2);background:var(--tk);border-radius:8px;padding:8px 11px;margin:2px 0 12px;line-height:1.45}
+.fgchips{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 8px}
+.fglegend{font-size:11px;color:var(--tx2);display:flex;flex-wrap:wrap;gap:5px 14px;margin:0 0 12px;line-height:1.5;align-items:center}
+.fglegend .sw{display:inline-block;width:11px;height:11px;border-radius:3px;vertical-align:-1px;margin-right:4px}
+.fgwrap{}
+table.fgtab{border-collapse:collapse;width:100%;font-size:13px}
+table.fgtab th,table.fgtab td{padding:0;text-align:center}
+table.fgtab thead th{position:sticky;top:0;z-index:1;background:var(--bg);font-size:10px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.02em;padding:6px 3px;border-bottom:1px solid var(--bd);white-space:nowrap}
+table.fgtab th.fnm,table.fgtab td.fnm{text-align:left}
+td.fnm{padding:6px 8px 6px 2px;min-width:118px}
+th.fnm{padding-left:2px;min-width:118px}
+table.fgtab th.fov,table.fgtab td.fov{padding-right:2px}
+tr.fgr{cursor:pointer;border-bottom:1px solid var(--bd)}
+tr.fgr:hover{background:var(--tk)}
+tr.fgr.rec{background:var(--okbg)}
+td.fnm .nm{font-size:13px;line-height:1.25}
+td.fnm .de{font-size:10px;color:var(--tx3);margin-top:1px}
+.cell{display:inline-flex;align-items:center;justify-content:center;width:26px;height:21px;border-radius:4px;font-size:11px;font-weight:700;margin:3px auto}
+.cell.ok{background:rgba(29,158,117,.20);color:var(--ok)}
+.cell.caution{background:rgba(186,117,23,.22);color:var(--warn)}
+.cell.avoid{background:rgba(212,69,63,.20);color:var(--hi)}
+.cell.na{background:var(--tk);color:var(--tx3)}
+.ov{display:inline-block;font-size:10px;font-weight:600;padding:3px 7px;border-radius:999px;white-space:nowrap}
+.ov.rec{background:var(--okbg);color:var(--ok)}
+.ov.allow{background:var(--tk);color:var(--tx2)}
+.ov.limit{background:rgba(186,117,23,.18);color:var(--warn)}
+.ov.avoid{background:rgba(212,69,63,.16);color:var(--hi)}
+.ovstar{color:var(--warn);font-weight:700;margin-left:3px;font-size:13px}
+td.num{text-align:right;font-size:11.5px;font-weight:600;font-variant-numeric:tabular-nums;padding:4px 7px;white-space:nowrap}
+th.numh{text-align:right}
+.num.ok{color:var(--ok)}
+.num.caution{color:var(--warn)}
+.num.avoid{color:var(--hi)}
+.num.na{color:var(--tx3);font-weight:400}
+tr.grp td{text-align:left;font-size:12px;font-weight:600;padding:15px 2px 5px;color:var(--tx2)}
+tr.grp.rec td{color:var(--ok)}
+tr.det>td{padding:0 2px 10px;text-align:left}
+.detbox{background:var(--tk);border-radius:8px;padding:9px 11px;font-size:12px;line-height:1.55}
+.detbox .dl{margin:1px 0}
+.detbox .dk{color:var(--tx3)}
+.detbox .dnote{margin-top:5px;color:var(--tx2);font-size:11.5px}
+@media(max-width:600px){td.fnm,th.fnm{min-width:92px}.cell{width:22px}}
+</style>
+</head>
+<body>
+
+<div id="login" class="login">
+  <form id="loginForm">
+    <h1>Health Dashboard — Yaroslav Burda</h1>
+    <p id="loginErr" class="err" style="display:none"></p>
+    <input id="pw" type="password" placeholder="Пароль" autocomplete="current-password" autofocus>
+    <button type="submit">Войти</button>
+  </form>
+</div>
+
+<div id="app" class="wrap" style="display:none">
+  <div class="topbar">
+    <div>
+      <div class="hd">Health Dashboard - Yaroslav Burda</div>
+      <div class="sub">Анализы, динамика, диагнозы и заключения</div>
+    </div>
+  </div>
+
+  <div id="kpis" class="kpis"></div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="markers">Показатели</button>
+    <button class="tab" data-tab="dates">По датам</button>
+    <button class="tab" data-tab="food">Непереносимость еды</button>
+    <button class="tab" data-tab="foodguide">Питание</button>
+    <button class="tab" data-tab="reports">Заключения и назначения</button>
+  </div>
+
+  <div id="tab-markers" class="panel">
+    <div class="controls">
+      <input id="q" type="text" placeholder="Поиск показателя…">
+      <select id="cat"></select>
+      <div class="modebtns">
+        <button class="modebtn active" data-mode="all">Все</button>
+        <button class="modebtn" data-mode="flagged">Вне нормы</button>
+        <button class="modebtn" data-mode="trend">С динамикой</button>
+      </div>
+    </div>
+    <div id="mk-count" class="secs"></div>
+    <div id="mk-list"></div>
+  </div>
+
+  <div id="tab-dates" class="panel" style="display:none"></div>
+
+  <div id="tab-food" class="panel" style="display:none">
+    <div id="food-sum" class="foodsum"></div>
+    <div class="controls">
+      <input id="fq" type="text" placeholder="Поиск продукта…">
+      <select id="fcat"></select>
+      <div class="modebtns">
+        <button class="modebtn active" data-fmode="all">Все</button>
+        <button class="modebtn" data-fmode="flagged">Повышенные и высокие</button>
+      </div>
+    </div>
+    <div id="food-count" class="secs"></div>
+    <div id="food-list"></div>
+  </div>
+
+  <div id="tab-foodguide" class="panel" style="display:none">
+    <div class="fgnote">Матрица по слоям твоих проблем (из анализов): IgG-непереносимость, гистамин, кишечник (FODMAP/раздражение + поджелудочная), лактоза, глютен. Цвет в каждом столбце — насколько продукт проблемен по этому слою; «Итог» — общая оценка. Это ориентир, не предписание: без чрезмерных ограничений, решения с врачом. Нажми на продукт — раскроются детали по слоям.</div>
+    <div id="fg-sum" class="fgchips"></div>
+    <div id="fg-legend" class="fglegend"></div>
+    <div class="controls">
+      <input id="fgq" type="text" placeholder="Поиск продукта…">
+      <select id="fgfilter">
+        <option value="">Все статусы</option>
+        <option value="recommended">Рекомендуется</option>
+        <option value="allowed">Можно</option>
+        <option value="limit">Ограничить</option>
+        <option value="avoid">Нельзя</option>
+      </select>
+      <select id="fglayer">
+        <option value="">Все слои</option>
+        <option value="r_igg">Проблема: IgG</option>
+        <option value="r_hist">Проблема: гистамин</option>
+        <option value="r_gut">Проблема: кишечник</option>
+        <option value="r_lact">Проблема: лактоза</option>
+        <option value="r_gluten">Проблема: глютен</option>
+        <option value="r_rec">С пометкой врача/лаб.</option>
+      </select>
+    </div>
+    <div id="fg-count" class="secs"></div>
+    <div id="fg-list" class="fgwrap"></div>
+  </div>
+
+  <div id="tab-reports" class="panel" style="display:none"></div>
+
+  <div class="foot" id="foot"></div>
+</div>
+
+<script>
+
+const $ = (id) => document.getElementById(id);
+const num = (x) => x == null ? null : Number(x);
+const r1 = (x) => Math.round(x * 10) / 10;
+const fd = (s) => { const p = String(s).split("-"); return p.length === 3 ? p[2] + "." + p[1] + "." + p[0] : s; };
+const fds = (s) => { const p = String(s).split("-"); return p.length === 3 ? p[2] + "." + p[1] + "." + p[0].slice(2) : s; };
+const esc = (s) => String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const fst = (v, lo, hi) => (hi != null && v > hi) ? "high" : (lo != null && v < lo) ? "low" : "ok";
+const col = (f) => f === "high" ? "var(--hi)" : f === "low" ? "var(--lo)" : "var(--warn)";
+const refTxt = (lo, hi, u) => (lo != null && hi != null) ? lo + "–" + hi + " " + (u || "") : (hi != null) ? "<" + hi + " " + (u || "") : (lo != null) ? ">" + lo + " " + (u || "") : "";
+const disp = (p) => (p.vt && /[<>]/.test(p.vt)) ? (p.vt + (p.u ? (" " + p.u) : "")) : (p.v != null ? (p.v + (p.u ? (" " + p.u) : "")) : (p.vt || ""));
+const flagged = (f) => f === "high" || f === "low" || f === "abnormal";
+const catName = (c) => LB[c] || c;
+const foodName = (n) => FOODLB[n] || n;
+function tickIdx(n, max){ if (n <= max) return Array.from({length:n}, (_,i)=>i); const out=[]; for(let i=0;i<max;i++) out.push(Math.round(i*(n-1)/(max-1))); return Array.from(new Set(out)); }
+
+const LB = {liver:"Печень",hematology:"Гематология",lipids:"Липиды",iron:"Железо",endocrinology:"Эндокринология",protein_electrophoresis:"Электрофорез",immunoglobulins:"Иммуноглобулины",allergy:"Аллергия/гистамин",genetics:"Генетика",glucose:"Глюкоза",stool:"Кал",gut_flora:"Микрофлора кишечника",gut_pathogens:"Условно-патогенные бактерии",gut_yeasts:"Дрожжи и плесени",inflammation:"Воспаление",metabolic:"Метаболизм",electrolytes:"Электролиты",urine:"Моча",coagulation:"Свёртывание",celiac:"Целиакия",infectiology:"Инфекции",pancreas:"Поджелудочная",kidney:"Почки",thyroid_antibodies:"Щитовидка (АТ)",microbiology:"Микробиология",vitamins:"Витамины",toxicology:"Тяжёлые металлы",cardiac:"Сердце/мышцы",tumor_markers:"Онкомаркеры",autoimmune:"Аутоиммунные",fatty_acids:"Омега/жирные кислоты",food_vegetables:"Овощи",food_fruit:"Фрукты",food_spices:"Специи и травы",food_fish:"Рыба и морепродукты",food_grains_gluten:"Злаки с глютеном",food_meat:"Мясо",food_nuts:"Орехи и семена",food_mushrooms:"Грибы",food_grains_glutenfree:"Безглютеновые злаки",food_dairy:"Молочные продукты",food_salad:"Салатные листья",food_yeast:"Дрожжи",food_beverages:"Чай, кофе, напитки",food_additives:"Пищевые добавки",food_eggs:"Яйца",food_sweeteners:"Подсластители",general:"Общие правила"};
+
+const FOODLB = {
+"Artischocke":"Артишок","Aubergine":"Баклажан","Bleichsellerie":"Сельдерей черешковый","Blumenkohl":"Цветная капуста","Brokkoli":"Брокколи","Chili Cayenne":"Чили кайенский","Chinakohl":"Пекинская капуста","Dicke Bohne":"Бобы садовые","Erbse":"Горох","Grüne/Gelbe Bohne":"Зелёная/жёлтая фасоль","Grünkohl":"Капуста кале","Gurke":"Огурец","Karotte":"Морковь","Kartoffel":"Картофель","Kichererbse":"Нут","Knollensellerie":"Сельдерей корневой","Kohlrabi":"Кольраби","Kürbis":"Тыква","Lauch":"Лук-порей","Linse":"Чечевица","Mangold":"Мангольд","Mungobohne":"Маш","Olive":"Оливки","Paprikaschote":"Сладкий перец","Pastinake":"Пастернак","Radieschen":"Редис","Rosenkohl":"Брюссельская капуста","Rote Beete":"Свёкла","Rotkohl":"Краснокочанная капуста","Sojabohne":"Соя","Spargel":"Спаржа","Spinat":"Шпинат","Steckrübe":"Брюква","Süßkartoffel":"Батат","Tomate":"Помидор","Weißkohl":"Белокочанная капуста","Wirsing":"Савойская капуста","Zucchini":"Цукини","Zwiebel":"Лук репчатый",
+"Ananas":"Ананас","Apfel":"Яблоко","Aprikose":"Абрикос","Avocado":"Авокадо","Banane":"Банан","Birne":"Груша","Dattel":"Финик","Erdbeere":"Клубника","Feige":"Инжир","Kirsche":"Вишня","Kiwi":"Киви","Litschi":"Личи","Mango":"Манго","Mirabelle":"Мирабель","Nektarine":"Нектарин","Orange":"Апельсин","Papaya":"Папайя","Pfirsich":"Персик","Pflaume":"Слива","Traube/Rosine":"Виноград/изюм","Wassermelone":"Арбуз","Zitrone":"Лимон",
+"Basilikum":"Базилик","Knoblauch":"Чеснок","Meerrettich":"Хрен","Muskatnuss":"Мускатный орех","Oregano":"Орегано","Paprikagewürz":"Паприка молотая","Petersilie":"Петрушка","Pfeffer, schwarz":"Перец чёрный","Rosmarin":"Розмарин","Schnittlauch":"Шнитт-лук","Senfkorn":"Семена горчицы","Thymian":"Тимьян","Vanille":"Ваниль","Zimt":"Корица",
+"Anchovis":"Анчоус","Dorade":"Дорада","Flusskrebs":"Речной рак","Forelle":"Форель","Hai":"Акула","Heilbutt":"Палтус","Hering":"Сельдь","Kabeljau":"Треска","Karpfen":"Карп","Lachs":"Лосось","Makrele":"Скумбрия","Rotbarsch":"Морской окунь","Sardine":"Сардина","Schellfisch":"Пикша","Scholle":"Камбала","Schwertfisch":"Меч-рыба","Seehecht":"Хек","Seelachs":"Сайда","Seezunge":"Морской язык","Thunfisch":"Тунец","Tintenfisch":"Кальмар","Zander":"Судак",
+"Dinkel":"Спельта (полба)","Gerste":"Ячмень","Gluten":"Глютен","Kamut":"Камут","Roggen":"Рожь","Weizen":"Пшеница",
+"Ente":"Утка","Gans":"Гусь","Hase":"Заяц","Hirsch":"Олень","Huhn":"Курица","Kalb":"Телятина","Kaninchen":"Кролик","Lamm":"Ягнёнок","Reh":"Косуля","Rind":"Говядина","Schwein":"Свинина","Strauss":"Страус","Truthahn/Pute":"Индейка","Wachtel":"Перепел","Wildschwein":"Кабан","Ziege":"Коза",
+"Cashewkern":"Кешью","Erdnuss":"Арахис","Haselnuss":"Фундук","Kakaobohne":"Какао-бобы","Kokosnuss":"Кокос","Kürbiskern":"Тыквенные семечки","Leinsamen":"Семена льна","Macadamianuss":"Макадамия","Mandel":"Миндаль","Mohn":"Мак","Paranuss":"Бразильский орех","Pinienkern":"Кедровые орешки","Pistazie":"Фисташки","Sesam":"Кунжут","Sonnenblumenkerne":"Семечки подсолнечника","Walnuss":"Грецкий орех",
+"Champignon":"Шампиньон",
+"Amaranth":"Амарант","Buchweizen":"Гречка","Carob":"Кэроб","Esskastanie":"Каштан съедобный","Fonio":"Фонио","Hafer":"Овёс","Hirse":"Просо","Lupine":"Люпин","Mais":"Кукуруза","Maniok":"Маниок","Pfeilwurz":"Маранта","Quinoa":"Киноа","Reis":"Рис","Tapioka":"Тапиока","Teff":"Тефф","Topinambur":"Топинамбур",
+"Hellim":"Сыр халлуми","Kamelmilch":"Верблюжье молоко","Kefir":"Кефир","Kuhmilch":"Коровье молоко","Kuhmilch, gekocht":"Коровье молоко (кипячёное)","Labkäse (Kuh)":"Сычужный сыр (коровий)","Ricotta":"Рикотта","Sauermilchprodukte":"Кисломолочные продукты","Schafsmilch, -käse":"Овечье молоко и сыр","Stutenmilch":"Кобылье молоко","Ziegenmilch, -käse":"Козье молоко и сыр",
+"Chicorée":"Цикорий","Eisbergsalat":"Салат айсберг","Endivie":"Эндивий","Feldsalat":"Полевой салат","Kopfsalat":"Кочанный салат","Lollo rosso":"Лолло россо","Radicchio":"Радиккио","Römischer Salat":"Салат романо","Rucola":"Руккола",
+"Hefe":"Дрожжи",
+"Pfefferminze":"Мята перечная",
+"Guarkernmehl (E412)":"Гуаровая камедь (E412)",
+"Gänseei":"Гусиное яйцо","Vollei":"Цельное яйцо","Wachtelei":"Перепелиное яйцо",
+"Honig":"Мёд","Rohrzucker":"Тростниковый сахар",
+"Alkohol (bes. Rotwein, Sekt, Bier)":"Алкоголь (особенно красное вино, игристое, пиво)","Gereifter Käse (Parmesan, Gouda, Cheddar)":"Выдержанные сыры (пармезан, гауда, чеддер)","Geräucherte/gepökelte Wurst (Salami, Schinken, Speck)":"Копчёности и колбасы (салями, ветчина, бекон)","Essig & eingelegte/marinierte Speisen":"Уксус, маринады и соленья","Fermentiertes (Sauerkraut, Sojasauce, Miso)":"Ферментированное (квашеная капуста, соевый соус, мисо)","Aufgewärmte/länger gelagerte Eiweißspeisen":"Разогретые/долго хранившиеся белковые блюда","Schwarzer/grüner Tee, Energydrinks":"Чёрный/зелёный чай, энергетики","Kaffee":"Кофе","Frisch gekochtes mageres Fleisch/Geflügel":"Свежее нежирное мясо/птица","Frisch zubereitete, nicht aufgewärmte Speisen":"Свежеприготовленные, не разогретые блюда"};
+
+let DATA = null, MK = [], DATES = [], CATS = [], FOODS = [], FOODCATS = [], FOODGUIDE = [];
+let F = { q: "", cat: "", mode: "all" };
+let FF = { q: "", cat: "", mode: "all" };
+let FG = { q: "", verdict: "", layer: "" };
+const detailCache = {}, dateCache = {};
+
+function scale(vals, lo, hi){
+  const a = vals.filter(x => x != null);
+  let tmin, tmax, bs, be;
+  if (lo != null && hi != null){ tmin = Math.min(...a, lo); tmax = Math.max(...a, hi); const p = (tmax - tmin) * 0.18 || 1; tmin -= p; tmax += p; bs = lo; be = hi; }
+  else if (hi != null){ tmin = 0; tmax = Math.max(...a, hi) * 1.15; bs = 0; be = hi; }
+  else if (lo != null){ tmin = 0; tmax = Math.max(...a, lo) * 1.3; bs = lo; be = tmax; }
+  else { tmin = Math.min(...a); tmax = Math.max(...a); if (tmin === tmax){ tmin -= 1; tmax += 1; } bs = null; be = null; }
+  return { bs, be, p: (x) => r1(Math.max(0, Math.min(100, (x - tmin) / (tmax - tmin) * 100))) };
+}
+
+function spark(pts){
+  const lo = pts[0].lo, hi = pts[0].hi;
+  const s = scale(pts.map(p => p.v), lo, hi);
+  const W = 170, H = 34, pad = 4;
+  const X = (i) => pad + i * (W - 2*pad) / (pts.length - 1);
+  const Y = (v) => H - pad - (s.p(v)/100) * (H - 2*pad);
+  let band = "";
+  if (s.bs != null){ const y1 = Y(s.be), y2 = Y(s.bs); band = `<rect x="0" y="${r1(y1)}" width="${W}" height="${r1(Math.max(0,y2-y1))}" fill="var(--okbg)"></rect>`; }
+  const poly = pts.map((p,i) => r1(X(i)) + "," + r1(Y(p.v))).join(" ");
+  const dots = pts.map((p,i) => { const st = fst(p.v,lo,hi); const c = st === "ok" ? "var(--tx2)" : col(st); return `<circle cx="${r1(X(i))}" cy="${r1(Y(p.v))}" r="2.3" fill="${c}"><title>${esc(fd(p.date) + ": " + disp(p))}</title></circle>`; }).join("");
+  return `<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">${band}<polyline points="${poly}" fill="none" stroke="var(--bd2)" stroke-width="1.5"></polyline>${dots}</svg>`;
+}
+
+function bigChart(pts){
+  const lo = pts[0].lo, hi = pts[0].hi, u = pts[0].u;
+  const s = scale(pts.map(p => p.v), lo, hi);
+  const n = pts.length;
+  const W = 640, H = 198, padL = 16, padR = 16, padT = 16, padB = 32;
+  const X = (i) => padL + (n === 1 ? (W-padL-padR)/2 : i * (W-padL-padR) / (n-1));
+  const Y = (v) => padT + (1 - s.p(v)/100) * (H - padT - padB);
+  let band = "";
+  if (s.bs != null){ const y1 = Y(s.be), y2 = Y(s.bs); band = `<rect x="${padL}" y="${r1(y1)}" width="${W-padL-padR}" height="${r1(Math.max(0,y2-y1))}" fill="var(--okbg)"></rect>`; }
+  let refl = "";
+  if (hi != null){ const y = Y(hi); refl += `<line x1="${padL}" y1="${r1(y)}" x2="${W-padR}" y2="${r1(y)}" stroke="var(--bd2)" stroke-dasharray="3 3" stroke-width="1"></line><text x="${padL}" y="${r1(y)-3}" class="axt">${hi}</text>`; }
+  if (lo != null){ const y = Y(lo); refl += `<line x1="${padL}" y1="${r1(y)}" x2="${W-padR}" y2="${r1(y)}" stroke="var(--bd2)" stroke-dasharray="3 3" stroke-width="1"></line><text x="${padL}" y="${r1(y)-3}" class="axt">${lo}</text>`; }
+  const poly = pts.map((p,i) => r1(X(i)) + "," + r1(Y(p.v))).join(" ");
+  const showVal = n <= 10;
+  const ticks = new Set(tickIdx(n, 7));
+  const anchorFor = (i) => i === 0 ? "start" : (i === n - 1 ? "end" : "middle");
+  let dots = "", vlabels = "", xlabels = "";
+  pts.forEach((p,i) => {
+    const st = fst(p.v,lo,hi); const c = st === "ok" ? "var(--ok)" : col(st);
+    dots += `<circle cx="${r1(X(i))}" cy="${r1(Y(p.v))}" r="3" fill="${c}"><title>${esc(fd(p.date) + ": " + disp(p))}</title></circle>`;
+    if (showVal) vlabels += `<text x="${r1(X(i))}" y="${r1(Y(p.v))-7}" text-anchor="${anchorFor(i)}" class="vlt" fill="${c}">${esc(String(p.v))}</text>`;
+    if (ticks.has(i)) xlabels += `<text x="${r1(X(i))}" y="${H-10}" text-anchor="${anchorFor(i)}" class="xlb">${fds(p.date)}</text>`;
+  });
+  return `<svg viewBox="0 0 ${W} ${H}" class="bigsvg" preserveAspectRatio="xMidYMid meet">${band}${refl}<polyline points="${poly}" fill="none" stroke="var(--bd2)" stroke-width="1.6"></polyline>${dots}${vlabels}${xlabels}</svg>`;
+}
+
+function prep(D){
+  const labs = (D.labs || []).map(r => ({ marker:r.marker, cat:r.category, date:r.test_date, v:num(r.value_num), vt:r.value_text, u:r.unit, lo:num(r.ref_low), hi:num(r.ref_high), f:r.flag }));
+  D._labs = labs;
+  const map = {};
+  labs.forEach(r => { (map[r.marker] = map[r.marker] || []).push(r); });
+  MK = Object.keys(map).map((name, idx) => {
+    const pts = map[name].slice().sort((a,b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0);
+    const numPts = pts.filter(p => p.v != null);
+    const last = pts[pts.length - 1];
+    return { id: idx, name: name, cat: last.cat, pts: pts, numPts: numPts, last: last, flagged: flagged(last.f) };
+  });
+  DATES = Array.from(new Set(labs.map(r => r.date))).sort();
+  CATS = Array.from(new Set(MK.map(m => m.cat))).sort((a,b) => catName(a).localeCompare(catName(b), "ru"));
+  FOODS = MK.filter(m => m.cat.indexOf("food_") === 0);
+  FOODCATS = CATS.filter(c => c.indexOf("food_") === 0);
+  FOODGUIDE = (D.fg || []).slice();
+  DATA = D;
+}
+
+function renderKPIs(){
+  const bm = MK.filter(m => m.cat.indexOf("food_") !== 0);
+  const fl = bm.filter(m => m.flagged).length;
+  const period = DATES.length ? (fd(DATES[0]) + " – " + fd(DATES[DATES.length-1])) : "—";
+  $("kpis").innerHTML =
+    `<div class="kpi"><div class="kn">${bm.length}</div><div class="kl">показателей</div></div>`
+    + `<div class="kpi"><div class="kn" style="color:${fl ? "var(--hi)" : "inherit"}">${fl}</div><div class="kl">вне нормы (последние)</div></div>`
+    + `<div class="kpi"><div class="kn">${DATES.length}</div><div class="kl">дат сдачи</div></div>`
+    + `<div class="kpi"><div class="kn" style="font-size:15px">${period}</div><div class="kl">период наблюдения</div></div>`;
+}
+
+function fillCats(){
+  const opts = ['<option value="">Все категории</option>'].concat(CATS.filter(c => c.indexOf("food_") !== 0).map(c => `<option value="${esc(c)}">${esc(catName(c))}</option>`));
+  $("cat").innerHTML = opts.join("");
+}
+
+function sortMK(arr){
+  return arr.slice().sort((a,b) => {
+    if (a.flagged !== b.flagged) return a.flagged ? -1 : 1;
+    const ca = catName(a.cat), cb = catName(b.cat);
+    if (ca !== cb) return ca.localeCompare(cb, "ru");
+    return a.name.localeCompare(b.name, "ru");
+  });
+}
+
+function markerRow(m){
+  const c = m.flagged ? col(m.last.f) : "var(--tx)";
+  const mid = m.numPts.length >= 2 ? spark(m.numPts) : `<div class="single">${m.numPts.length === 1 ? "одно измерение" : "качеств."}</div>`;
+  let delta = "";
+  if (m.numPts.length >= 2){ const a = m.numPts[m.numPts.length-2].v, b = m.numPts[m.numPts.length-1].v; const d = Math.round((b-a)*100)/100; const ar = d > 0 ? "▲" : (d < 0 ? "▼" : "•"); delta = ` <span class="delta">${ar} ${Math.abs(d)}</span>`; }
+  const rt = refTxt(m.last.lo, m.last.hi, m.last.u);
+  return `<div class="mrow" data-mk="${m.id}"><div><div class="m">${esc(m.name)}</div><div class="ref">${esc(catName(m.cat))}${rt ? (" · " + esc(rt)) : ""}</div></div><div class="mid">${mid}</div><div class="mval" style="color:${c}">${esc(disp(m.last))}<div class="mdate">${fd(m.last.date)}${delta}</div></div><div class="chev">⌄</div></div><div class="detail" data-detail="${m.id}"></div>`;
+}
+
+function detailHTML(m){
+  let chart;
+  if (m.numPts.length >= 2) chart = `<div class="dchart">${bigChart(m.numPts)}</div>`;
+  else if (m.numPts.length === 1) chart = `<div class="empty">Одно числовое измерение — динамика появится со второго.</div>`;
+  else chart = `<div class="empty">Качественный показатель (без числового значения).</div>`;
+  const rows = m.pts.slice().reverse().map(p => {
+    const c = flagged(p.f) ? col(p.f) : "var(--tx)";
+    const tag = p.f === "high" ? "выше" : p.f === "low" ? "ниже" : p.f === "abnormal" ? "отклон." : (p.f === "normal" ? "норма" : "");
+    return `<tr><td>${fd(p.date)}</td><td style="color:${c};font-weight:500">${esc(disp(p))}</td><td class="tg">${tag}</td></tr>`;
+  }).join("");
+  return chart + `<table class="dtab"><thead><tr><th>Дата</th><th>Значение</th><th></th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+function renderMarkers(){
+  const total = MK.filter(m => m.cat.indexOf("food_") !== 0);
+  let arr = total;
+  if (F.cat) arr = arr.filter(m => m.cat === F.cat);
+  if (F.mode === "flagged") arr = arr.filter(m => m.flagged);
+  else if (F.mode === "trend") arr = arr.filter(m => m.numPts.length >= 2);
+  if (F.q){ const q = F.q.toLowerCase(); arr = arr.filter(m => m.name.toLowerCase().includes(q) || catName(m.cat).toLowerCase().includes(q)); }
+  arr = sortMK(arr);
+  $("mk-count").textContent = "Показано " + arr.length + " из " + total.length;
+  $("mk-list").innerHTML = arr.length ? arr.map(markerRow).join("") : '<div class="empty">Ничего не найдено.</div>';
+}
+
+function toggleDetail(row){
+  const panel = row.nextElementSibling;
+  if (!panel || !panel.classList.contains("detail")) return;
+  const willOpen = !row.classList.contains("open");
+  if (willOpen && !panel.dataset.filled){ const id = +row.dataset.mk; panel.innerHTML = detailCache[id] || (detailCache[id] = detailHTML(MK[id])); panel.dataset.filled = "1"; }
+  row.classList.toggle("open", willOpen);
+  panel.style.display = willOpen ? "block" : "none";
+}
+
+function dateBody(d){
+  const arr = DATA._labs.filter(r => r.date === d && !(r.cat && r.cat.indexOf("food_") === 0)).slice().sort((a,b) => {
+    if (flagged(a.f) !== flagged(b.f)) return flagged(a.f) ? -1 : 1;
+    const ca = catName(a.cat), cb = catName(b.cat);
+    if (ca !== cb) return ca.localeCompare(cb, "ru");
+    return a.marker.localeCompare(b.marker, "ru");
+  });
+  let html = arr.map(r => {
+    const c = flagged(r.f) ? col(r.f) : "var(--tx)";
+    const rt = refTxt(r.lo, r.hi, r.u);
+    return `<div class="drow"><div class="m">${esc(r.marker)} <span class="ref">${esc(catName(r.cat))}</span></div><div class="mval" style="color:${c}">${esc(disp(r))}</div><div class="ref">${esc(rt)}</div></div>`;
+  }).join("");
+  (DATA.recs || []).filter(x => x.rec_date === d).forEach(rc => {
+    const de = rc.body ? esc(rc.body) : "";
+    const ru = rc.body_ru ? esc(rc.body_ru) : "";
+    const lab = rc.lab_name ? (' · ' + esc(rc.lab_name)) : "";
+    const ttl = esc(rc.title || "Рекомендации лаборатории");
+    let inner;
+    if (ru && de){
+      inner = '<div class="rephd">Оригинал (немецкий)</div><div class="repsum">' + de + '</div><div class="rephd">Перевод (русский)</div><div class="repsum">' + ru + '</div>';
+    } else { inner = '<div class="repsum">' + (ru || de) + '</div>'; }
+    html += '<div class="labrec"><div class="labrec-h">' + ttl + lab + '</div>' + inner + '</div>';
+  });
+  return html;
+}
+
+function renderDates(){
+  const byd = {};
+  DATA._labs.forEach(r => { if (r.cat && r.cat.indexOf("food_") === 0) return; (byd[r.date] = byd[r.date] || []).push(r); });
+  const ds = Object.keys(byd).sort().reverse();
+  $("tab-dates").innerHTML = ds.length ? ds.map(d => {
+    const arr = byd[d]; const fl = arr.filter(r => flagged(r.f)).length;
+    const counts = {}; arr.forEach(r => { counts[r.cat] = (counts[r.cat] || 0) + 1; });
+    const cats = Object.keys(counts).sort((a,b) => counts[b] - counts[a] || catName(a).localeCompare(catName(b), "ru")).map(catName);
+    const catSum = esc(cats.slice(0,5).join(", ") + (cats.length > 5 ? " +" + (cats.length - 5) : ""));
+    return `<div class="dcard" data-d="${d}"><div class="dhead"><div><div class="dttl">${fd(d)}</div><div class="dcats">${catSum}</div></div><div class="dmeta">${arr.length} показателей · <span style="color:${fl ? "var(--hi)" : "var(--tx2)"}">${fl} вне нормы</span></div><div class="chev">⌄</div></div><div class="dbody"></div></div>`;
+  }).join("") : '<div class="empty">Нет данных.</div>';
+}
+
+function toggleDate(head){
+  const card = head.parentElement;
+  const body = card.querySelector(".dbody");
+  const willOpen = !card.classList.contains("open");
+  if (willOpen && !body.dataset.filled){ const d = card.dataset.d; body.innerHTML = dateCache[d] || (dateCache[d] = dateBody(d)); body.dataset.filled = "1"; }
+  card.classList.toggle("open", willOpen);
+  body.style.display = willOpen ? "block" : "none";
+  const ch = head.querySelector(".chev"); if (ch) ch.style.transform = willOpen ? "rotate(180deg)" : "";
+}
+
+function toggleRep(head){
+  const card = head.parentElement;
+  const body = card.querySelector(".dbody");
+  const willOpen = !card.classList.contains("open");
+  card.classList.toggle("open", willOpen);
+  body.style.display = willOpen ? "block" : "none";
+  const ch = head.querySelector(".chev"); if (ch) ch.style.transform = willOpen ? "rotate(180deg)" : "";
+}
+
+function renderClinical(){
+  const dx = DATA.dx || [], mx = DATA.mx || [], rx = DATA.rx || [];
+  const dxh = dx.map(i => `<div class="ci"><div class="ct">${esc(i.diagnosis)}</div><div class="cs">${esc(i.notes || "")}</div></div>`).join("") || '<div class="empty">—</div>';
+  const mxh = mx.map(i => { const sub = [i.dose, i.schedule].filter(Boolean).join(" "); return `<div class="ci"><div class="ct">${esc(i.name)}</div><div class="cs">${esc(sub)}${i.timing ? (" · " + esc(i.timing)) : ""}</div></div>`; }).join("") || '<div class="empty">—</div>';
+  const rxh = rx.map(i => `<div class="ci"><div class="ct">${esc(i.recommendation)}</div><div class="cs">${esc(i.notes || "")}</div></div>`).join("") || '<div class="empty">—</div>';
+  $("tab-clinical").innerHTML = `<div class="cols"><div><div class="dgrp">Диагнозы</div>${dxh}</div><div><div class="dgrp">Лечение</div>${mxh}</div><div><div class="dgrp">Рекомендации</div>${rxh}</div></div>`;
+}
+
+function renderReports(){
+  const rep = DATA.rep || [];
+  $("tab-reports").innerHTML = rep.length ? rep.map(function(r,i){
+    const meta = [fd(r.report_date), r.doctor, r.specialty].filter(Boolean).join(" · ");
+    const src = r.source ? ('<div class="repsrc">Источник: ' + esc(r.source) + '</div>') : "";
+    const ru = r.summary_ru ? esc(r.summary_ru) : "";
+    const de = r.summary ? esc(r.summary) : "";
+    let content;
+    if (ru && de){
+      content = '<div class="rephd">Оригинал (немецкий)</div><div class="repsum">' + de + '</div>'
+        + '<div class="rephd">Перевод (русский)</div><div class="repsum">' + ru + '</div>';
+    } else {
+      content = '<div class="repsum">' + (ru || de) + '</div>';
+    }
+    return '<div class="dcard" data-rep="' + i + '"><div class="dhead"><div><div class="dttl">' + esc(r.report_type || "Заключение") + '</div><div class="dmeta">' + esc(meta) + '</div></div><div></div><div class="chev">⌄</div></div><div class="dbody">' + content + src + '</div></div>';
+  }).join("") : '<div class="empty">Нет заключений.</div>';
+}
+
+function fillFoodCats(){
+  const opts = ['<option value="">Все группы</option>'].concat(FOODCATS.map(c => `<option value="${esc(c)}">${esc(catName(c))}</option>`));
+  $("fcat").innerHTML = opts.join("");
+}
+
+function renderFood(){
+  const ab = FOODS.filter(m => m.last.f === "abnormal").length;
+  const hi = FOODS.filter(m => m.last.f === "high").length;
+  $("food-sum").innerHTML = '<span class="chip">Всего продуктов: <b>' + FOODS.length + '</b></span>'
+    + '<span class="chip warn">Повышено: <b>' + ab + '</b></span>'
+    + '<span class="chip hi">Высокое: <b>' + hi + '</b></span>';
+  let arr = FOODS;
+  if (FF.cat) arr = arr.filter(m => m.cat === FF.cat);
+  if (FF.mode === "flagged") arr = arr.filter(m => m.flagged);
+  if (FF.q){ const q = FF.q.toLowerCase(); arr = arr.filter(m => m.name.toLowerCase().includes(q) || foodName(m.name).toLowerCase().includes(q) || catName(m.cat).toLowerCase().includes(q)); }
+  $("food-count").textContent = "Показано " + arr.length + " из " + FOODS.length;
+  if (!arr.length){ $("food-list").innerHTML = '<div class="empty">Ничего не найдено.</div>'; return; }
+  const groups = {};
+  arr.forEach(m => { (groups[m.cat] = groups[m.cat] || []).push(m); });
+  const order = Object.keys(groups).sort((a,b) => {
+    const fa = groups[a].some(m => m.flagged), fb = groups[b].some(m => m.flagged);
+    if (fa !== fb) return fa ? -1 : 1;
+    return catName(a).localeCompare(catName(b), "ru");
+  });
+  $("food-list").innerHTML = order.map(cat => {
+    const items = groups[cat].slice().sort((a,b) => (a.flagged !== b.flagged) ? (a.flagged ? -1 : 1) : foodName(a.name).localeCompare(foodName(b.name), "ru"));
+    const flc = items.filter(m => m.flagged).length;
+    const badge = flc ? (' · <span style="color:var(--hi)">' + flc + ' вне нормы</span>') : "";
+    const rows = items.map(m => {
+      const c = flagged(m.last.f) ? col(m.last.f) : "var(--tx)";
+      const tag = m.last.f === "high" ? "высокое" : m.last.f === "abnormal" ? "повышено" : "";
+      const ru = foodName(m.name); const sub = (ru !== m.name) ? ('<div class="fde">' + esc(m.name) + '</div>') : "";
+      return '<div class="frow"><div><div class="m">' + esc(ru) + '</div>' + sub + '</div><div class="fv" style="color:' + c + '">' + esc(disp(m.last)) + '</div><div class="ftag" style="color:' + c + '">' + tag + '</div></div>';
+    }).join("");
+    return '<div class="grp">' + esc(catName(cat)) + ' <span class="grpn">' + items.length + badge + '</span></div>' + rows;
+  }).join("");
+}
+
+const VLAB = { recommended:"Рекомендуется", allowed:"Можно", limit:"Ограничить", avoid:"Нельзя" };
+const VSHORT = { recommended:"Реком.", allowed:"Можно", limit:"Огранич.", avoid:"Нельзя" };
+const VCLS = { recommended:"rec", allowed:"allow", limit:"limit", avoid:"avoid" };
+const VORDER = ["recommended","allowed","limit","avoid"];
+const LAYERS = [["r_igg","IgG"],["r_hist","Гист"],["r_gut","Киш"],["r_lact","Лакт"],["r_gluten","Глют"]];
+const CATORDER = ["food_vegetables","food_salad","food_fruit","food_mushrooms","food_meat","food_fish","food_eggs","food_dairy","food_grains_glutenfree","food_grains_gluten","food_nuts","food_spices","food_sweeteners","food_beverages","food_additives","food_yeast","general"];
+const LNAME = { r_igg:"IgG-непереносимость", r_hist:"Гистамин", r_gut:"Кишечник (FODMAP/раздражение)", r_lact:"Лактоза", r_gluten:"Глютен" };
+const LWORD = {
+  r_igg:{ ok:"в норме", caution:"повышен", avoid:"высокий" },
+  r_hist:{ ok:"низкий", caution:"умеренный (либератор)", avoid:"высокий" },
+  r_gut:{ ok:"низкий", caution:"умеренный", avoid:"высокий" },
+  r_lact:{ ok:"нет", caution:"немного — бери безлактозное", avoid:"есть — бери безлактозное" },
+  r_gluten:{ ok:"нет", caution:"немного", avoid:"содержит" }
+};
+const RSYM = { ok:"", caution:"!", avoid:"✕" };
+const RCLS = { ok:"ok", caution:"caution", avoid:"avoid" };
+const RECSYM = { avoid:"✕", caution:"!", prefer:"✓" };
+const RECCLS = { avoid:"avoid", caution:"caution", prefer:"ok" };
+const rcol = (r) => r === "avoid" ? "var(--hi)" : r === "caution" ? "var(--warn)" : "var(--ok)";
+function giColor(v){ if (v == null || v === "") return "na"; v = +v; return v <= 55 ? "ok" : v <= 69 ? "caution" : "avoid"; }
+function proColor(v){ if (v == null || v === "") return "na"; v = +v; return v >= 10 ? "ok" : v >= 4 ? "caution" : "na"; }
+function fibColor(v){ if (v == null || v === "") return "na"; v = +v; return v >= 6 ? "ok" : v >= 2.5 ? "caution" : "na"; }
+function fatColor(v){ if (v == null || v === "") return "na"; v = +v; return v <= 3 ? "ok" : v <= 17.5 ? "caution" : "avoid"; }
+function numCell(v, cls){ const n = (v == null || v === "") ? null : +v; const t = n == null ? "—" : (Number.isInteger(n) ? String(n) : n.toFixed(1)); return '<td class="num ' + cls + '">' + t + '</td>'; }
+
+function fgLegend(){
+  return '<span><span class="sw" style="background:rgba(29,158,117,.45)"></span>ок</span>'
+    + '<span><span class="sw" style="background:rgba(186,117,23,.55)"></span>осторожно</span>'
+    + '<span><span class="sw" style="background:rgba(212,69,63,.5)"></span>избегать</span>'
+    + '<span><span class="sw" style="background:var(--tk)"></span>не относится</span>'
+    + '<span style="color:var(--tx3)">Цвета слоёв — по свойствам продукта: IgG · Гист (гистамин) · Киш (кишечник/FODMAP) · Лакт (лактоза) · Глют (глютен).</span>'
+    + '<span style="color:var(--tx3)">Реко — врач/лаборатория: ✕ врач не советует · ! лаб. сократить · ✓ лаб. рекомендует. <b>*</b> у «Итога» — по анализам ок, но есть пометка в «Реко».</span>'
+    + '<span style="color:var(--tx3)">Цифры на 100 г: ГИ (≤55 / ≤69 / выше — зел./жёлт./красн.), Белок и Клетчатка (больше — лучше: ≥10 / ≥6 — зел.), Жиры (≤3 / ≤17.5 / выше). «—» — не применимо.</span>';
+}
+function fgCell(r){ return '<td><span class="cell ' + (RCLS[r] || "na") + '">' + (RSYM[r] || "") + '</span></td>'; }
+function fgRec(v){ return '<td><span class="cell ' + (RECCLS[v] || "na") + '">' + (RECSYM[v] || "") + '</span></td>'; }
+function prepNote(x){
+  const g = x.food_group, h = x.r_hist, n = x.food_de || "";
+  let prep = "", lvl = "";
+  if (g === "food_fish"){
+    prep = "Гистамин при нагревании не разрушается. Покупай максимально свежей, готовь в тот же день; что не съедается — сразу заморозь, размораживай в холодильнике, не при комнатной температуре. Готовую рыбу не храни и не разогревай. Копчёная, консервированная, вяленая, маринованная — высокий гистамин.";
+    if (h === "avoid") lvl = "Скумбриевые и жирные копят гистамин особенно быстро — за 1–2 часа при комнатной температуре.";
+  } else if (g === "food_meat"){
+    prep = "Свежее мясо — гистамин низкий. Готовь в течение 1–2 дней покупки (фарш — в тот же день, портится быстрее). Остатки сразу охлади или заморозь, не разогревай по нескольку раз — нагрев гистамин не убирает. Вяленое, копчёное, ферментированное (салями, ветчина) — высокий гистамин.";
+  } else if (g === "food_eggs"){
+    prep = "Варёное или жареное яйцо переносится лучше; сырой белок — гистаминолибератор. Бери свежие, готовое блюдо долго не храни.";
+  } else if (g === "food_dairy"){
+    prep = "Свежее и пастеризованное; не оставляй при комнатной температуре. Чем дольше выдержка или закваска (зрелые сыры, кисломолочное), тем выше гистамин; молодые свежие сыры ниже.";
+  } else if (g === "food_grains_gluten" || g === "food_grains_glutenfree"){
+    prep = "Сухие крупы и мука по гистамину стабильны. Свежая выпечка лучше; долгая закваска и брожение повышают гистамин.";
+  } else if (g === "food_nuts"){
+    prep = "Храни сухими, избегай прогорклых. Отдельные орехи (грецкий, арахис) — либераторы.";
+  } else if (g === "food_mushrooms"){
+    prep = "Свежие грибы — умеренно; быстро портятся, готовь свежими, готовое долго не храни.";
+  } else if (g === "food_yeast"){
+    prep = "Дрожжи и дрожжевое брожение — повышенный гистамин.";
+  } else if (g === "food_spices"){
+    prep = "Сухие специи и травы по гистамину стабильны. Осторожнее с готовыми соусами и ферментированными приправами.";
+  } else if (g === "food_sweeteners" || g === "food_additives"){
+    prep = "По гистамину обычно не проблема.";
+  } else if (g === "food_beverages"){
+    prep = "Свежезаваренное; долго стоявшие напитки и брожение повышают гистамин.";
+  } else if (g === "food_vegetables" || g === "food_salad" || g === "food_fruit"){
+    prep = "Гистамин при нагревании не уходит. Бери свежими, избегай подвявших, перезревших, забродивших; готовое долго не храни.";
+    lvl = (h === "avoid") ? "Сам по себе богат гистамином." : (h === "caution") ? "Гистаминолибератор — может провоцировать симптомы даже свежим." : "В свежем виде гистамин низкий.";
+  } else if (g === "general"){
+    if (/^Frisch/i.test(n)) prep = "Свежеприготовленное и не разогретое — гистамин минимален. Это и есть основное правило: готовь и ешь свежим, остатки сразу замораживай.";
+    else if (/Alkohol/i.test(n)) prep = "Алкоголь блокирует фермент расщепления гистамина (DAO) и сам богат гистамином (красное вино, пиво, игристое).";
+    else if (/Käse/i.test(n)) prep = "Чем дольше выдержка, тем выше гистамин (зрелые сыры — высокий).";
+    else if (/Wurst/i.test(n)) prep = "Вяленое, копчёное, ферментированное мясо — высокий гистамин.";
+    else if (/Essig/i.test(n)) prep = "Уксус и маринады — продукты брожения, высокий гистамин.";
+    else if (/ferment/i.test(n)) prep = "Брожение повышает гистамин (квашеное, соевый соус, мисо).";
+    else if (/aufgew|gelagert/i.test(n)) prep = "Разогретые и долго хранившиеся белковые блюда накапливают гистамин: ешь свежим, остатки сразу замораживай.";
+    else if (/Kaffee|Tee|Energy/i.test(n)) prep = "Кофе, чай, энергетики влияют на расщепление гистамина; в больших количествах могут усиливать симптомы.";
+    else prep = "Брожение, созревание и долгое хранение повышают гистамин.";
+  }
+  return [prep, lvl].filter(Boolean).join(" ");
+}
+function fgDetail(x){
+  const ls = LAYERS.map(([k]) => { const v = x[k]; if (!v) return ""; return '<div class="dl"><span class="dk">' + LNAME[k] + ':</span> <b style="color:' + rcol(v) + '">' + LWORD[k][v] + '</b></div>'; }).filter(Boolean).join("");
+  const rec = x.rec_note ? '<div class="dl"><span class="dk">Рекомендации:</span> <b style="color:' + rcol(x.r_rec) + '">' + esc(x.rec_note) + '</b></div>' : "";
+  const prep = prepNote(x);
+  const prepHtml = prep ? '<div class="dnote"><b>Приготовление и хранение:</b> ' + esc(prep) + '</div>' : "";
+  return '<div class="detbox">' + ls + rec + prepHtml + '</div>';
+}
+function renderFoodGuide(){
+  const all = FOODGUIDE || [];
+  const cnt = { recommended:0, allowed:0, limit:0, avoid:0 };
+  all.forEach(x => { if (cnt[x.verdict] != null) cnt[x.verdict]++; });
+  $("fg-sum").innerHTML =
+      '<span class="chip" style="border-color:var(--ok)">Рекомендуется: <b style="color:var(--ok)">' + cnt.recommended + '</b></span>'
+    + '<span class="chip">Можно: <b>' + cnt.allowed + '</b></span>'
+    + '<span class="chip warn">Ограничить: <b>' + cnt.limit + '</b></span>'
+    + '<span class="chip hi">Нельзя: <b>' + cnt.avoid + '</b></span>';
+  $("fg-legend").innerHTML = fgLegend();
+  let arr = all;
+  if (FG.verdict) arr = arr.filter(x => x.verdict === FG.verdict);
+  if (FG.layer) arr = (FG.layer === "r_rec") ? arr.filter(x => x.r_rec) : arr.filter(x => x[FG.layer] === "caution" || x[FG.layer] === "avoid");
+  if (FG.q){ const q = FG.q.toLowerCase(); arr = arr.filter(x => foodName(x.food_de).toLowerCase().includes(q) || String(x.food_de).toLowerCase().includes(q) || String(x.rec_note || "").toLowerCase().includes(q)); }
+  $("fg-count").textContent = "Показано " + arr.length + " из " + all.length;
+  if (!all.length){ $("fg-list").innerHTML = '<div class="empty">Нет данных о питании.</div>'; return; }
+  if (!arr.length){ $("fg-list").innerHTML = '<div class="empty">Ничего не найдено.</div>'; return; }
+  const span = LAYERS.length + 7;
+  let body = "";
+  let i = 0;
+  const cats = {};
+  arr.forEach(x => { const g = x.food_group || "general"; (cats[g] = cats[g] || []).push(x); });
+  const ord = Object.keys(cats).sort((a,b) => {
+    const ia = CATORDER.indexOf(a), ib = CATORDER.indexOf(b);
+    const pa = ia < 0 ? 99 : ia, pb = ib < 0 ? 99 : ib;
+    return pa !== pb ? pa - pb : catName(a).localeCompare(catName(b), "ru");
+  });
+  ord.forEach(g => {
+    const items = cats[g];
+    items.sort((a,b) => { const va = VORDER.indexOf(a.verdict), vb = VORDER.indexOf(b.verdict); return va !== vb ? va - vb : foodName(a.food_de).localeCompare(foodName(b.food_de), "ru"); });
+    body += '<tr class="grp"><td colspan="' + span + '">' + esc(catName(g)) + ' · ' + items.length + '</td></tr>';
+    items.forEach(x => {
+      const v = x.verdict;
+      const ru = foodName(x.food_de);
+      const de = (x.tested && ru !== x.food_de) ? ('<div class="de">' + esc(x.food_de) + '</div>') : "";
+      const star = ((v === "recommended" || v === "allowed") && (x.r_rec === "avoid" || x.r_rec === "caution")) ? '<span class="ovstar">*</span>' : "";
+      body += '<tr class="fgr ' + (v === "recommended" ? "rec" : "") + '" data-i="' + i + '"><td class="fnm"><div class="nm">' + esc(ru) + '</div>' + de + '</td>'
+        + numCell(x.gi, giColor(x.gi)) + numCell(x.protein_100g, proColor(x.protein_100g)) + numCell(x.fiber_100g, fibColor(x.fiber_100g)) + numCell(x.fat_100g, fatColor(x.fat_100g))
+        + LAYERS.map(([k]) => fgCell(x[k])).join("")
+        + fgRec(x.r_rec)
+        + '<td class="fov"><span class="ov ' + (VCLS[v] || "allow") + '">' + (VSHORT[v] || v) + '</span>' + star + '</td>'
+        + '</tr>';
+      body += '<tr class="det" data-for="' + i + '" style="display:none"><td colspan="' + span + '">' + fgDetail(x) + '</td></tr>';
+      i++;
+    });
+  });
+  const head = '<thead><tr><th class="fnm">Продукт</th><th class="numh">ГИ</th><th class="numh">Белок</th><th class="numh">Клетч</th><th class="numh">Жиры</th>' + LAYERS.map(([,s]) => '<th>' + s + '</th>').join("") + '<th>Реко</th><th class="fov">Итог</th></tr></thead>';
+  $("fg-list").innerHTML = '<table class="fgtab">' + head + '<tbody>' + body + '</tbody></table>';
+}
+function toggleFgDet(r){ const d = r.nextElementSibling; if (d && d.classList.contains("det")){ d.style.display = d.style.display === "none" ? "" : "none"; r.classList.toggle("open"); } }
+
+function renderAll(D){
+  Object.keys(detailCache).forEach(k => delete detailCache[k]);
+  Object.keys(dateCache).forEach(k => delete dateCache[k]);
+  prep(D);
+  renderKPIs();
+  fillCats();
+  renderMarkers();
+  renderDates();
+  fillFoodCats();
+  renderFood();
+  renderFoodGuide();
+  renderReports();
+  $("foot").textContent = "Снимок данных: 16.06.2026 - офлайн-копия";
+}
+
+function showApp(){ $("app").style.display = "block"; }
+
+$("q").addEventListener("input", (e) => { F.q = e.target.value.trim(); renderMarkers(); });
+$("cat").addEventListener("change", (e) => { F.cat = e.target.value; renderMarkers(); });
+document.querySelectorAll("#tab-markers .modebtn").forEach(b => b.addEventListener("click", () => { document.querySelectorAll("#tab-markers .modebtn").forEach(x => x.classList.remove("active")); b.classList.add("active"); F.mode = b.dataset.mode; renderMarkers(); }));
+document.querySelectorAll("#tab-food .modebtn").forEach(b => b.addEventListener("click", () => { document.querySelectorAll("#tab-food .modebtn").forEach(x => x.classList.remove("active")); b.classList.add("active"); FF.mode = b.dataset.fmode; renderFood(); }));
+$("fq").addEventListener("input", (e) => { FF.q = e.target.value.trim(); renderFood(); });
+$("fcat").addEventListener("change", (e) => { FF.cat = e.target.value; renderFood(); });
+$("fgq").addEventListener("input", (e) => { FG.q = e.target.value.trim(); renderFoodGuide(); });
+$("fgfilter").addEventListener("change", (e) => { FG.verdict = e.target.value; renderFoodGuide(); });
+$("fglayer").addEventListener("change", (e) => { FG.layer = e.target.value; renderFoodGuide(); });
+$("fg-list").addEventListener("click", (e) => { const r = e.target.closest("tr.fgr"); if (r) toggleFgDet(r); });
+document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => { document.querySelectorAll(".tab").forEach(x => x.classList.remove("active")); t.classList.add("active"); const name = t.dataset.tab; ["markers","dates","food","foodguide","reports"].forEach(p => $("tab-" + p).style.display = (p === name ? "block" : "none")); }));
+$("mk-list").addEventListener("click", (e) => { const row = e.target.closest(".mrow"); if (row) toggleDetail(row); });
+$("tab-dates").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleDate(head); });
+$("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
+
+const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
+const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
+
+async function fetchData(pw){
+  const res = await fetch(API, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ password: pw }),
+  });
+  if (res.status === 401) { const e = new Error("Неверный пароль"); e.code = 401; throw e; }
+  if (!res.ok) throw new Error("Ошибка сервера (" + res.status + ")");
+  return await res.json();
+}
+
+async function enter(pw, remember){
+  const data = await fetchData(pw);
+  renderAll(data);
+  $("foot").textContent = "Данные из Supabase (live) · " + new Date().toLocaleString("ru-RU");
+  if (remember) { try { sessionStorage.setItem("hd_pw", pw); } catch(_e){} }
+  $login.style.display = "none";
+  $app.style.display = "block";
+}
+
+$form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  $err.style.display = "none";
+  const btn = $form.querySelector("button");
+  btn.disabled = true; btn.textContent = "Загрузка…";
+  try {
+    await enter($pw.value, true);
+  } catch (err) {
+    $err.textContent = err.message || "Ошибка";
+    $err.style.display = "block";
+    $pw.value = ""; $pw.focus();
+  } finally {
+    btn.disabled = false; btn.textContent = "Войти";
+  }
+});
+
+(function autologin(){
+  let saved = null;
+  try { saved = sessionStorage.getItem("hd_pw"); } catch(_e){}
+  if (saved) {
+    enter(saved, false).catch((err) => {
+      try { sessionStorage.removeItem("hd_pw"); } catch(_e){}
+    });
+  }
+})();
+
+</script>
+</body>
+</html>
