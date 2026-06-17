@@ -165,6 +165,13 @@ tr.det>td{padding:0 2px 10px;text-align:left}
 .detbox .dl{margin:1px 0}
 .detbox .dk{color:var(--tx3)}
 .detbox .dnote{margin-top:5px;color:var(--tx2);font-size:11.5px}
+td.hcell{text-align:center;font-size:9px;letter-spacing:.5px;white-space:nowrap;padding:4px 5px}
+td.hcell.ok{color:var(--ok)}td.hcell.caution{color:var(--warn)}td.hcell.avoid{color:var(--hi)}td.hcell.na{color:var(--tx3)}
+td.hcell .he{opacity:.3}
+.guide{margin-top:8px;padding-top:8px;border-top:1px solid var(--bd);display:flex;flex-direction:column;gap:6px}
+.guide .grow{display:flex;gap:8px;align-items:baseline;font-size:12px;line-height:1.5;color:var(--tx)}
+.guide .gi{flex-shrink:0;width:18px;text-align:center}
+.guide .gk{color:var(--tx2)}
 @media(max-width:600px){td.fnm,th.fnm{min-width:92px}.cell{width:22px}}
 </style>
 </head>
@@ -359,6 +366,7 @@ const FOODLB = {
 "Guarkernmehl (E412)":"Гуаровая камедь (E412)",
 "Gänseei":"Гусиное яйцо","Vollei":"Цельное яйцо","Wachtelei":"Перепелиное яйцо",
 "Honig":"Мёд","Rohrzucker":"Тростниковый сахар",
+"Heidelbeere":"Черника (голубика)","Honigmelone":"Дыня (медовая)","Fenchel":"Фенхель","Zuckerschoten":"Горох сахарный (стручковый)","Pak Choi":"Пак-чой (китайская капуста)","Mozzarella (frisch, laktosefrei)":"Моцарелла (свежая, безлактозная)","Hüttenkäse (laktosefrei)":"Зернёный творог (безлактозный)","Butter (laktosefrei/Markenbutter)":"Сливочное масло (безлактозное)","Ahornsirup":"Кленовый сироп","Ingwer":"Имбирь (свежий)","Kurkuma":"Куркума","Kamillentee":"Ромашковый чай","Rooibostee":"Ройбуш (чай)","Maisgrieß (Polenta)":"Полента (кукурузная крупа)","Reisnudeln":"Рисовая лапша","Brunnenkresse":"Кресс водяной (кресс-салат)",
 "Alkohol (bes. Rotwein, Sekt, Bier)":"Алкоголь (особенно красное вино, игристое, пиво)","Gereifter Käse (Parmesan, Gouda, Cheddar)":"Выдержанные сыры (пармезан, гауда, чеддер)","Geräucherte/gepökelte Wurst (Salami, Schinken, Speck)":"Копчёности и колбасы (салями, ветчина, бекон)","Essig & eingelegte/marinierte Speisen":"Уксус, маринады и соленья","Fermentiertes (Sauerkraut, Sojasauce, Miso)":"Ферментированное (квашеная капуста, соевый соус, мисо)","Aufgewärmte/länger gelagerte Eiweißspeisen":"Разогретые/долго хранившиеся белковые блюда","Schwarzer/grüner Tee, Energydrinks":"Чёрный/зелёный чай, энергетики","Kaffee":"Кофе","Frisch gekochtes mageres Fleisch/Geflügel":"Свежее нежирное мясо/птица","Frisch zubereitete, nicht aufgewärmte Speisen":"Свежеприготовленные, не разогретые блюда"};
 
 let DATA = null, MK = [], DATES = [], CATS = [], FOODS = [], FOODCATS = [], FOODGUIDE = [];
@@ -640,7 +648,13 @@ function renderFood(){
 const VSHORT = { recommended:"Rec.", allowed:"OK", limit:"Limit", avoid:"Avoid" };
 const VCLS = { recommended:"rec", allowed:"allow", limit:"limit", avoid:"avoid" };
 const VORDER = ["recommended","allowed","limit","avoid"];
-const LAYERS = [["r_igg","IgG"],["r_igg4","IgG4"],["r_ige","IgE"],["r_hist","Hist"],["r_gut","Gut"],["r_lact","Lact"],["r_gluten","Glut"]];
+const LAYERS = [["r_igg","IgG"],["r_igg4","IgG4"],["r_ige","IgE"],["r_gut","Gut"],["r_lact","Lact"],["r_gluten","Glut"]];
+const HISTLBL = ["negligible","very low","low","moderate","high","very high"];
+function histDots(s){
+  if (s == null || s === "") return '<td class="hcell na" title="histamine: n/a">—</td>';
+  s = Math.max(0, Math.min(5, +s)); const cls = s <= 1 ? "ok" : s <= 3 ? "caution" : "avoid";
+  return '<td class="hcell ' + cls + '" title="histamine ' + s + '/5 — ' + HISTLBL[s] + '">' + "●".repeat(s) + '<span class="he">' + "○".repeat(5 - s) + '</span></td>';
+}
 const CATORDER = ["food_vegetables","food_salad","food_fruit","food_mushrooms","food_meat","food_fish","food_eggs","food_dairy","food_grains_glutenfree","food_grains_gluten","food_nuts","food_spices","food_sweeteners","food_beverages","food_additives","food_yeast","general"];
 const LNAME = { r_igg:"IgG intolerance (synlab)", r_igg4:"IgG4 (Lykon)", r_ige:"IgE allergy (Verisana)", r_hist:"Histamine", r_gut:"Gut (FODMAP/irritation)", r_lact:"Lactose", r_gluten:"Gluten" };
 const LWORD = {
@@ -671,10 +685,19 @@ function fgLegend(){
 }
 function fgCell(r){ return '<td><span class="cell ' + (RCLS[r] || "na") + '">' + (RSYM[r] || "") + '</span></td>'; }
 function fgRec(v){ return '<td><span class="cell ' + (RECCLS[v] || "na") + '">' + (RECSYM[v] || "") + '</span></td>'; }
+function histLine(s){
+  if (s == null || s === "") return "";
+  s = Math.max(0, Math.min(5, +s)); const c = s <= 1 ? "var(--ok)" : s <= 3 ? "var(--warn)" : "var(--hi)";
+  return '<div class="dl"><span class="dk">Histamine:</span> <b style="color:' + c + ';letter-spacing:1px">' + "●".repeat(s) + '<span style="opacity:.3">' + "○".repeat(5 - s) + '</span></b> <b style="color:' + c + '">' + s + '/5 — ' + HISTLBL[s] + '</b></div>';
+}
 function fgDetail(x){
+  const hl = histLine(x.hist_score);
   const ls = LAYERS.map(([k]) => { const v = x[k]; if (!v) return ""; return '<div class="dl"><span class="dk">' + LNAME[k] + ':</span> <b style="color:' + rcol(v) + '">' + LWORD[k][v] + '</b></div>'; }).filter(Boolean).join("");
-  const rec = x.rec_note ? '<div class="dl"><span class="dk">Recommendations:</span> <b style="color:' + rcol(x.r_rec) + '">' + esc(x.rec_note) + '</b></div>' : "";
-  return '<div class="detbox">' + ls + rec + '</div>';
+  const rec = x.rec_note ? '<div class="dl"><span class="dk">Dr/Lab:</span> <b style="color:' + rcol(x.r_rec) + '">' + esc(x.rec_note) + '</b></div>' : "";
+  const G = [["🛒","Купить",x.buy],["🍳","Готовить",x.cook],["🧊","Хранить",x.store],["🍽️","В ресторане",x.restaurant]]
+    .filter(g => g[2]).map(g => '<div class="grow"><span class="gi">' + g[0] + '</span><span><b class="gk">' + g[1] + ':</b> ' + esc(g[2]) + '</span></div>').join("");
+  const guide = G ? '<div class="guide">' + G + '</div>' : "";
+  return '<div class="detbox">' + hl + ls + rec + guide + '</div>';
 }
 function renderFoodGuide(){
   const all = FOODGUIDE || [];
@@ -693,7 +716,7 @@ function renderFoodGuide(){
   $("fg-count").textContent = "Showing " + arr.length + " of " + all.length;
   if (!all.length){ $("fg-list").innerHTML = '<div class="empty">No diet data.</div>'; return; }
   if (!arr.length){ $("fg-list").innerHTML = '<div class="empty">Nothing found.</div>'; return; }
-  const span = LAYERS.length + 7;
+  const span = LAYERS.length + 8;
   let body = "";
   let i = 0;
   const cats = {};
@@ -713,6 +736,7 @@ function renderFoodGuide(){
       const de = (x.tested && ru !== x.food_de) ? ('<div class="de">' + esc(x.food_de) + '</div>') : "";
       const star = ((v === "recommended" || v === "allowed") && (x.r_rec === "avoid" || x.r_rec === "caution")) ? '<span class="ovstar">*</span>' : "";
       body += '<tr class="fgr ' + (v === "recommended" ? "rec" : "") + '" data-i="' + i + '"><td class="fnm"><div class="nm">' + esc(ru) + '</div>' + de + '</td>'
+        + histDots(x.hist_score)
         + numCell(x.gi, giColor(x.gi)) + numCell(x.protein_100g, proColor(x.protein_100g)) + numCell(x.fiber_100g, fibColor(x.fiber_100g)) + numCell(x.fat_100g, fatColor(x.fat_100g))
         + LAYERS.map(([k]) => fgCell(x[k])).join("")
         + fgRec(x.r_rec)
@@ -722,7 +746,7 @@ function renderFoodGuide(){
       i++;
     });
   });
-  const head = '<thead><tr><th class="fnm">Food</th><th class="numh">GI</th><th class="numh">Protein</th><th class="numh">Fiber</th><th class="numh">Fat</th>' + LAYERS.map(([,s]) => '<th>' + s + '</th>').join("") + '<th>Dr/Lab</th><th class="fov">Verdict</th></tr></thead>';
+  const head = '<thead><tr><th class="fnm">Food</th><th>Hist</th><th class="numh">GI</th><th class="numh">Protein</th><th class="numh">Fiber</th><th class="numh">Fat</th>' + LAYERS.map(([,s]) => '<th>' + s + '</th>').join("") + '<th>Dr/Lab</th><th class="fov">Verdict</th></tr></thead>';
   $("fg-list").innerHTML = '<table class="fgtab">' + head + '<tbody>' + body + '</tbody></table>';
 }
 function toggleFgDet(r){ const d = r.nextElementSibling; if (d && d.classList.contains("det")){ d.style.display = d.style.display === "none" ? "" : "none"; r.classList.toggle("open"); } }
@@ -919,7 +943,7 @@ $("tab-dates").addEventListener("click", (e) => { const head = e.target.closest(
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "3.1";
+const APP_VERSION = "3.2";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
