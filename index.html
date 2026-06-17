@@ -325,7 +325,7 @@ const catName = (c) => LB[c] || c;
 const foodName = (n) => FOODLB[n] || n;
 function tickIdx(n, max){ if (n <= max) return Array.from({length:n}, (_,i)=>i); const out=[]; for(let i=0;i<max;i++) out.push(Math.round(i*(n-1)/(max-1))); return Array.from(new Set(out)); }
 
-const LB = {liver:"Печень",hematology:"Гематология",lipids:"Липиды",iron:"Железо",endocrinology:"Эндокринология",protein_electrophoresis:"Электрофорез",immunoglobulins:"Иммуноглобулины",allergy:"Аллергия/гистамин",genetics:"Генетика",glucose:"Глюкоза",stool:"Кал",gut_flora:"Микрофлора кишечника",gut_pathogens:"Условно-патогенные бактерии",gut_yeasts:"Дрожжи и плесени",inflammation:"Воспаление",metabolic:"Метаболизм",electrolytes:"Электролиты",urine:"Моча",coagulation:"Свёртывание",celiac:"Целиакия",infectiology:"Инфекции",pancreas:"Поджелудочная",kidney:"Почки",thyroid_antibodies:"Щитовидка (АТ)",microbiology:"Микробиология",vitamins:"Витамины",toxicology:"Тяжёлые металлы",cardiac:"Сердце/мышцы",tumor_markers:"Онкомаркеры",autoimmune:"Аутоиммунные",fatty_acids:"Омега/жирные кислоты",food_vegetables:"Овощи",food_fruit:"Фрукты",food_spices:"Специи и травы",food_fish:"Рыба и морепродукты",food_grains_gluten:"Злаки с глютеном",food_meat:"Мясо",food_nuts:"Орехи и семена",food_mushrooms:"Грибы",food_grains_glutenfree:"Безглютеновые злаки",food_dairy:"Молочные продукты",food_salad:"Салатные листья",food_yeast:"Дрожжи",food_beverages:"Чай, кофе, напитки",food_additives:"Пищевые добавки",food_eggs:"Яйца",food_sweeteners:"Подсластители",general:"Общие правила"};
+const LB = {liver:"Печень",hematology:"Гематология",lipids:"Липиды",iron:"Железо",endocrinology:"Эндокринология",protein_electrophoresis:"Электрофорез",immunoglobulins:"Иммуноглобулины",allergy:"Аллергия/гистамин",genetics:"Генетика",glucose:"Глюкоза",stool:"Кал",gut_flora:"Микрофлора кишечника",gut_pathogens:"Условно-патогенные бактерии",gut_yeasts:"Дрожжи и плесени",inflammation:"Воспаление",metabolic:"Метаболизм",electrolytes:"Электролиты",urine:"Моча",coagulation:"Свёртывание",celiac:"Целиакия",infectiology:"Инфекции",pancreas:"Поджелудочная",kidney:"Почки",thyroid_antibodies:"Щитовидка (АТ)",microbiology:"Микробиология",vitamins:"Витамины",toxicology:"Тяжёлые металлы",cardiac:"Сердце/мышцы",tumor_markers:"Онкомаркеры",autoimmune:"Аутоиммунные",fatty_acids:"Омега/жирные кислоты",food_vegetables:"Овощи",food_fruit:"Фрукты",food_spices:"Специи и травы",food_fish:"Рыба и морепродукты",food_grains_gluten:"Злаки с глютеном",food_meat:"Мясо",food_nuts:"Орехи и семена",food_mushrooms:"Грибы",food_grains_glutenfree:"Злаки без глютена",food_dairy:"Молочные продукты",food_salad:"Салатные листья",food_yeast:"Дрожжи",food_beverages:"Чай, кофе, напитки",food_additives:"Пищевые добавки",food_eggs:"Яйца",food_sweeteners:"Подсластители",general:"Общие правила"};
 
 const FOODLB = {
 "Artischocke":"Артишок","Aubergine":"Баклажан","Bleichsellerie":"Сельдерей черешковый","Blumenkohl":"Цветная капуста","Brokkoli":"Брокколи","Chili Cayenne":"Чили кайенский","Chinakohl":"Пекинская капуста","Dicke Bohne":"Бобы садовые","Erbse":"Горох","Grüne/Gelbe Bohne":"Зелёная/жёлтая фасоль","Grünkohl":"Капуста кале","Gurke":"Огурец","Karotte":"Морковь","Kartoffel":"Картофель","Kichererbse":"Нут","Knollensellerie":"Сельдерей корневой","Kohlrabi":"Кольраби","Kürbis":"Тыква","Lauch":"Лук-порей","Linse":"Чечевица","Mangold":"Мангольд","Mungobohne":"Маш","Olive":"Оливки","Paprikaschote":"Сладкий перец","Pastinake":"Пастернак","Radieschen":"Редис","Rosenkohl":"Брюссельская капуста","Rote Beete":"Свёкла","Rotkohl":"Краснокочанная капуста","Sojabohne":"Соя","Spargel":"Спаржа","Spinat":"Шпинат","Steckrübe":"Брюква","Süßkartoffel":"Батат","Tomate":"Помидор","Weißkohl":"Белокочанная капуста","Wirsing":"Савойская капуста","Zucchini":"Цукини","Zwiebel":"Лук репчатый",
@@ -613,18 +613,20 @@ function renderFood(){
     if (fa !== fb) return fa ? -1 : 1;
     return catName(a).localeCompare(catName(b), "ru");
   });
-  $("food-list").innerHTML = order.map(cat => {
+  let body = "";
+  order.forEach(cat => {
     const items = groups[cat].slice().sort((a,b) => (a.flagged !== b.flagged) ? (a.flagged ? -1 : 1) : foodName(a.name).localeCompare(foodName(b.name), "ru"));
     const flc = items.filter(m => m.flagged).length;
     const badge = flc ? (' · <span style="color:var(--hi)">' + flc + ' вне нормы</span>') : "";
-    const rows = items.map(m => {
-      const c = flagged(m.last.f) ? col(m.last.f) : "var(--tx)";
-      const tag = m.last.f === "high" ? "высокое" : m.last.f === "abnormal" ? "повышено" : "";
-      const ru = foodName(m.name); const sub = (ru !== m.name) ? ('<div class="fde">' + esc(m.name) + '</div>') : "";
-      return '<div class="frow"><div><div class="m">' + esc(ru) + '</div>' + sub + '</div><div class="fv" style="color:' + c + '">' + esc(disp(m.last)) + '</div><div class="ftag" style="color:' + c + '">' + tag + '</div></div>';
-    }).join("");
-    return '<div class="grp">' + esc(catName(cat)) + ' <span class="grpn">' + items.length + badge + '</span></div>' + rows;
-  }).join("");
+    body += '<tr class="grp"><td colspan="3">' + esc(catName(cat)) + ' <span class="grpn">' + items.length + badge + '</span></td></tr>';
+    items.forEach(m => {
+      const cls = m.last.f === "high" ? "avoid" : (m.last.f === "abnormal" ? "caution" : "ok");
+      const tag = m.last.f === "high" ? "высокое" : (m.last.f === "abnormal" ? "повышено" : "норма");
+      const ru = foodName(m.name); const sub = (ru !== m.name) ? ('<div class="de">' + esc(m.name) + '</div>') : "";
+      body += '<tr class="fgr"><td class="fnm"><div class="nm">' + esc(ru) + '</div>' + sub + '</td><td class="num ' + cls + '">' + esc(disp(m.last)) + '</td><td class="num fov ' + cls + '" style="font-weight:400;font-size:10.5px">' + tag + '</td></tr>';
+    });
+  });
+  $("food-list").innerHTML = '<table class="fgtab"><thead><tr><th class="fnm">Продукт</th><th class="numh">Значение</th><th class="numh fov">Оценка</th></tr></thead><tbody>' + body + '</tbody></table>';
 }
 
 const VLAB = { recommended:"Рекомендуется", allowed:"Можно", limit:"Ограничить", avoid:"Нельзя" };
@@ -777,7 +779,8 @@ function panelBody(rows, kind){
     if (fa !== fb) return fa ? -1 : 1;
     return a.localeCompare(b, "ru");
   });
-  return order.map(g => {
+  let body = "";
+  order.forEach(g => {
     const items = groups[g].slice().sort((a,b) => {
       if (panelHit(a) !== panelHit(b)) return panelHit(a) ? -1 : 1;
       if (+b.value_num !== +a.value_num) return +b.value_num - +a.value_num;
@@ -785,24 +788,25 @@ function panelBody(rows, kind){
     });
     const fl = items.filter(panelHit).length;
     const badge = fl ? (' · <span style="color:var(--hi)">' + fl + '</span>') : "";
-    const rowsH = items.map(r => {
-      let c, tag, val;
+    body += '<tr class="grp"><td colspan="3">' + esc(g) + ' <span class="grpn">' + items.length + badge + '</span></td></tr>';
+    items.forEach(r => {
+      let cls, tag, val;
       if (kind === "igg4"){
-        c = r.level === "strong" ? "var(--hi)" : (r.level === "moderate" ? "var(--warn)" : "var(--tx3)");
+        cls = r.level === "strong" ? "avoid" : (r.level === "moderate" ? "caution" : "ok");
         tag = r.level === "strong" ? "высокая" : (r.level === "moderate" ? "умеренная" : "норма");
         val = (+r.value_num) + " U/ml";
       } else {
         const v = +r.value_num;
-        c = v >= 3 ? "var(--hi)" : (v >= 1 ? "var(--warn)" : "var(--tx3)");
+        cls = v >= 3 ? "avoid" : (v >= 1 ? "caution" : "ok");
         tag = v >= 1 ? "положит." : "отриц.";
         val = "Класс " + v;
       }
       const ru = esc(panelRu(r));
-      const de = (r.food && r.food !== panelRu(r)) ? ('<div class="fde">' + esc(r.food) + '</div>') : "";
-      return '<div class="frow"><div><div class="m">' + ru + '</div>' + de + '</div><div class="fv" style="color:' + c + '">' + esc(val) + '</div><div class="ftag" style="color:' + c + '">' + tag + '</div></div>';
-    }).join("");
-    return '<div class="grp">' + esc(g) + ' <span class="grpn">' + items.length + badge + '</span></div>' + rowsH;
-  }).join("");
+      const de = (r.food && r.food !== panelRu(r)) ? ('<div class="de">' + esc(r.food) + '</div>') : "";
+      body += '<tr class="fgr"><td class="fnm"><div class="nm">' + ru + '</div>' + de + '</td><td class="num ' + cls + '">' + esc(val) + '</td><td class="num fov ' + cls + '" style="font-weight:400;font-size:10.5px">' + tag + '</td></tr>';
+    });
+  });
+  return '<table class="fgtab"><thead><tr><th class="fnm">Продукт</th><th class="numh">Значение</th><th class="numh fov">Оценка</th></tr></thead><tbody>' + body + '</tbody></table>';
 }
 
 function renderPanel(kind){
@@ -879,7 +883,7 @@ function renderCompare(){
     const fl = items.filter(e => e.hit).length;
     const badge = fl ? (' · <span style="color:var(--hi)">' + fl + '</span>') : "";
     body += '<tr class="grp"><td colspan="4">' + esc(g) + ' <span class="grpn">' + items.length + badge + '</span></td></tr>';
-    items.forEach(e => { const de = (e.de && norm(e.de) !== norm(e.ru)) ? ('<div class="de">' + esc(e.de) + '</div>') : ""; body += '<tr class="fgr' + (e.hit ? " rec" : "") + '"><td class="fnm"><div class="nm">' + esc(e.ru) + '</div>' + de + '</td>' + iggC(e.igg) + igg4C(e.igg4) + igeC(e.ige) + '</tr>'; });
+    items.forEach(e => { const de = (e.de && norm(e.de) !== norm(e.ru)) ? ('<div class="de">' + esc(e.de) + '</div>') : ""; body += '<tr class="fgr"><td class="fnm"><div class="nm">' + esc(e.ru) + '</div>' + de + '</td>' + iggC(e.igg) + igg4C(e.igg4) + igeC(e.ige) + '</tr>'; });
   });
   $("cmp-list").innerHTML = '<table class="fgtab"><thead><tr><th class="fnm">Продукт</th><th>IgG<br><span class="grpn">synlab</span></th><th>IgG4<br><span class="grpn">Lykon</span></th><th>IgE<br><span class="grpn">Verisana</span></th></tr></thead><tbody>' + body + '</tbody></table>';
 }
@@ -949,7 +953,7 @@ $("tab-dates").addEventListener("click", (e) => { const head = e.target.closest(
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "1.8";
+const APP_VERSION = "1.9";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
