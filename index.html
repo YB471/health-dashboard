@@ -555,19 +555,8 @@ function toggleRep(head){
   const ch = head.querySelector(".chev"); if (ch) ch.style.transform = willOpen ? "rotate(180deg)" : "";
 }
 
-function clinicalBlock(){
-  const dx = DATA.dx || [], mx = DATA.mx || [], rx = DATA.rx || [];
-  if (!dx.length && !mx.length && !rx.length) return "";
-  const dxh = dx.map(i => `<div class="ci"><div class="ct">${esc(i.diagnosis)}</div><div class="cs">${esc(i.notes || "")}</div></div>`).join("") || '<div class="empty">—</div>';
-  const mxh = mx.map(i => { const sub = [i.dose, i.schedule].filter(Boolean).join(" "); return `<div class="ci"><div class="ct">${esc(i.name)}</div><div class="cs">${esc(sub)}${i.timing ? (" · " + esc(i.timing)) : ""}</div></div>`; }).join("") || '<div class="empty">—</div>';
-  const rxh = rx.map(i => `<div class="ci"><div class="ct">${esc(i.recommendation)}</div><div class="cs">${esc(i.notes || "")}</div></div>`).join("") || '<div class="empty">—</div>';
-  return `<div class="cols" style="margin-bottom:18px"><div><div class="dgrp">Диагнозы</div>${dxh}</div><div><div class="dgrp">Лечение</div>${mxh}</div><div><div class="dgrp">Рекомендации</div>${rxh}</div></div>`;
-}
-
 function renderReports(){
   const rep = DATA.rep || [];
-  const clin = clinicalBlock();
-  const repHdr = clin ? '<div class="dgrp" style="margin:6px 0 8px">Заключения врачей</div>' : "";
   const cards = rep.length ? rep.map(function(r,i){
     const meta = [fd(r.report_date), r.doctor, r.specialty].filter(Boolean).join(" · ");
     const src = r.source ? ('<div class="repsrc">Источник: ' + esc(r.source) + '</div>') : "";
@@ -588,7 +577,7 @@ function renderReports(){
     const docHtml = docBtns ? ('<div class="docdl">' + docBtns + '</div>') : "";
     return '<div class="dcard" data-rep="' + i + '"><div class="dhead"><div><div class="dttl">' + esc(r.report_type || "Заключение") + '</div><div class="dmeta">' + esc(meta) + '</div></div><div></div><div class="chev">⌄</div></div><div class="dbody">' + content + src + docHtml + '</div></div>';
   }).join("") : '<div class="empty">Нет заключений.</div>';
-  $("tab-reports").innerHTML = clin + repHdr + cards;
+  $("tab-reports").innerHTML = cards;
 }
 
 function fillFoodCats(){
@@ -902,7 +891,7 @@ $("tab-dates").addEventListener("click", (e) => { const head = e.target.closest(
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "2.0";
+const APP_VERSION = "2.1";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
