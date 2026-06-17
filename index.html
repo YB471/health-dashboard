@@ -128,7 +128,7 @@ body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,Bli
 .fgchips{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 8px}
 .fglegend{font-size:11px;color:var(--tx2);display:flex;flex-wrap:wrap;gap:5px 14px;margin:0 0 12px;line-height:1.5;align-items:center}
 .fglegend .sw{display:inline-block;width:11px;height:11px;border-radius:3px;vertical-align:-1px;margin-right:4px}
-.fgwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.fgwrap{}
 table.fgtab{border-collapse:collapse;width:100%;font-size:13px}
 table.fgtab th,table.fgtab td{padding:0;text-align:center}
 table.fgtab thead th{position:sticky;top:0;z-index:1;background:var(--bg);font-size:10px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.02em;padding:6px 3px;border-bottom:1px solid var(--bd);white-space:nowrap}
@@ -640,11 +640,13 @@ function renderFood(){
 const VSHORT = { recommended:"Rec.", allowed:"OK", limit:"Limit", avoid:"Avoid" };
 const VCLS = { recommended:"rec", allowed:"allow", limit:"limit", avoid:"avoid" };
 const VORDER = ["recommended","allowed","limit","avoid"];
-const LAYERS = [["r_igg","IgG"],["r_hist","Hist"],["r_gut","Gut"],["r_lact","Lact"],["r_gluten","Glut"]];
+const LAYERS = [["r_igg","IgG"],["r_igg4","IgG4"],["r_ige","IgE"],["r_hist","Hist"],["r_gut","Gut"],["r_lact","Lact"],["r_gluten","Glut"]];
 const CATORDER = ["food_vegetables","food_salad","food_fruit","food_mushrooms","food_meat","food_fish","food_eggs","food_dairy","food_grains_glutenfree","food_grains_gluten","food_nuts","food_spices","food_sweeteners","food_beverages","food_additives","food_yeast","general"];
-const LNAME = { r_igg:"IgG intolerance", r_hist:"Histamine", r_gut:"Gut (FODMAP/irritation)", r_lact:"Lactose", r_gluten:"Gluten" };
+const LNAME = { r_igg:"IgG intolerance (synlab)", r_igg4:"IgG4 (Lykon)", r_ige:"IgE allergy (Verisana)", r_hist:"Histamine", r_gut:"Gut (FODMAP/irritation)", r_lact:"Lactose", r_gluten:"Gluten" };
 const LWORD = {
   r_igg:{ ok:"normal", caution:"elevated", avoid:"high" },
+  r_igg4:{ ok:"normal", caution:"moderate", avoid:"strong" },
+  r_ige:{ ok:"negative", caution:"low (class 1–2)", avoid:"positive (class ≥3)" },
   r_hist:{ ok:"low", caution:"moderate (histamine liberator)", avoid:"high" },
   r_gut:{ ok:"low", caution:"moderate", avoid:"high" },
   r_lact:{ ok:"no", caution:"slight — choose lactose-free", avoid:"yes — choose lactose-free" },
@@ -917,7 +919,7 @@ $("tab-dates").addEventListener("click", (e) => { const head = e.target.closest(
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "3.0";
+const APP_VERSION = "3.1";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
