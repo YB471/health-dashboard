@@ -448,7 +448,7 @@ function dateBody(d){
   if (docs.length){
     const btns = docs.map(doc => {
       const label = esc(doc.title || doc.filename || "Оригинал");
-      return '<a class="dlbtn" href="' + esc(signed[doc.storage_path]) + '" target="_blank" rel="noopener" download>⤓ Скачать оригинал — ' + label + '</a>';
+      return '<a class="dlbtn" href="' + esc(signed[doc.storage_path]) + '" target="_blank" rel="noopener">↗ Открыть оригинал — ' + label + '</a>';
     }).join("");
     html += '<div class="docdl">' + btns + '</div>';
   }
@@ -509,7 +509,13 @@ function renderReports(){
     } else {
       content = '<div class="repsum">' + (ru || de) + '</div>';
     }
-    return '<div class="dcard" data-rep="' + i + '"><div class="dhead"><div><div class="dttl">' + esc(r.report_type || "Заключение") + '</div><div class="dmeta">' + esc(meta) + '</div></div><div></div><div class="chev">⌄</div></div><div class="dbody">' + content + src + '</div></div>';
+    const signed = DATA.signed || {};
+    const docBtns = (DATA.docs || []).filter(x => r.id != null && x.linked_report_id === r.id && x.storage_path && signed[x.storage_path]).map(doc => {
+      const label = esc(doc.title || doc.filename || "Оригинал");
+      return '<a class="dlbtn" href="' + esc(signed[doc.storage_path]) + '" target="_blank" rel="noopener">↗ Открыть оригинал — ' + label + '</a>';
+    }).join("");
+    const docHtml = docBtns ? ('<div class="docdl">' + docBtns + '</div>') : "";
+    return '<div class="dcard" data-rep="' + i + '"><div class="dhead"><div><div class="dttl">' + esc(r.report_type || "Заключение") + '</div><div class="dmeta">' + esc(meta) + '</div></div><div></div><div class="chev">⌄</div></div><div class="dbody">' + content + src + docHtml + '</div></div>';
   }).join("") : '<div class="empty">Нет заключений.</div>';
 }
 
