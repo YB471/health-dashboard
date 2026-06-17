@@ -111,6 +111,10 @@ body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,Bli
 .hl-t{font-weight:600;color:var(--tx)}
 .hl-i.high .hl-t{color:var(--hi)}
 .hl-x{color:var(--tx2);margin-top:1px;line-height:1.45}
+.fpbtns{display:inline-flex;border:1px solid var(--bd2);border-radius:8px;overflow:hidden;margin-bottom:14px;flex-wrap:wrap}
+.fpbtn{padding:8px 13px;font-size:13px;border:0;border-right:1px solid var(--bd);background:transparent;color:var(--tx2);cursor:pointer}
+.fpbtn:last-child{border-right:0}
+.fpbtn.active{background:var(--ok);color:#fff}
 .docdl{margin-top:14px;padding-top:12px;border-top:1px solid var(--bd);display:flex;flex-wrap:wrap;gap:8px}
 .dlbtn{display:inline-flex;align-items:center;gap:6px;text-decoration:none;padding:8px 14px;border:1px solid var(--bd2);border-radius:8px;background:var(--card);color:var(--tx);font-size:13px;cursor:pointer}
 .dlbtn:hover{border-color:var(--ok);color:var(--ok)}
@@ -212,17 +216,26 @@ tr.det>td{padding:0 2px 10px;text-align:left}
   <div id="tab-dates" class="panel" style="display:none"></div>
 
   <div id="tab-food" class="panel" style="display:none">
-    <div id="food-sum" class="foodsum"></div>
-    <div class="controls">
-      <input id="fq" type="text" placeholder="Поиск продукта…">
-      <select id="fcat"></select>
-      <div class="modebtns">
-        <button class="modebtn active" data-fmode="all">Все</button>
-        <button class="modebtn" data-fmode="flagged">Повышенные и высокие</button>
-      </div>
+    <div class="fpbtns">
+      <button class="fpbtn active" data-fp="igg">IgG · synlab 2026</button>
+      <button class="fpbtn" data-fp="igg4">IgG4 · Lykon 2025</button>
+      <button class="fpbtn" data-fp="ige">IgE · Verisana 2026</button>
     </div>
-    <div id="food-count" class="secs"></div>
-    <div id="food-list"></div>
+    <div id="fp-igg" class="fp-panel">
+      <div id="food-sum" class="foodsum"></div>
+      <div class="controls">
+        <input id="fq" type="text" placeholder="Поиск продукта…">
+        <select id="fcat"></select>
+        <div class="modebtns">
+          <button class="modebtn active" data-fmode="all">Все</button>
+          <button class="modebtn" data-fmode="flagged">Повышенные и высокие</button>
+        </div>
+      </div>
+      <div id="food-count" class="secs"></div>
+      <div id="food-list"></div>
+    </div>
+    <div id="fp-igg4" class="fp-panel" style="display:none"></div>
+    <div id="fp-ige" class="fp-panel" style="display:none"></div>
   </div>
 
   <div id="tab-foodguide" class="panel" style="display:none">
@@ -710,6 +723,30 @@ function renderFoodGuide(){
 }
 function toggleFgDet(r){ const d = r.nextElementSibling; if (d && d.classList.contains("det")){ d.style.display = d.style.display === "none" ? "" : "none"; r.classList.toggle("open"); } }
 
+function foodPanelHtml(rows, kind){
+  if (!rows.length) return '<div class="empty">Нет данных.</div>';
+  const lab = rows[0].lab, date = rows[0].test_date;
+  const row = (food, val, c) => '<div class="frow"><div class="m">' + esc(food) + '</div><div class="fv" style="color:' + c + '">' + esc(val) + '</div><div class="ftag"></div></div>';
+  if (kind === "igg4"){
+    const strong = rows.filter(r => r.level === "strong");
+    const mod = rows.filter(r => r.level === "moderate");
+    let h = '<div class="fgnote">IgG4-панель пищевой чувствительности (' + esc(lab) + ', ' + fd(date) + '). Реакций: <b>' + strong.length + '</b> сильных, <b>' + mod.length + '</b> умеренных; остальные ~71 продукт — без реакции. Шкала U/ml: сильная &gt;17.5, умеренная 0.7–17.5.</div>';
+    if (strong.length) h += '<div class="grp">Сильная реакция (&gt;17.5)</div>' + strong.map(r => row(r.food, r.value_num + " U/ml", "var(--hi)")).join("");
+    if (mod.length) h += '<div class="grp">Умеренная реакция (0.7–17.5)</div>' + mod.map(r => row(r.food, r.value_num + " U/ml", "var(--warn)")).join("");
+    return h;
+  }
+  const col = (v) => v >= 3 ? "var(--hi)" : (v >= 1 ? "var(--warn)" : "var(--tx2)");
+  let h = '<div class="fgnote">IgE-Allergiepanel (' + esc(lab) + ', ' + fd(date) + '): <b>' + rows.length + '</b> положительных аллергенов (класс 1–6), остальные ~50 — отрицательно. Это аллергия (IgE), а не пищевая непереносимость; включает пыльцу и эпителий животных.</div>';
+  h += '<div class="grp">Положительные (класс ≥1)</div>' + rows.map(r => row(r.food, "Класс " + r.value_num, col(r.value_num))).join("");
+  return h;
+}
+
+function renderFoodPanels(){
+  const ps = DATA.panels || [];
+  if ($("fp-igg4")) $("fp-igg4").innerHTML = foodPanelHtml(ps.filter(p => p.panel === "igg4"), "igg4");
+  if ($("fp-ige")) $("fp-ige").innerHTML = foodPanelHtml(ps.filter(p => p.panel === "ige"), "ige");
+}
+
 function renderHighlights(){
   const items = DATA.highlights || [];
   const el = $("highlights");
@@ -732,6 +769,7 @@ function renderAll(D){
   renderDates();
   fillFoodCats();
   renderFood();
+  renderFoodPanels();
   renderFoodGuide();
   renderReports();
   $("foot").textContent = "Снимок данных: 16.06.2026 - офлайн-копия";
@@ -743,6 +781,7 @@ $("q").addEventListener("input", (e) => { F.q = e.target.value.trim(); renderMar
 $("cat").addEventListener("change", (e) => { F.cat = e.target.value; renderMarkers(); });
 document.querySelectorAll("#tab-markers .modebtn").forEach(b => b.addEventListener("click", () => { document.querySelectorAll("#tab-markers .modebtn").forEach(x => x.classList.remove("active")); b.classList.add("active"); F.mode = b.dataset.mode; renderMarkers(); }));
 document.querySelectorAll("#tab-food .modebtn").forEach(b => b.addEventListener("click", () => { document.querySelectorAll("#tab-food .modebtn").forEach(x => x.classList.remove("active")); b.classList.add("active"); FF.mode = b.dataset.fmode; renderFood(); }));
+document.querySelectorAll("#tab-food .fpbtn").forEach(b => b.addEventListener("click", () => { document.querySelectorAll("#tab-food .fpbtn").forEach(x => x.classList.remove("active")); b.classList.add("active"); const k = b.dataset.fp; ["igg","igg4","ige"].forEach(p => $("fp-" + p).style.display = (p === k ? "block" : "none")); }));
 $("fq").addEventListener("input", (e) => { FF.q = e.target.value.trim(); renderFood(); });
 $("fcat").addEventListener("change", (e) => { FF.cat = e.target.value; renderFood(); });
 $("fgq").addEventListener("input", (e) => { FG.q = e.target.value.trim(); renderFoodGuide(); });
@@ -755,7 +794,7 @@ $("tab-dates").addEventListener("click", (e) => { const head = e.target.closest(
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "1.1";
+const APP_VERSION = "1.2";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
