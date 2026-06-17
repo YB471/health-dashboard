@@ -719,20 +719,53 @@ function toggleFgDet(r){ const d = r.nextElementSibling; if (d && d.classList.co
 
 function foodPanelHtml(rows, kind){
   if (!rows.length) return '<div class="empty">Нет данных.</div>';
-  const lab = rows[0].lab, date = rows[0].test_date;
-  const row = (food, val, c) => '<div class="frow"><div class="m">' + esc(food) + '</div><div class="fv" style="color:' + c + '">' + esc(val) + '</div><div class="ftag"></div></div>';
+  const date = fd(rows[0].test_date), lab = rows[0].lab;
+  const ruName = (r) => r.food_ru || foodName(r.food);
+  const isHit = (r) => r.level && r.level !== "none";
+  const hits = rows.filter(isHit).length;
+  let chips = '<span class="chip">Тестирование: <b>' + date + '</b></span>'
+    + '<span class="chip">' + esc(lab) + '</span>'
+    + '<span class="chip">Всего продуктов: <b>' + rows.length + '</b></span>';
   if (kind === "igg4"){
-    const strong = rows.filter(r => r.level === "strong");
-    const mod = rows.filter(r => r.level === "moderate");
-    let h = '<div class="fgnote">IgG4-панель пищевой чувствительности (' + esc(lab) + ', ' + fd(date) + '). Реакций: <b>' + strong.length + '</b> сильных, <b>' + mod.length + '</b> умеренных; остальные ~71 продукт — без реакции. Шкала U/ml: сильная &gt;17.5, умеренная 0.7–17.5.</div>';
-    if (strong.length) h += '<div class="grp">Сильная реакция (&gt;17.5)</div>' + strong.map(r => row(r.food, r.value_num + " U/ml", "var(--hi)")).join("");
-    if (mod.length) h += '<div class="grp">Умеренная реакция (0.7–17.5)</div>' + mod.map(r => row(r.food, r.value_num + " U/ml", "var(--warn)")).join("");
-    return h;
+    const s = rows.filter(r => r.level === "strong").length, m = rows.filter(r => r.level === "moderate").length;
+    chips += '<span class="chip hi">Сильная реакция: <b>' + s + '</b></span><span class="chip warn">Умеренная: <b>' + m + '</b></span>';
+  } else {
+    chips += '<span class="chip warn">Положительно: <b>' + hits + '</b></span>';
   }
-  const col = (v) => v >= 3 ? "var(--hi)" : (v >= 1 ? "var(--warn)" : "var(--tx2)");
-  let h = '<div class="fgnote">IgE-Allergiepanel (' + esc(lab) + ', ' + fd(date) + '): <b>' + rows.length + '</b> положительных аллергенов (класс 1–6), остальные ~50 — отрицательно. Это аллергия (IgE), а не пищевая непереносимость; включает пыльцу и эпителий животных.</div>';
-  h += '<div class="grp">Положительные (класс ≥1)</div>' + rows.map(r => row(r.food, "Класс " + r.value_num, col(r.value_num))).join("");
-  return h;
+  const groups = {};
+  rows.forEach(r => { const g = r.grp || "—"; (groups[g] = groups[g] || []).push(r); });
+  const order = Object.keys(groups).sort((a,b) => {
+    const fa = groups[a].some(isHit), fb = groups[b].some(isHit);
+    if (fa !== fb) return fa ? -1 : 1;
+    return a.localeCompare(b, "ru");
+  });
+  const body = order.map(g => {
+    const items = groups[g].slice().sort((a,b) => {
+      if (isHit(a) !== isHit(b)) return isHit(a) ? -1 : 1;
+      if (+b.value_num !== +a.value_num) return +b.value_num - +a.value_num;
+      return ruName(a).localeCompare(ruName(b), "ru");
+    });
+    const fl = items.filter(isHit).length;
+    const badge = fl ? (' · <span style="color:var(--hi)">' + fl + '</span>') : "";
+    const rowsH = items.map(r => {
+      let c, tag, val;
+      if (kind === "igg4"){
+        c = r.level === "strong" ? "var(--hi)" : (r.level === "moderate" ? "var(--warn)" : "var(--tx3)");
+        tag = r.level === "strong" ? "высокая" : (r.level === "moderate" ? "умеренная" : "норма");
+        val = (+r.value_num) + " U/ml";
+      } else {
+        const v = +r.value_num;
+        c = v >= 3 ? "var(--hi)" : (v >= 1 ? "var(--warn)" : "var(--tx3)");
+        tag = v >= 1 ? "положит." : "отриц.";
+        val = "Класс " + v;
+      }
+      const ru = esc(ruName(r));
+      const de = (r.food && r.food !== ruName(r)) ? ('<div class="fde">' + esc(r.food) + '</div>') : "";
+      return '<div class="frow"><div><div class="m">' + ru + '</div>' + de + '</div><div class="fv" style="color:' + c + '">' + esc(val) + '</div><div class="ftag" style="color:' + c + '">' + tag + '</div></div>';
+    }).join("");
+    return '<div class="grp">' + esc(g) + ' <span class="grpn">' + items.length + badge + '</span></div>' + rowsH;
+  }).join("");
+  return '<div class="foodsum">' + chips + '</div>' + body;
 }
 
 function renderFoodPanels(){
@@ -787,7 +820,7 @@ $("tab-dates").addEventListener("click", (e) => { const head = e.target.closest(
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "1.3";
+const APP_VERSION = "1.4";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
