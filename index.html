@@ -172,6 +172,7 @@ td.hcell .he{opacity:.3}
 .guide .grow{display:flex;gap:8px;align-items:baseline;font-size:12px;line-height:1.5;color:var(--tx)}
 .guide .gi{flex-shrink:0;width:18px;text-align:center}
 .guide .gk{color:var(--tx2)}
+.detbox .histnote{color:var(--warn);font-size:11.5px;margin:2px 0 2px}
 @media(max-width:600px){td.fnm,th.fnm{min-width:92px}.cell{width:22px}}
 </style>
 </head>
@@ -366,7 +367,7 @@ const FOODLB = {
 "Guarkernmehl (E412)":"Гуаровая камедь (E412)",
 "Gänseei":"Гусиное яйцо","Vollei":"Цельное яйцо","Wachtelei":"Перепелиное яйцо",
 "Honig":"Мёд","Rohrzucker":"Тростниковый сахар",
-"Heidelbeere":"Черника (голубика)","Honigmelone":"Дыня (медовая)","Fenchel":"Фенхель","Zuckerschoten":"Горох сахарный (стручковый)","Pak Choi":"Пак-чой (китайская капуста)","Mozzarella (frisch, laktosefrei)":"Моцарелла (свежая, безлактозная)","Hüttenkäse (laktosefrei)":"Зернёный творог (безлактозный)","Butter (laktosefrei/Markenbutter)":"Сливочное масло (безлактозное)","Ahornsirup":"Кленовый сироп","Ingwer":"Имбирь (свежий)","Kurkuma":"Куркума","Kamillentee":"Ромашковый чай","Rooibostee":"Ройбуш (чай)","Maisgrieß (Polenta)":"Полента (кукурузная крупа)","Reisnudeln":"Рисовая лапша","Brunnenkresse":"Кресс водяной (кресс-салат)",
+"Heidelbeere":"Черника (голубика)","Honigmelone":"Дыня (медовая)","Fenchel":"Фенхель","Zuckerschoten":"Горох сахарный (стручковый)","Pak Choi":"Пак-чой (китайская капуста)","Mozzarella (frisch, laktosefrei)":"Моцарелла (свежая, безлактозная)","Hüttenkäse (laktosefrei)":"Зернёный творог (безлактозный)","Butter (laktosefrei/Markenbutter)":"Сливочное масло (безлактозное)","Ahornsirup":"Кленовый сироп","Ingwer":"Имбирь (свежий)","Kurkuma":"Куркума","Kamillentee":"Ромашковый чай","Rooibostee":"Ройбуш (чай)","Maisgrieß (Polenta)":"Полента (кукурузная крупа)","Reisnudeln":"Рисовая лапша","Brunnenkresse":"Кресс водяной (кресс-салат)","Dill":"Укроп","Stör":"Осётр",
 "Alkohol (bes. Rotwein, Sekt, Bier)":"Алкоголь (особенно красное вино, игристое, пиво)","Gereifter Käse (Parmesan, Gouda, Cheddar)":"Выдержанные сыры (пармезан, гауда, чеддер)","Geräucherte/gepökelte Wurst (Salami, Schinken, Speck)":"Копчёности и колбасы (салями, ветчина, бекон)","Essig & eingelegte/marinierte Speisen":"Уксус, маринады и соленья","Fermentiertes (Sauerkraut, Sojasauce, Miso)":"Ферментированное (квашеная капуста, соевый соус, мисо)","Aufgewärmte/länger gelagerte Eiweißspeisen":"Разогретые/долго хранившиеся белковые блюда","Schwarzer/grüner Tee, Energydrinks":"Чёрный/зелёный чай, энергетики","Kaffee":"Кофе","Frisch gekochtes mageres Fleisch/Geflügel":"Свежее нежирное мясо/птица","Frisch zubereitete, nicht aufgewärmte Speisen":"Свежеприготовленные, не разогретые блюда"};
 
 let DATA = null, MK = [], DATES = [], CATS = [], FOODS = [], FOODCATS = [], FOODGUIDE = [];
@@ -692,12 +693,13 @@ function histLine(s){
 }
 function fgDetail(x){
   const hl = histLine(x.hist_score);
+  const hn = x.hist_note ? '<div class="dl histnote">⚡ ' + esc(x.hist_note) + '</div>' : "";
   const ls = LAYERS.map(([k]) => { const v = x[k]; if (!v) return ""; return '<div class="dl"><span class="dk">' + LNAME[k] + ':</span> <b style="color:' + rcol(v) + '">' + LWORD[k][v] + '</b></div>'; }).filter(Boolean).join("");
   const rec = x.rec_note ? '<div class="dl"><span class="dk">Dr/Lab:</span> <b style="color:' + rcol(x.r_rec) + '">' + esc(x.rec_note) + '</b></div>' : "";
   const G = [["🛒","Купить",x.buy],["🍳","Готовить",x.cook],["🧊","Хранить",x.store],["🍽️","В ресторане",x.restaurant]]
     .filter(g => g[2]).map(g => '<div class="grow"><span class="gi">' + g[0] + '</span><span><b class="gk">' + g[1] + ':</b> ' + esc(g[2]) + '</span></div>').join("");
   const guide = G ? '<div class="guide">' + G + '</div>' : "";
-  return '<div class="detbox">' + hl + ls + rec + guide + '</div>';
+  return '<div class="detbox">' + hl + hn + ls + rec + guide + '</div>';
 }
 function renderFoodGuide(){
   const all = FOODGUIDE || [];
@@ -943,7 +945,7 @@ $("tab-dates").addEventListener("click", (e) => { const head = e.target.closest(
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "3.2";
+const APP_VERSION = "3.3";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
