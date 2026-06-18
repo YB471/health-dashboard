@@ -182,6 +182,12 @@ td.hcell .he{opacity:.3}
 .rule.rec .rbadge{color:var(--ok)}.rule.avoid .rbadge{color:var(--hi)}.rule.limit .rbadge{color:var(--warn)}
 .rule .rname{font-weight:600;color:var(--tx)}
 .rule .rnote{color:var(--tx2);font-size:11.5px;margin-top:2px;line-height:1.45}
+.fgnum{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:0 0 10px;font-size:12px;color:var(--tx2)}
+.fgnum label{display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+.fgnum input,.fgnum select{width:auto;padding:5px 7px;font-size:13px;border:1px solid var(--bd2);border-radius:7px;background:transparent;color:inherit}
+.fgnum input{width:60px}
+.fgnum input::placeholder{color:var(--tx3)}
+.fgnum #fg-reset{padding:5px 12px;font-size:12px;margin-left:auto}
 @media(max-width:600px){td.fnm,th.fnm{min-width:92px}.cell{width:22px}}
 </style>
 </head>
@@ -329,6 +335,15 @@ td.hcell .he{opacity:.3}
         <option value="r_rec">Flagged by doctor/lab</option>
       </select>
     </div>
+    <div class="fgnum">
+      <label>Hist ≤ <select id="fg-hist"><option value="">—</option><option>0</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></label>
+      <label>Gut ≤ <select id="fg-gut"><option value="">—</option><option>0</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></label>
+      <label>GI ≤ <input id="fg-gi" type="number" min="0" inputmode="numeric" placeholder="—"></label>
+      <label>Protein ≥ <input id="fg-pro" type="number" min="0" inputmode="decimal" placeholder="—"></label>
+      <label>Fiber ≥ <input id="fg-fib" type="number" min="0" inputmode="decimal" placeholder="—"></label>
+      <label>Fat ≤ <input id="fg-fat" type="number" min="0" inputmode="decimal" placeholder="—"></label>
+      <button id="fg-reset" class="btn2" type="button">Reset</button>
+    </div>
     <div id="fg-count" class="secs"></div>
     <div id="fg-list" class="fgwrap"></div>
     <div id="fg-rules"></div>
@@ -384,7 +399,7 @@ const FOODLB = {
 let DATA = null, MK = [], DATES = [], CATS = [], FOODS = [], FOODCATS = [], FOODGUIDE = [];
 let F = { q: "", cat: "", mode: "all" };
 let FF = { q: "", cat: "", mode: "all" };
-let FG = { q: "", verdict: "", layer: "" };
+let FG = { q: "", verdict: "", layer: "", histMax: "", gutMax: "", giMax: "", proMin: "", fibMin: "", fatMax: "" };
 const detailCache = {}, dateCache = {};
 
 function scale(vals, lo, hi){
@@ -747,6 +762,13 @@ function renderFoodGuide(){
   if (FG.verdict) arr = arr.filter(x => x.verdict === FG.verdict);
   if (FG.layer) arr = (FG.layer === "r_rec") ? arr.filter(x => x.r_rec) : arr.filter(x => x[FG.layer] === "caution" || x[FG.layer] === "avoid");
   if (FG.q){ const q = FG.q.toLowerCase(); arr = arr.filter(x => foodName(x.food_de).toLowerCase().includes(q) || String(x.food_de).toLowerCase().includes(q) || String(x.rec_note || "").toLowerCase().includes(q)); }
+  const numok = (v) => v != null && v !== "";
+  if (FG.histMax !== "") arr = arr.filter(x => numok(x.hist_score) && +x.hist_score <= +FG.histMax);
+  if (FG.gutMax !== "") arr = arr.filter(x => numok(x.gut_score) && +x.gut_score <= +FG.gutMax);
+  if (FG.giMax !== "") arr = arr.filter(x => numok(x.gi) && +x.gi <= +FG.giMax);
+  if (FG.proMin !== "") arr = arr.filter(x => numok(x.protein_100g) && +x.protein_100g >= +FG.proMin);
+  if (FG.fibMin !== "") arr = arr.filter(x => numok(x.fiber_100g) && +x.fiber_100g >= +FG.fibMin);
+  if (FG.fatMax !== "") arr = arr.filter(x => numok(x.fat_100g) && +x.fat_100g <= +FG.fatMax);
   $("fg-count").textContent = "Showing " + arr.length + " of " + all.length;
   if (!all.length){ $("fg-list").innerHTML = '<div class="empty">No diet data.</div>'; return; }
   if (!arr.length){ $("fg-list").innerHTML = '<div class="empty">Nothing found.</div>'; return; }
@@ -970,6 +992,17 @@ $("fcat").addEventListener("change", (e) => { FF.cat = e.target.value; renderFoo
 $("fgq").addEventListener("input", (e) => { FG.q = e.target.value.trim(); renderFoodGuide(); });
 $("fgfilter").addEventListener("change", (e) => { FG.verdict = e.target.value; renderFoodGuide(); });
 $("fglayer").addEventListener("change", (e) => { FG.layer = e.target.value; renderFoodGuide(); });
+$("fg-hist").addEventListener("change", (e) => { FG.histMax = e.target.value; renderFoodGuide(); });
+$("fg-gut").addEventListener("change", (e) => { FG.gutMax = e.target.value; renderFoodGuide(); });
+$("fg-gi").addEventListener("input", (e) => { FG.giMax = e.target.value.trim(); renderFoodGuide(); });
+$("fg-pro").addEventListener("input", (e) => { FG.proMin = e.target.value.trim(); renderFoodGuide(); });
+$("fg-fib").addEventListener("input", (e) => { FG.fibMin = e.target.value.trim(); renderFoodGuide(); });
+$("fg-fat").addEventListener("input", (e) => { FG.fatMax = e.target.value.trim(); renderFoodGuide(); });
+$("fg-reset").addEventListener("click", () => {
+  FG = { q: "", verdict: "", layer: "", histMax: "", gutMax: "", giMax: "", proMin: "", fibMin: "", fatMax: "" };
+  ["fgq","fgfilter","fglayer","fg-hist","fg-gut","fg-gi","fg-pro","fg-fib","fg-fat"].forEach(id => { const el = $(id); if (el) el.value = ""; });
+  renderFoodGuide();
+});
 $("fg-list").addEventListener("click", (e) => { const r = e.target.closest("tr.fgr"); if (r) toggleFgDet(r); });
 document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => { document.querySelectorAll(".tab").forEach(x => x.classList.remove("active")); t.classList.add("active"); const name = t.dataset.tab; ["markers","dates","food","foodguide","reports"].forEach(p => $("tab-" + p).style.display = (p === name ? "block" : "none")); }));
 $("mk-list").addEventListener("click", (e) => { const row = e.target.closest(".mrow"); if (row) toggleDetail(row); });
@@ -977,7 +1010,7 @@ $("tab-dates").addEventListener("click", (e) => { const head = e.target.closest(
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "3.5";
+const APP_VERSION = "3.6";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
