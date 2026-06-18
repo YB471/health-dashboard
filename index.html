@@ -346,13 +346,6 @@ td.hcell .he{opacity:.3}
     <div id="fg-legend" class="fglegend"></div>
     <div class="controls">
       <input id="fgq" type="text" placeholder="Search food…">
-      <select id="fgfilter">
-        <option value="">All statuses</option>
-        <option value="recommended">Recommended</option>
-        <option value="allowed">OK</option>
-        <option value="limit">Limit</option>
-        <option value="avoid">Avoid</option>
-      </select>
       <select id="fggroup"><option value="">Все типы еды</option></select>
     </div>
     <div class="fgnum">
@@ -506,7 +499,7 @@ const FOODLB = {
 let DATA = null, MK = [], DATES = [], CATS = [], FOODS = [], FOODCATS = [], FOODGUIDE = [];
 let F = { q: "", cat: "", mode: "all" };
 let FF = { q: "", cat: "", mode: "all" };
-let FG = { q: "", verdict: "", group: "", histMax: "", gutMax: "", giMax: "", proMin: "", fibMin: "", fatMax: "", recMin: "" };
+let FG = { q: "", group: "", histMax: "", gutMax: "", giMax: "", proMin: "", fibMin: "", fatMax: "", recMin: "" };
 const detailCache = {}, dateCache = {};
 
 function scale(vals, lo, hi){
@@ -892,7 +885,6 @@ function renderFoodGuide(){
     gsel.dataset.filled = "1";
   }
   let arr = all;
-  if (FG.verdict) arr = arr.filter(x => x.verdict === FG.verdict);
   if (FG.group) arr = arr.filter(x => x.food_group === FG.group);
   if (FG.q){ const q = FG.q.toLowerCase(); arr = arr.filter(x => foodName(x.food_de).toLowerCase().includes(q) || String(x.food_de).toLowerCase().includes(q) || String(x.rec_note || "").toLowerCase().includes(q)); }
   const numok = (v) => v != null && v !== "";
@@ -1142,7 +1134,6 @@ document.querySelectorAll("#fp-compare [data-cm]").forEach(b => b.addEventListen
 $("fq").addEventListener("input", (e) => { FF.q = e.target.value.trim(); renderFood(); });
 $("fcat").addEventListener("change", (e) => { FF.cat = e.target.value; renderFood(); });
 $("fgq").addEventListener("input", (e) => { FG.q = e.target.value.trim(); renderFoodGuide(); });
-$("fgfilter").addEventListener("change", (e) => { FG.verdict = e.target.value; renderFoodGuide(); });
 $("fggroup").addEventListener("change", (e) => { FG.group = e.target.value; renderFoodGuide(); });
 $("fg-hist").addEventListener("change", (e) => { FG.histMax = e.target.value; renderFoodGuide(); });
 $("fg-gut").addEventListener("change", (e) => { FG.gutMax = e.target.value; renderFoodGuide(); });
@@ -1152,8 +1143,8 @@ $("fg-fib").addEventListener("input", (e) => { FG.fibMin = e.target.value.trim()
 $("fg-fat").addEventListener("input", (e) => { FG.fatMax = e.target.value.trim(); renderFoodGuide(); });
 $("fg-rec").addEventListener("change", (e) => { FG.recMin = e.target.value; renderFoodGuide(); });
 $("fg-reset").addEventListener("click", () => {
-  FG = { q: "", verdict: "", group: "", histMax: "", gutMax: "", giMax: "", proMin: "", fibMin: "", fatMax: "", recMin: "" };
-  ["fgq","fgfilter","fggroup","fg-hist","fg-gut","fg-gi","fg-pro","fg-fib","fg-fat","fg-rec"].forEach(id => { const el = $(id); if (el) el.value = ""; });
+  FG = { q: "", group: "", histMax: "", gutMax: "", giMax: "", proMin: "", fibMin: "", fatMax: "", recMin: "" };
+  ["fgq","fggroup","fg-hist","fg-gut","fg-gi","fg-pro","fg-fib","fg-fat","fg-rec"].forEach(id => { const el = $(id); if (el) el.value = ""; });
   renderFoodGuide();
 });
 $("fg-list").addEventListener("click", (e) => { const r = e.target.closest("tr.fgr"); if (r) toggleFgDet(r); });
@@ -1204,7 +1195,7 @@ $("tab-dates").addEventListener("click", (e) => { const head = e.target.closest(
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "5.9";
+const APP_VERSION = "6.0";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
