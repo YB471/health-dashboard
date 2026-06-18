@@ -193,6 +193,16 @@ td.hcell .he{opacity:.3}
 .dp-total{font-weight:600;font-size:14px;padding:11px 14px;border:1px solid var(--ok);border-radius:10px;background:var(--okbg);margin:6px 0 12px}
 .dp-rules{font-size:12px;color:var(--tx2);line-height:1.55;background:var(--tk);border-radius:10px;padding:11px 14px}
 .dp-rules b{color:var(--tx)}
+.detbox .ccomment{font-size:12.5px;color:var(--tx);background:var(--tk);border-radius:7px;padding:7px 10px;margin-bottom:6px;line-height:1.5}
+.detbox .fwmeta{margin:2px 0 4px;font-size:11.5px;color:var(--tx2)}
+.phase{display:inline-block;font-size:10px;font-weight:600;padding:2px 7px;border-radius:999px;border:1px solid var(--bd2)}
+.phase.ok{color:var(--ok);border-color:var(--ok)}.phase.caution{color:var(--warn);border-color:var(--warn)}.phase.avoid{color:var(--hi);border-color:var(--hi)}
+.fg-disclaimer{font-size:11.5px;color:var(--tx2);line-height:1.55;background:var(--tk);border-radius:10px;padding:11px 14px;margin-top:18px}
+.fg-disclaimer b{color:var(--tx)}
+.rx-form{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
+.rx-form input,.rx-form select{padding:7px 9px;font-size:13px;border:1px solid var(--bd2);border-radius:8px;background:transparent;color:inherit}
+.rx-form input{min-width:120px}
+.rx-form input::placeholder{color:var(--tx3)}
 .fgnum{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:0 0 10px;font-size:12px;color:var(--tx2)}
 .fgnum label{display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
 .fgnum input,.fgnum select{width:auto;padding:5px 7px;font-size:13px;border:1px solid var(--bd2);border-radius:7px;background:transparent;color:inherit}
@@ -242,6 +252,7 @@ td.hcell .he{opacity:.3}
     <button class="tab" data-tab="food">Food Reactions</button>
     <button class="tab" data-tab="foodguide">Diet</button>
     <button class="tab" data-tab="dayplan">Day Plan</button>
+    <button class="tab" data-tab="reactions">Reaction Log</button>
     <button class="tab" data-tab="reports">Medical Reports</button>
   </div>
 
@@ -345,12 +356,14 @@ td.hcell .he{opacity:.3}
       <label>Protein ≥ <input id="fg-pro" type="number" min="0" inputmode="decimal" placeholder="—"></label>
       <label>Fiber ≥ <input id="fg-fib" type="number" min="0" inputmode="decimal" placeholder="—"></label>
       <label>Fat ≤ <input id="fg-fat" type="number" min="0" inputmode="decimal" placeholder="—"></label>
+      <label>★ Recovery ≥ <select id="fg-rec"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></label>
       <button id="fg-reset" class="btn2" type="button">Reset</button>
     </div>
     <div id="fg-count" class="secs"></div>
     <div id="fg-list" class="fgwrap"></div>
     <div id="fg-rules"></div>
     <div id="fg-rules-gut"></div>
+    <div class="fg-disclaimer">⚕️ Эти оценки — <b>не диагноз</b>. Они для временного управления симптомами при DAO-дефиците, дисбиозе, недостаточности поджелудочной и индивидуальных реакциях — это <b>активная фаза</b>, а не диета навсегда. После стабилизации веса и ЖКТ часть продуктов (фаза «вернуть позже») стоит аккуратно перепроверить. Колонки: <b>причина</b> ограничения, <b>фаза</b>, и <b>★ восстановление</b> — продукты, помогающие набрать вес и энергию.</div>
   </div>
 
   <div id="tab-dayplan" class="panel" style="display:none">
@@ -418,6 +431,25 @@ td.hcell .he{opacity:.3}
     <div class="dp-rules"><b>Правила дня:</b> дробно 5–6 раз · мясо только днём, <b>вечером рыба или без мяса</b> · <b>Kreon</b> с каждым приёмом, включая масла/семечки/перекусы · готовь и ешь свежим, белок повторно не разогревай, остатки сразу морозь · взвешивайся раз в неделю в одинаковых условиях. Если вес продолжает падать или не стабилизируется за 2–4 недели — обратись к врачу раньше. Меню — ориентир из твоих данных, не предписание; потеря веса — к твоей медкоманде.</div>
   </div>
 
+  <div id="tab-reactions" class="panel" style="display:none">
+    <div class="dp-intro">Журнал субъективных реакций. Индивидуальная переносимость важнее любой таблицы — записывай, что съел и как отреагировал; со временем это уточнит рекомендации.</div>
+    <div class="rx-form">
+      <input id="rx-food" type="text" placeholder="Продукт (Tomate / помидор)" list="rx-foodlist">
+      <datalist id="rx-foodlist"></datalist>
+      <input id="rx-date" type="date">
+      <input id="rx-portion" type="text" placeholder="Порция (100 г)">
+      <input id="rx-prep" type="text" placeholder="Приготовление">
+      <input id="rx-symptoms" type="text" placeholder="Симптомы">
+      <input id="rx-onset" type="number" min="0" inputmode="numeric" placeholder="Через, мин">
+      <select id="rx-sev"><option value="">Тяжесть —</option><option>0</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option></select>
+      <input id="rx-mech" type="text" placeholder="Механизм (гистамин/FODMAP…)">
+      <input id="rx-notes" type="text" placeholder="Заметки">
+      <button id="rx-add" class="btn2" type="button">Добавить запись</button>
+      <span id="rx-status" class="secs"></span>
+    </div>
+    <div id="rx-list"></div>
+  </div>
+
   <div id="tab-reports" class="panel" style="display:none"></div>
 
   <div class="foot" id="foot"></div>
@@ -468,7 +500,7 @@ const FOODLB = {
 let DATA = null, MK = [], DATES = [], CATS = [], FOODS = [], FOODCATS = [], FOODGUIDE = [];
 let F = { q: "", cat: "", mode: "all" };
 let FF = { q: "", cat: "", mode: "all" };
-let FG = { q: "", verdict: "", histMax: "", gutMax: "", giMax: "", proMin: "", fibMin: "", fatMax: "" };
+let FG = { q: "", verdict: "", histMax: "", gutMax: "", giMax: "", proMin: "", fibMin: "", fatMax: "", recMin: "" };
 const detailCache = {}, dateCache = {};
 
 function scale(vals, lo, hi){
@@ -789,17 +821,29 @@ function scoreLine(title, s, lbls){
   s = Math.max(0, Math.min(5, +s)); const c = s <= 1 ? "var(--ok)" : s <= 3 ? "var(--warn)" : "var(--hi)";
   return '<div class="dl"><span class="dk">' + title + ':</span> <b style="color:' + c + ';letter-spacing:1px">' + "●".repeat(s) + '<span style="opacity:.3">' + "○".repeat(5 - s) + '</span></b> <b style="color:' + c + '">' + s + '/5 — ' + lbls[s] + '</b></div>';
 }
+const PHASE_LBL = { acute_elimination:{ru:"Исключить сейчас",cls:"avoid"}, reintroduction_later:{ru:"Вернуть позже",cls:"caution"}, long_term_avoid:{ru:"Надолго избегать",cls:"avoid"}, stable_allowed:{ru:"Можно постоянно",cls:"ok"} };
+const REASON_LBL = { histamine:"гистамин", fodmap:"FODMAP", lactose:"лактоза", gluten_or_wheat_sensitivity:"глютен/пшеница", mercury_risk:"ртуть", individual_reaction:"индивидуальная реакция", pancreatic_fat_load:"жир/поджелудочная", doctor_recommendation:"рекомендация врача", low_priority_restriction:"малозначимо", none:"" };
+function fgMeta(x){
+  const p = [];
+  if (x.phase && PHASE_LBL[x.phase]) p.push('<span class="phase ' + PHASE_LBL[x.phase].cls + '">' + PHASE_LBL[x.phase].ru + '</span>');
+  if (x.primary_reason && REASON_LBL[x.primary_reason]) p.push('<span class="dk">причина:</span> ' + REASON_LBL[x.primary_reason]);
+  const rp = x.recovery_priority;
+  if (rp != null && +rp > 0) p.push('<span class="dk">восстановление:</span> <span style="color:var(--ok);letter-spacing:1px">' + "★".repeat(+rp) + '<span style="opacity:.3">' + "☆".repeat(5 - +rp) + '</span></span>');
+  return p.length ? '<div class="dl fwmeta">' + p.join(' &nbsp;·&nbsp; ') + '</div>' : "";
+}
 function fgDetail(x){
+  const cc = x.clinical_comment_ru ? '<div class="ccomment">💬 ' + esc(x.clinical_comment_ru) + '</div>' : "";
   const hl = scoreLine("Histamine", x.hist_score, HISTLBL);
   const hn = x.hist_note ? '<div class="dl histnote">⚡ ' + esc(x.hist_note) + '</div>' : "";
   const gl = scoreLine("Gut (FODMAP)", x.gut_score, GUTLBL);
   const gn = x.gut_note ? '<div class="dl histnote">🌀 ' + esc(x.gut_note) + '</div>' : "";
+  const fw = fgMeta(x);
   const ls = LAYERS.map(([k]) => { const v = x[k]; if (!v) return ""; return '<div class="dl"><span class="dk">' + LNAME[k] + ':</span> <b style="color:' + rcol(v) + '">' + LWORD[k][v] + '</b></div>'; }).filter(Boolean).join("");
   const rec = x.rec_note ? '<div class="dl"><span class="dk">Dr/Lab:</span> <b style="color:' + rcol(x.r_rec) + '">' + esc(x.rec_note) + '</b></div>' : "";
   const G = [["🛒","Купить",x.buy],["🍳","Готовить",x.cook],["🧊","Хранить",x.store],["🍽️","В ресторане",x.restaurant]]
     .filter(g => g[2]).map(g => '<div class="grow"><span class="gi">' + g[0] + '</span><span><b class="gk">' + g[1] + ':</b> ' + esc(g[2]) + '</span></div>').join("");
   const guide = G ? '<div class="guide">' + G + '</div>' : "";
-  return '<div class="detbox">' + hl + hn + gl + gn + ls + rec + guide + '</div>';
+  return '<div class="detbox">' + cc + fw + hl + hn + gl + gn + ls + rec + guide + '</div>';
 }
 function renderFgRules(rules, elId, title){
   const el = $(elId); if (!el) return;
@@ -837,6 +881,7 @@ function renderFoodGuide(){
   if (FG.proMin !== "") arr = arr.filter(x => numok(x.protein_100g) && +x.protein_100g >= +FG.proMin);
   if (FG.fibMin !== "") arr = arr.filter(x => numok(x.fiber_100g) && +x.fiber_100g >= +FG.fibMin);
   if (FG.fatMax !== "") arr = arr.filter(x => numok(x.fat_100g) && +x.fat_100g <= +FG.fatMax);
+  if (FG.recMin !== "") arr = arr.filter(x => numok(x.recovery_priority) && +x.recovery_priority >= +FG.recMin);
   $("fg-count").textContent = "Showing " + arr.length + " of " + all.length;
   if (!all.length){ $("fg-list").innerHTML = '<div class="empty">No diet data.</div>'; return; }
   if (!arr.length){ $("fg-list").innerHTML = '<div class="empty">Nothing found.</div>'; return; }
@@ -1033,7 +1078,25 @@ function renderAll(D){
   renderFood();
   renderFoodPanels();
   renderFoodGuide();
+  renderReactions();
   renderReports();
+}
+function renderReactions(){
+  const dl = $("rx-foodlist");
+  if (dl && !dl.dataset.filled){ dl.innerHTML = (FOODGUIDE || []).filter(x => x.food_group && x.food_group.indexOf("general") !== 0).map(x => '<option value="' + esc(x.food_de) + '">' + esc(foodName(x.food_de)) + '</option>').join(""); dl.dataset.filled = "1"; }
+  const el = $("rx-list"); if (!el) return;
+  const rows = DATA.reactions || [];
+  const sevc = (s) => s == null ? "var(--tx3)" : (+s >= 7 ? "var(--hi)" : +s >= 4 ? "var(--warn)" : "var(--ok)");
+  el.innerHTML = rows.length ? rows.map(r => {
+    const name = foodName(r.food_de) || r.food_de || "—";
+    const meta = [r.reaction_date ? fd(String(r.reaction_date)) : "", r.portion, r.preparation].filter(Boolean).join(" · ");
+    const onset = r.onset_minutes != null ? (" · через " + r.onset_minutes + " мин") : "";
+    const sev = r.severity != null ? (' <b style="color:' + sevc(r.severity) + '">' + r.severity + '/10</b>') : "";
+    const mech = r.suspected_mechanism ? (" · " + esc(r.suspected_mechanism)) : "";
+    const sym = r.symptoms ? (" — " + esc(r.symptoms)) : "";
+    const notes = r.notes ? ('<div class="cs">' + esc(r.notes) + '</div>') : "";
+    return '<div class="ci"><div class="ct">' + esc(name) + sev + '</div><div class="cs">' + esc(meta) + sym + onset + mech + '</div>' + notes + '</div>';
+  }).join("") : '<div class="empty">Записей пока нет.</div>';
 }
 
 function showApp(){ $("app").style.display = "block"; }
@@ -1065,24 +1128,41 @@ $("fg-gi").addEventListener("input", (e) => { FG.giMax = e.target.value.trim(); 
 $("fg-pro").addEventListener("input", (e) => { FG.proMin = e.target.value.trim(); renderFoodGuide(); });
 $("fg-fib").addEventListener("input", (e) => { FG.fibMin = e.target.value.trim(); renderFoodGuide(); });
 $("fg-fat").addEventListener("input", (e) => { FG.fatMax = e.target.value.trim(); renderFoodGuide(); });
+$("fg-rec").addEventListener("change", (e) => { FG.recMin = e.target.value; renderFoodGuide(); });
 $("fg-reset").addEventListener("click", () => {
-  FG = { q: "", verdict: "", histMax: "", gutMax: "", giMax: "", proMin: "", fibMin: "", fatMax: "" };
-  ["fgq","fgfilter","fg-hist","fg-gut","fg-gi","fg-pro","fg-fib","fg-fat"].forEach(id => { const el = $(id); if (el) el.value = ""; });
+  FG = { q: "", verdict: "", histMax: "", gutMax: "", giMax: "", proMin: "", fibMin: "", fatMax: "", recMin: "" };
+  ["fgq","fgfilter","fg-hist","fg-gut","fg-gi","fg-pro","fg-fib","fg-fat","fg-rec"].forEach(id => { const el = $(id); if (el) el.value = ""; });
   renderFoodGuide();
 });
 $("fg-list").addEventListener("click", (e) => { const r = e.target.closest("tr.fgr"); if (r) toggleFgDet(r); });
-document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => { document.querySelectorAll(".tab").forEach(x => x.classList.remove("active")); t.classList.add("active"); const name = t.dataset.tab; ["markers","dates","food","foodguide","dayplan","reports"].forEach(p => $("tab-" + p).style.display = (p === name ? "block" : "none")); }));
+document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => { document.querySelectorAll(".tab").forEach(x => x.classList.remove("active")); t.classList.add("active"); const name = t.dataset.tab; ["markers","dates","food","foodguide","dayplan","reactions","reports"].forEach(p => $("tab-" + p).style.display = (p === name ? "block" : "none")); }));
 document.querySelectorAll("#tab-dayplan [data-dpv]").forEach(b => b.addEventListener("click", () => {
   document.querySelectorAll("#tab-dayplan [data-dpv]").forEach(x => x.classList.remove("active"));
   b.classList.add("active");
   ["1","2","3"].forEach(n => { const el = $("dpv-" + n); if (el) el.style.display = (n === b.dataset.dpv ? "block" : "none"); });
 }));
+if ($("rx-add")) $("rx-add").addEventListener("click", async () => {
+  if (!CURPW) return;
+  const g = (id) => { const el = $(id); return el ? el.value.trim() : ""; };
+  const reaction = { food_de: g("rx-food"), reaction_date: g("rx-date") || null, portion: g("rx-portion"), preparation: g("rx-prep"), symptoms: g("rx-symptoms"), onset_minutes: g("rx-onset"), severity: g("rx-sev"), suspected_mechanism: g("rx-mech"), notes: g("rx-notes") };
+  if (!reaction.food_de && !reaction.symptoms){ $("rx-status").textContent = "Укажи продукт или симптомы"; return; }
+  const btn = $("rx-add"), prev = btn.textContent; btn.disabled = true; btn.textContent = "Сохранение…"; $("rx-status").textContent = "";
+  try {
+    const res = await fetch(API, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ password: CURPW, action: "logreaction", reaction }) });
+    if (!res.ok) throw new Error();
+    ["rx-food","rx-date","rx-portion","rx-prep","rx-symptoms","rx-onset","rx-mech","rx-notes"].forEach(id => { const el = $(id); if (el) el.value = ""; });
+    const sv = $("rx-sev"); if (sv) sv.value = "";
+    const data = await fetchData(CURPW); DATA.reactions = data.reactions || []; renderReactions();
+    $("rx-status").textContent = "Сохранено ✓";
+  } catch(_e){ $("rx-status").textContent = "Ошибка сохранения"; }
+  finally { btn.disabled = false; btn.textContent = prev; }
+});
 $("mk-list").addEventListener("click", (e) => { const row = e.target.closest(".mrow"); if (row) toggleDetail(row); });
 $("tab-dates").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleDate(head); });
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "4.1";
+const APP_VERSION = "5.0";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
