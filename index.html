@@ -342,8 +342,6 @@ td.hcell .he{opacity:.3}
   </div>
 
   <div id="tab-foodguide" class="panel" style="display:none">
-    <div id="fg-sum" class="fgchips"></div>
-    <div id="fg-legend" class="fglegend"></div>
     <div class="controls">
       <input id="fgq" type="text" placeholder="Search food…">
       <select id="fggroup"><option value="">Все типы еды</option></select>
@@ -869,14 +867,6 @@ function renderFoodGuide(){
   renderFgRules(allRows.filter(x => x.food_group === "general"), "fg-rules", "Общие принципы (гистамин)");
   renderFgRules(allRows.filter(x => x.food_group === "general_gut"), "fg-rules-gut", "Общие принципы (кишечник)");
   const all = allRows.filter(x => !isRule(x));
-  const cnt = { recommended:0, allowed:0, limit:0, avoid:0 };
-  all.forEach(x => { if (cnt[x.verdict] != null) cnt[x.verdict]++; });
-  $("fg-sum").innerHTML =
-      '<span class="chip" style="border-color:var(--ok)">Recommended: <b style="color:var(--ok)">' + cnt.recommended + '</b></span>'
-    + '<span class="chip">OK: <b>' + cnt.allowed + '</b></span>'
-    + '<span class="chip warn">Limit: <b>' + cnt.limit + '</b></span>'
-    + '<span class="chip hi">Avoid: <b>' + cnt.avoid + '</b></span>';
-  $("fg-legend").innerHTML = fgLegend();
   const gsel = $("fggroup");
   if (gsel && !gsel.dataset.filled){
     const gs = Array.from(new Set(all.map(x => x.food_group).filter(Boolean)));
@@ -1195,7 +1185,7 @@ $("tab-dates").addEventListener("click", (e) => { const head = e.target.closest(
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "6.0";
+const APP_VERSION = "6.1";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
