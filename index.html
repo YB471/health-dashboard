@@ -786,6 +786,13 @@ function scoreDots(s, title){
 }
 function histDots(s){ return scoreDots(s, "histamine"); }
 function gutDots(s){ return scoreDots(s, "gut/FODMAP"); }
+function recStars(rp){
+  if (rp == null || rp === "") return '<td class="hcell na" title="recovery: n/a">—</td>';
+  rp = Math.max(0, Math.min(5, +rp));
+  if (rp === 0) return '<td class="hcell na" title="recovery 0/5">·</td>';
+  const cls = rp >= 4 ? "ok" : "caution";
+  return '<td class="hcell ' + cls + '" title="recovery ' + rp + '/5">' + "★".repeat(rp) + '<span class="he">' + "☆".repeat(5 - rp) + '</span></td>';
+}
 const CATORDER = ["food_vegetables","food_salad","food_fruit","food_mushrooms","food_meat","food_fish","food_eggs","food_dairy","food_grains_glutenfree","food_grains_gluten","food_nuts","food_spices","food_sweeteners","food_beverages","food_additives","food_yeast","general"];
 const LNAME = { r_igg:"IgG intolerance (synlab)", r_igg4:"IgG4 (Lykon)", r_ige:"IgE allergy (Verisana)", r_hist:"Histamine", r_gut:"Gut (FODMAP/irritation)", r_lact:"Lactose", r_gluten:"Gluten" };
 const LWORD = {
@@ -885,7 +892,7 @@ function renderFoodGuide(){
   $("fg-count").textContent = "Showing " + arr.length + " of " + all.length;
   if (!all.length){ $("fg-list").innerHTML = '<div class="empty">No diet data.</div>'; return; }
   if (!arr.length){ $("fg-list").innerHTML = '<div class="empty">Nothing found.</div>'; return; }
-  const span = LAYERS.length + 9;
+  const span = LAYERS.length + 10;
   let body = "";
   let i = 0;
   const cats = {};
@@ -905,7 +912,7 @@ function renderFoodGuide(){
       const de = (x.tested && ru !== x.food_de) ? ('<div class="de">' + esc(x.food_de) + '</div>') : "";
       const star = ((v === "recommended" || v === "allowed") && (x.r_rec === "avoid" || x.r_rec === "caution")) ? '<span class="ovstar">*</span>' : "";
       body += '<tr class="fgr ' + (v === "recommended" ? "rec" : "") + '" data-i="' + i + '"><td class="fnm"><div class="nm">' + esc(ru) + '</div>' + de + '</td>'
-        + histDots(x.hist_score) + gutDots(x.gut_score)
+        + histDots(x.hist_score) + gutDots(x.gut_score) + recStars(x.recovery_priority)
         + numCell(x.gi, giColor(x.gi)) + numCell(x.protein_100g, proColor(x.protein_100g)) + numCell(x.fiber_100g, fibColor(x.fiber_100g)) + numCell(x.fat_100g, fatColor(x.fat_100g))
         + LAYERS.map(([k]) => fgCell(x[k])).join("")
         + fgRec(x.r_rec)
@@ -915,7 +922,7 @@ function renderFoodGuide(){
       i++;
     });
   });
-  const head = '<thead><tr><th class="fnm">Food</th><th>Hist</th><th>Gut</th><th class="numh">GI</th><th class="numh">Protein</th><th class="numh">Fiber</th><th class="numh">Fat</th>' + LAYERS.map(([,s]) => '<th>' + s + '</th>').join("") + '<th>Dr/Lab</th><th class="fov">Verdict</th></tr></thead>';
+  const head = '<thead><tr><th class="fnm">Food</th><th>Hist</th><th>Gut</th><th>★Rec</th><th class="numh">GI</th><th class="numh">Protein</th><th class="numh">Fiber</th><th class="numh">Fat</th>' + LAYERS.map(([,s]) => '<th>' + s + '</th>').join("") + '<th>Dr/Lab</th><th class="fov">Verdict</th></tr></thead>';
   $("fg-list").innerHTML = '<table class="fgtab">' + head + '<tbody>' + body + '</tbody></table>';
 }
 function toggleFgDet(r){ const d = r.nextElementSibling; if (d && d.classList.contains("det")){ d.style.display = d.style.display === "none" ? "" : "none"; r.classList.toggle("open"); } }
@@ -1162,7 +1169,7 @@ $("tab-dates").addEventListener("click", (e) => { const head = e.target.closest(
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "5.0";
+const APP_VERSION = "5.1";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
