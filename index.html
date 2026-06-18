@@ -139,8 +139,6 @@ table.fgtab th.fov,table.fgtab td.fov{padding-right:2px}
 tr.fgr{cursor:pointer;border-bottom:1px solid var(--bd)}
 tr.fgr:hover{background:var(--tk)}
 tr.fgr.rec{background:var(--okbg)}
-table.fgtab th,table.fgtab td{border-right:1px solid var(--bd)}
-table.fgtab th:last-child,table.fgtab td:last-child{border-right:none}
 table.fgtab td.colhi,table.fgtab th.colhi{background:var(--tk)}
 table.fgtab td.cellhi{background:var(--bd2)}
 td.fnm .nm{font-size:13px;line-height:1.25}
@@ -1193,7 +1191,7 @@ $("tab-dates").addEventListener("click", (e) => { const head = e.target.closest(
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "5.2";
+const APP_VERSION = "5.3";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
