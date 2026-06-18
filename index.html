@@ -182,6 +182,17 @@ td.hcell .he{opacity:.3}
 .rule.rec .rbadge{color:var(--ok)}.rule.avoid .rbadge{color:var(--hi)}.rule.limit .rbadge{color:var(--warn)}
 .rule .rname{font-weight:600;color:var(--tx)}
 .rule .rnote{color:var(--tx2);font-size:11.5px;margin-top:2px;line-height:1.45}
+.dp-intro{font-size:13px;color:var(--tx2);background:var(--tk);border-radius:10px;padding:11px 14px;line-height:1.55;margin-bottom:14px}
+.dp-intro b{color:var(--tx)}
+.dp-meal{border:1px solid var(--bd);border-left:3px solid var(--ok);border-radius:10px;padding:10px 14px;margin-bottom:9px;background:var(--card)}
+.dp-h{font-weight:600;font-size:14px;display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.dp-kc{font-size:12px;font-weight:500;color:var(--tx2);white-space:nowrap}
+.dp-meal ul{margin:6px 0 0;padding-left:18px}
+.dp-meal li{font-size:13px;color:var(--tx);line-height:1.5;margin:2px 0}
+.dp-meal li.alt,.dp-meal .alt{color:var(--tx3);font-size:12px}
+.dp-total{font-weight:600;font-size:14px;padding:11px 14px;border:1px solid var(--ok);border-radius:10px;background:var(--okbg);margin:6px 0 12px}
+.dp-rules{font-size:12px;color:var(--tx2);line-height:1.55;background:var(--tk);border-radius:10px;padding:11px 14px}
+.dp-rules b{color:var(--tx)}
 .fgnum{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:0 0 10px;font-size:12px;color:var(--tx2)}
 .fgnum label{display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
 .fgnum input,.fgnum select{width:auto;padding:5px 7px;font-size:13px;border:1px solid var(--bd2);border-radius:7px;background:transparent;color:inherit}
@@ -230,6 +241,7 @@ td.hcell .he{opacity:.3}
     <button class="tab" data-tab="dates">Labs by Date</button>
     <button class="tab" data-tab="food">Food Reactions</button>
     <button class="tab" data-tab="foodguide">Diet</button>
+    <button class="tab" data-tab="dayplan">Day Plan</button>
     <button class="tab" data-tab="reports">Medical Reports</button>
   </div>
 
@@ -339,6 +351,48 @@ td.hcell .he{opacity:.3}
     <div id="fg-list" class="fgwrap"></div>
     <div id="fg-rules"></div>
     <div id="fg-rules-gut"></div>
+  </div>
+
+  <div id="tab-dayplan" class="panel" style="display:none">
+    <div class="dp-intro">Примерный день для <b>набора веса</b>: низкогистаминно, безлактозно, щадяще для поджелудочной, из твоих рекомендованных продуктов. Ориентир <b>≈2500 ккал · ≈100 г белка</b>. Свежесть — закон; <b>Kreon с каждым приёмом</b>, где есть жир или белок (включая масла, семечки и перекусы).</div>
+
+    <div class="dp-meal"><div class="dp-h">🌅 Завтрак <span class="dp-kc">≈520 ккал · 14 г белка</span></div>
+      <ul>
+        <li>Овсянка (60 г сухой) на <b>рисовом или овсяном напитке</b></li>
+        <li>+ горсть <b>черники</b>, 1 ст.л. <b>конопляного масла</b>, 1 ст.л. <b>тыквенных семечек</b></li>
+      </ul></div>
+
+    <div class="dp-meal"><div class="dp-h">🥤 Перекус-смузи <span class="dp-kc">≈300 ккал · 18 г белка</span></div>
+      <ul>
+        <li><b>Безлактозный кварк</b> (150 г) + дыня или черника + 1 ч.л. <b>MCT-масла</b></li>
+        <li class="alt">Жидкие калории — легко добавить, когда быстро наедаешься</li>
+      </ul></div>
+
+    <div class="dp-meal"><div class="dp-h">🍽️ Обед <span class="dp-kc">≈620 ккал · 36 г белка</span></div>
+      <ul>
+        <li>Свежая грудка <b>индейки или курицы</b> (150 г), приготовленная в тот же день</li>
+        <li>+ <b>рис</b> (75 г сухого), тушёные <b>цукини и фенхель</b>, 1 ст.л. <b>оливкового масла</b></li>
+      </ul></div>
+
+    <div class="dp-meal"><div class="dp-h">🥜 Полдник <span class="dp-kc">≈260 ккал · 5 г белка</span></div>
+      <ul>
+        <li>2–3 <b>рисовых хлебца</b> + горсть <b>макадамии</b> или <b>конопляных семечек</b></li>
+      </ul></div>
+
+    <div class="dp-meal"><div class="dp-h">🌙 Ужин <span class="dp-kc">≈560 ккал · 30 г белка</span></div>
+      <ul>
+        <li><b>Кролик или телятина</b> (140 г) <span class="alt">— или ультрасвежая белая рыба (треска/судак)</span></li>
+        <li>+ <b>полента или гречка</b> (60 г сухой), тушёный <b>пак-чой</b>, 1 ст.л. <b>рапсового масла</b></li>
+      </ul></div>
+
+    <div class="dp-meal"><div class="dp-h">🛏️ На ночь <span class="dp-kc">≈240 ккал · 13 г белка</span></div>
+      <ul>
+        <li><b>Зернёный творог</b> (120 г, безлактозный) + 1 ч.л. <b>конопляного/MCT масла</b> + немного дыни</li>
+      </ul></div>
+
+    <div class="dp-total">Итого: ≈2500 ккал · ≈100 г белка (профицит для набора веса)</div>
+
+    <div class="dp-rules"><b>Правила дня:</b> дробно 5–6 раз · <b>Kreon</b> с каждым приёмом, включая масла/семечки/перекусы · готовь и ешь свежим, белок повторно не разогревай, остатки сразу морозь · взвешивайся раз в неделю в одинаковых условиях. Если вес продолжает падать или не стабилизируется за 2–4 недели — это повод обратиться к врачу раньше. Меню — ориентир из твоих данных, не предписание; потеря веса — к твоей медкоманде.</div>
   </div>
 
   <div id="tab-reports" class="panel" style="display:none"></div>
@@ -994,13 +1048,13 @@ $("fg-reset").addEventListener("click", () => {
   renderFoodGuide();
 });
 $("fg-list").addEventListener("click", (e) => { const r = e.target.closest("tr.fgr"); if (r) toggleFgDet(r); });
-document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => { document.querySelectorAll(".tab").forEach(x => x.classList.remove("active")); t.classList.add("active"); const name = t.dataset.tab; ["markers","dates","food","foodguide","reports"].forEach(p => $("tab-" + p).style.display = (p === name ? "block" : "none")); }));
+document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => { document.querySelectorAll(".tab").forEach(x => x.classList.remove("active")); t.classList.add("active"); const name = t.dataset.tab; ["markers","dates","food","foodguide","dayplan","reports"].forEach(p => $("tab-" + p).style.display = (p === name ? "block" : "none")); }));
 $("mk-list").addEventListener("click", (e) => { const row = e.target.closest(".mrow"); if (row) toggleDetail(row); });
 $("tab-dates").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleDate(head); });
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "3.8";
+const APP_VERSION = "3.9";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
