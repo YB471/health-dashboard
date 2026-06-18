@@ -173,8 +173,8 @@ td.hcell .he{opacity:.3}
 .guide .gi{flex-shrink:0;width:18px;text-align:center}
 .guide .gk{color:var(--tx2)}
 .detbox .histnote{color:var(--warn);font-size:11.5px;margin:2px 0 2px}
-#fg-rules{margin:8px 0 16px;display:flex;flex-direction:column;gap:6px}
-#fg-rules:empty{display:none}
+#fg-rules,#fg-rules-gut{margin:20px 0 4px;display:flex;flex-direction:column;gap:6px}
+#fg-rules:empty,#fg-rules-gut:empty{display:none}
 .rules-h{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--tx2);margin-bottom:1px}
 .rule{display:flex;gap:9px;align-items:flex-start;padding:8px 11px;border:1px solid var(--bd);border-left-width:3px;border-radius:8px;background:var(--card);font-size:12.5px}
 .rule.rec{border-left-color:var(--ok)}.rule.avoid{border-left-color:var(--hi)}.rule.limit{border-left-color:var(--warn)}.rule.allow{border-left-color:var(--bd2)}
@@ -309,7 +309,6 @@ td.hcell .he{opacity:.3}
 
   <div id="tab-foodguide" class="panel" style="display:none">
     <div id="fg-sum" class="fgchips"></div>
-    <div id="fg-rules"></div>
     <div id="fg-legend" class="fglegend"></div>
     <div class="controls">
       <input id="fgq" type="text" placeholder="Search food…">
@@ -332,6 +331,8 @@ td.hcell .he{opacity:.3}
     </div>
     <div id="fg-count" class="secs"></div>
     <div id="fg-list" class="fgwrap"></div>
+    <div id="fg-rules"></div>
+    <div id="fg-rules-gut"></div>
   </div>
 
   <div id="tab-reports" class="panel" style="display:none"></div>
@@ -716,22 +717,24 @@ function fgDetail(x){
   const guide = G ? '<div class="guide">' + G + '</div>' : "";
   return '<div class="detbox">' + hl + hn + gl + gn + ls + rec + guide + '</div>';
 }
-function renderFgRules(rules){
-  const el = $("fg-rules"); if (!el) return;
+function renderFgRules(rules, elId, title){
+  const el = $(elId); if (!el) return;
   if (!rules || !rules.length){ el.innerHTML = ""; return; }
   const ord = { recommended:0, allowed:1, limit:2, avoid:3 };
   const sym = { recommended:"✓", allowed:"✓", limit:"!", avoid:"✕" };
   const rows = rules.slice().sort((a,b) => (ord[a.verdict] != null ? ord[a.verdict] : 9) - (ord[b.verdict] != null ? ord[b.verdict] : 9)).map(x => {
     const v = x.verdict;
-    const note = x.hist_note ? esc(x.hist_note) : (x.rec_note ? esc(x.rec_note) : "");
+    const note = esc(x.hist_note || x.gut_note || x.rec_note || "");
     return '<div class="rule ' + (VCLS[v] || "allow") + '"><span class="rbadge">' + (sym[v] || "") + '</span><div><div class="rname">' + esc(foodName(x.food_de)) + '</div>' + (note ? ('<div class="rnote">' + note + '</div>') : "") + '</div></div>';
   }).join("");
-  el.innerHTML = '<div class="rules-h">Общие принципы (гистамин)</div>' + rows;
+  el.innerHTML = '<div class="rules-h">' + esc(title) + '</div>' + rows;
 }
 function renderFoodGuide(){
   const allRows = FOODGUIDE || [];
-  renderFgRules(allRows.filter(x => x.food_group === "general"));
-  const all = allRows.filter(x => x.food_group !== "general");
+  const isRule = (x) => x.food_group && x.food_group.indexOf("general") === 0;
+  renderFgRules(allRows.filter(x => x.food_group === "general"), "fg-rules", "Общие принципы (гистамин)");
+  renderFgRules(allRows.filter(x => x.food_group === "general_gut"), "fg-rules-gut", "Общие принципы (кишечник)");
+  const all = allRows.filter(x => !isRule(x));
   const cnt = { recommended:0, allowed:0, limit:0, avoid:0 };
   all.forEach(x => { if (cnt[x.verdict] != null) cnt[x.verdict]++; });
   $("fg-sum").innerHTML =
@@ -974,7 +977,7 @@ $("tab-dates").addEventListener("click", (e) => { const head = e.target.closest(
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "3.4";
+const APP_VERSION = "3.5";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
