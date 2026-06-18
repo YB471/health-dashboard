@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Health Dashboard</title>
 <style>
-:root{--bg:#faf9f7;--card:#fff;--bd:rgba(0,0,0,.1);--bd2:rgba(0,0,0,.2);--tx:#1a1a18;--tx2:#5f5e5a;--tx3:#8a8983;--tk:rgba(0,0,0,.05);--ok:#1d9e75;--okbg:rgba(29,158,117,.16);--hi:#d4453f;--lo:#2f7dd4;--warn:#ba7517}
-@media(prefers-color-scheme:dark){:root{--bg:#1c1c1a;--card:#262624;--bd:rgba(255,255,255,.12);--bd2:rgba(255,255,255,.22);--tx:#ededeb;--tx2:#b4b2a9;--tx3:#88877f;--tk:rgba(255,255,255,.06);--okbg:rgba(29,158,117,.28)}}
+:root{--bg:#faf9f7;--card:#fff;--bd:rgba(0,0,0,.1);--bd2:rgba(0,0,0,.2);--tx:#1a1a18;--tx2:#5f5e5a;--tx3:#8a8983;--tk:rgba(0,0,0,.05);--ok:#1d9e75;--okbg:rgba(29,158,117,.16);--okbg2:rgba(29,158,117,.30);--hi:#d4453f;--lo:#2f7dd4;--warn:#ba7517}
+@media(prefers-color-scheme:dark){:root{--bg:#1c1c1a;--card:#262624;--bd:rgba(255,255,255,.12);--bd2:rgba(255,255,255,.22);--tx:#ededeb;--tx2:#b4b2a9;--tx3:#88877f;--tk:rgba(255,255,255,.06);--okbg:rgba(29,158,117,.28);--okbg2:rgba(29,158,117,.44)}}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,BlinkMacSystemFont,system-ui,Roboto,Helvetica,Arial,sans-serif;line-height:1.5}
 .login{display:flex;min-height:100vh;align-items:center;justify-content:center}
@@ -139,7 +139,9 @@ table.fgtab th.fov,table.fgtab td.fov{padding-right:2px}
 tr.fgr{cursor:pointer;border-bottom:1px solid var(--bd)}
 tr.fgr:hover{background:var(--tk)}
 tr.fgr.rec{background:var(--okbg)}
-table.fgtab td.colhi,table.fgtab th.colhi{background:var(--tk)}
+tr.fgr.rec:hover{background:var(--okbg2)}
+table.fgtab td.colhi{background:var(--tk)}
+table.fgtab thead th.colhi{background-image:linear-gradient(var(--tk),var(--tk))}
 table.fgtab td.cellhi{background:var(--bd)}
 td.fnm .nm{font-size:13px;line-height:1.25}
 td.fnm .de{font-size:10px;color:var(--tx3);margin-top:1px}
@@ -1191,7 +1193,7 @@ $("tab-dates").addEventListener("click", (e) => { const head = e.target.closest(
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "5.4";
+const APP_VERSION = "5.5";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
