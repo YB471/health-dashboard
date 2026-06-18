@@ -353,6 +353,7 @@ td.hcell .he{opacity:.3}
         <option value="limit">Limit</option>
         <option value="avoid">Avoid</option>
       </select>
+      <select id="fggroup"><option value="">Все типы еды</option></select>
     </div>
     <div class="fgnum">
       <label>Hist ≤ <select id="fg-hist"><option value="">—</option><option>0</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></label>
@@ -476,10 +477,10 @@ const flagged = (f) => f === "high" || f === "low" || f === "abnormal";
 const catName = (c) => LB[c] || c;
 const foodName = (n) => FOODLB[n] || n;
 const GRPLB = {"Бобовые":"Legumes","Грибы и дрожжи":"Mushrooms & yeast","Злаки":"Grains","Молочное и яйца":"Dairy & eggs","Молочное":"Dairy","Мясо":"Meat","Мясо, птица, яйца":"Meat, poultry, eggs","Напитки":"Beverages","Овощи":"Vegetables","Орехи и семена":"Nuts & seeds","Подсластители":"Sweeteners","Рыба и морепродукты":"Fish & seafood","Специи и травы":"Spices & herbs","Специи":"Spices","Фрукты":"Fruit","Клещи":"Mites","Контактные аллергены":"Contact allergens","Пыльца деревьев":"Tree pollen","Пыльца трав":"Grass pollen","Травы (пыльца)":"Weed pollen","Плесень":"Mold","Тараканы":"Cockroaches","Эпителий животных":"Animal dander","Прочее":"Other"};
-const grpName = (g) => GRPLB[g] || g;
+const grpName = (g) => g;
 function tickIdx(n, max){ if (n <= max) return Array.from({length:n}, (_,i)=>i); const out=[]; for(let i=0;i<max;i++) out.push(Math.round(i*(n-1)/(max-1))); return Array.from(new Set(out)); }
 
-const LB = {liver:"Liver",hematology:"Hematology",lipids:"Lipids",iron:"Iron",endocrinology:"Endocrinology",protein_electrophoresis:"Protein electrophoresis",immunoglobulins:"Immunoglobulins",allergy:"Allergy/histamine",genetics:"Genetics",glucose:"Glucose",stool:"Stool",gut_flora:"Gut flora",gut_pathogens:"Opportunistic bacteria",gut_yeasts:"Yeasts & molds",inflammation:"Inflammation",metabolic:"Metabolism",electrolytes:"Electrolytes",urine:"Urine",coagulation:"Coagulation",celiac:"Celiac disease",infectiology:"Infections",pancreas:"Pancreas",kidney:"Kidney",thyroid_antibodies:"Thyroid (Ab)",microbiology:"Microbiology",vitamins:"Vitamins",toxicology:"Heavy metals",cardiac:"Heart/muscle",tumor_markers:"Tumor markers",autoimmune:"Autoimmune",fatty_acids:"Omega/fatty acids",food_vegetables:"Vegetables",food_fruit:"Fruit",food_spices:"Spices & herbs",food_fish:"Fish & seafood",food_grains_gluten:"Grains with gluten",food_meat:"Meat",food_nuts:"Nuts & seeds",food_mushrooms:"Mushrooms",food_grains_glutenfree:"Gluten-free grains",food_dairy:"Dairy",food_salad:"Salad greens",food_yeast:"Yeast",food_beverages:"Tea, coffee, drinks",food_additives:"Food additives",food_eggs:"Eggs",food_sweeteners:"Sweeteners",general:"General rules"};
+const LB = {liver:"Liver",hematology:"Hematology",lipids:"Lipids",iron:"Iron",endocrinology:"Endocrinology",protein_electrophoresis:"Protein electrophoresis",immunoglobulins:"Immunoglobulins",allergy:"Allergy/histamine",genetics:"Genetics",glucose:"Glucose",stool:"Stool",gut_flora:"Gut flora",gut_pathogens:"Opportunistic bacteria",gut_yeasts:"Yeasts & molds",inflammation:"Inflammation",metabolic:"Metabolism",electrolytes:"Electrolytes",urine:"Urine",coagulation:"Coagulation",celiac:"Celiac disease",infectiology:"Infections",pancreas:"Pancreas",kidney:"Kidney",thyroid_antibodies:"Thyroid (Ab)",microbiology:"Microbiology",vitamins:"Vitamins",toxicology:"Heavy metals",cardiac:"Heart/muscle",tumor_markers:"Tumor markers",autoimmune:"Autoimmune",fatty_acids:"Omega/fatty acids",food_vegetables:"Овощи",food_fruit:"Фрукты",food_spices:"Специи и травы",food_fish:"Рыба и морепродукты",food_grains_gluten:"Злаки с глютеном",food_meat:"Мясо",food_nuts:"Орехи и семена",food_mushrooms:"Грибы",food_grains_glutenfree:"Злаки без глютена",food_dairy:"Молочное",food_salad:"Салатные листья",food_yeast:"Дрожжи",food_beverages:"Чай, кофе, напитки",food_additives:"Добавки и масла",food_eggs:"Яйца",food_sweeteners:"Подсластители",general:"Общие правила"};
 
 const FOODLB = {
 "Artischocke":"Артишок","Aubergine":"Баклажан","Bleichsellerie":"Сельдерей черешковый","Blumenkohl":"Цветная капуста","Brokkoli":"Брокколи","Chili Cayenne":"Чили кайенский","Chinakohl":"Пекинская капуста","Dicke Bohne":"Бобы садовые","Erbse":"Горох","Grüne/Gelbe Bohne":"Зелёная/жёлтая фасоль","Grünkohl":"Капуста кале","Gurke":"Огурец","Karotte":"Морковь","Kartoffel":"Картофель","Kichererbse":"Нут","Knollensellerie":"Сельдерей корневой","Kohlrabi":"Кольраби","Kürbis":"Тыква","Lauch":"Лук-порей","Linse":"Чечевица","Mangold":"Мангольд","Mungobohne":"Маш","Olive":"Оливки","Paprikaschote":"Сладкий перец","Pastinake":"Пастернак","Radieschen":"Редис","Rosenkohl":"Брюссельская капуста","Rote Beete":"Свёкла","Rotkohl":"Краснокочанная капуста","Sojabohne":"Соя","Spargel":"Спаржа","Spinat":"Шпинат","Steckrübe":"Брюква","Süßkartoffel":"Батат","Tomate":"Помидор","Weißkohl":"Белокочанная капуста","Wirsing":"Савойская капуста","Zucchini":"Цукини","Zwiebel":"Лук репчатый",
@@ -505,7 +506,7 @@ const FOODLB = {
 let DATA = null, MK = [], DATES = [], CATS = [], FOODS = [], FOODCATS = [], FOODGUIDE = [];
 let F = { q: "", cat: "", mode: "all" };
 let FF = { q: "", cat: "", mode: "all" };
-let FG = { q: "", verdict: "", histMax: "", gutMax: "", giMax: "", proMin: "", fibMin: "", fatMax: "", recMin: "" };
+let FG = { q: "", verdict: "", group: "", histMax: "", gutMax: "", giMax: "", proMin: "", fibMin: "", fatMax: "", recMin: "" };
 const detailCache = {}, dateCache = {};
 
 function scale(vals, lo, hi){
@@ -883,8 +884,16 @@ function renderFoodGuide(){
     + '<span class="chip warn">Limit: <b>' + cnt.limit + '</b></span>'
     + '<span class="chip hi">Avoid: <b>' + cnt.avoid + '</b></span>';
   $("fg-legend").innerHTML = fgLegend();
+  const gsel = $("fggroup");
+  if (gsel && !gsel.dataset.filled){
+    const gs = Array.from(new Set(all.map(x => x.food_group).filter(Boolean)));
+    gs.sort((a,b) => { const ia = CATORDER.indexOf(a), ib = CATORDER.indexOf(b); return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib) || catName(a).localeCompare(catName(b), "ru"); });
+    gsel.innerHTML = '<option value="">Все типы еды</option>' + gs.map(g => '<option value="' + esc(g) + '">' + esc(catName(g)) + '</option>').join("");
+    gsel.dataset.filled = "1";
+  }
   let arr = all;
   if (FG.verdict) arr = arr.filter(x => x.verdict === FG.verdict);
+  if (FG.group) arr = arr.filter(x => x.food_group === FG.group);
   if (FG.q){ const q = FG.q.toLowerCase(); arr = arr.filter(x => foodName(x.food_de).toLowerCase().includes(q) || String(x.food_de).toLowerCase().includes(q) || String(x.rec_note || "").toLowerCase().includes(q)); }
   const numok = (v) => v != null && v !== "";
   if (FG.histMax !== "") arr = arr.filter(x => numok(x.hist_score) && +x.hist_score <= +FG.histMax);
@@ -1134,6 +1143,7 @@ $("fq").addEventListener("input", (e) => { FF.q = e.target.value.trim(); renderF
 $("fcat").addEventListener("change", (e) => { FF.cat = e.target.value; renderFood(); });
 $("fgq").addEventListener("input", (e) => { FG.q = e.target.value.trim(); renderFoodGuide(); });
 $("fgfilter").addEventListener("change", (e) => { FG.verdict = e.target.value; renderFoodGuide(); });
+$("fggroup").addEventListener("change", (e) => { FG.group = e.target.value; renderFoodGuide(); });
 $("fg-hist").addEventListener("change", (e) => { FG.histMax = e.target.value; renderFoodGuide(); });
 $("fg-gut").addEventListener("change", (e) => { FG.gutMax = e.target.value; renderFoodGuide(); });
 $("fg-gi").addEventListener("input", (e) => { FG.giMax = e.target.value.trim(); renderFoodGuide(); });
@@ -1142,8 +1152,8 @@ $("fg-fib").addEventListener("input", (e) => { FG.fibMin = e.target.value.trim()
 $("fg-fat").addEventListener("input", (e) => { FG.fatMax = e.target.value.trim(); renderFoodGuide(); });
 $("fg-rec").addEventListener("change", (e) => { FG.recMin = e.target.value; renderFoodGuide(); });
 $("fg-reset").addEventListener("click", () => {
-  FG = { q: "", verdict: "", histMax: "", gutMax: "", giMax: "", proMin: "", fibMin: "", fatMax: "", recMin: "" };
-  ["fgq","fgfilter","fg-hist","fg-gut","fg-gi","fg-pro","fg-fib","fg-fat","fg-rec"].forEach(id => { const el = $(id); if (el) el.value = ""; });
+  FG = { q: "", verdict: "", group: "", histMax: "", gutMax: "", giMax: "", proMin: "", fibMin: "", fatMax: "", recMin: "" };
+  ["fgq","fgfilter","fggroup","fg-hist","fg-gut","fg-gi","fg-pro","fg-fib","fg-fat","fg-rec"].forEach(id => { const el = $(id); if (el) el.value = ""; });
   renderFoodGuide();
 });
 $("fg-list").addEventListener("click", (e) => { const r = e.target.closest("tr.fgr"); if (r) toggleFgDet(r); });
@@ -1194,7 +1204,7 @@ $("tab-dates").addEventListener("click", (e) => { const head = e.target.closest(
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "5.8";
+const APP_VERSION = "5.9";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
