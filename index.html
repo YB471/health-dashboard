@@ -150,19 +150,18 @@ body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,Bli
 .bsum-r:hover td{background:var(--tk)}
 .bsum-r td:first-child{border-top-left-radius:7px;border-bottom-left-radius:7px}
 .bsum-r td:last-child{border-top-right-radius:7px;border-bottom-right-radius:7px;padding-right:6px}
-.bsum-r .mk{font-weight:600;color:var(--tx);padding-left:6px;white-space:nowrap}
+.bsum-r .si{width:1%;padding:8px 9px 8px 7px;text-align:center;white-space:nowrap}
+.si-i{font-weight:700;font-size:13px;line-height:1;display:inline-block}
+.bsum-r .mk{font-weight:600;color:var(--tx);white-space:nowrap}
 .bsum-r .dy{font-variant-numeric:tabular-nums;color:var(--tx2);white-space:nowrap}
 .bsum-r .dy .p{color:var(--tx3);white-space:nowrap}
 .bsum-r .dy .a{color:var(--tx3);margin:0 4px}
 .bsum-r .dy .c{color:var(--tx);font-weight:500;white-space:nowrap}
-.bsum-r .rf{color:var(--tx3);white-space:nowrap;font-variant-numeric:tabular-nums}
-.bsum-r .st{width:100%;text-align:right;white-space:nowrap}
-.bsum-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 11px;border-radius:999px;font-size:11px;font-weight:600;letter-spacing:.01em;line-height:1.35;border:1px solid transparent;white-space:nowrap}
-.bsum-badge.ok{background:var(--okbg2);color:var(--ok)}
-.bsum-badge.improve{background:var(--okbg);color:var(--ok)}
-.bsum-badge.bad{background:var(--hibg);color:var(--hi)}
-.bsum-badge.worse{background:var(--warnbg);color:var(--warn)}
-@media(max-width:680px){.bsum-r .dy,.bsum-r .st,.bsum-r .mk{white-space:normal}}
+.bsum-r .rf{color:var(--tx3);white-space:nowrap;font-variant-numeric:tabular-nums;width:100%}
+.bsum-legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:11px;color:var(--tx2);margin:0 0 12px}
+.bsum-legend .lg{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.bsum-legend .lg i{font-style:normal;font-weight:700;font-size:12px}
+@media(max-width:680px){.bsum-r .dy,.bsum-r .mk{white-space:normal}}
 .repsum{font-size:13px;color:var(--tx);line-height:1.55;white-space:pre-wrap}
 .repsrc{font-size:11px;color:var(--tx3);margin-top:8px}
 .rephd{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--tx3);margin:12px 0 3px}
@@ -882,6 +881,19 @@ const BA_STLBL = { ok:"✓ Вернулся в норму", improve:"↗ Улу�
 
 // Unified per-date view: EVERY marker grouped by lab category, showing value + reference, plus the trend
 // (prev → curr) and a status badge where it changed vs the previous measurement. Frameless (white card).
+// Per-marker status designation (7 states): icon + color + tooltip.
+const HS_ST = {
+  innorm:  { g:"●", c:"var(--ok)",   t:"В норме" },
+  outnorm: { g:"●", c:"var(--hi)",   t:"Вне нормы" },
+  newm:    { g:"○", c:"var(--tx3)",  t:"Первый замер этого показателя" },
+  ok:      { g:"✓", c:"var(--ok)",   t:"Вернулся в норму" },
+  bad:     { g:"✗", c:"var(--hi)",   t:"Вышел из нормы" },
+  improve: { g:"↗", c:"var(--ok)",   t:"Улучшается, ещё вне нормы" },
+  worse:   { g:"↘", c:"var(--warn)", t:"Усугубился, вне нормы" },
+};
+const HS_ST_LEGEND = ["innorm","outnorm","ok","bad","improve","worse","newm"];
+const HS_ST_LEG = { innorm:"в норме", outnorm:"вне нормы", ok:"вернулся", bad:"вышел", improve:"улучшается", worse:"усугубился", newm:"впервые" };
+
 function renderDateTable(d, rows){
   const byName = {}; MK.forEach(m => { byName[m.name] = m; });
   const groups = {};
@@ -890,7 +902,10 @@ function renderDateTable(d, rows){
     let prev = null;
     if (m){ const i = m.pts.findIndex(p => p.date === d); if (i > 0) prev = m.pts[i-1]; }
     const dir = markerDir(r, prev);
-    const status = dir === 1 ? (flagged(r.f) ? "improve" : "ok") : dir === -1 ? (flagged(prev.f) ? "worse" : "bad") : null;
+    const status = !prev ? "newm"
+      : dir === 1 ? (flagged(r.f) ? "improve" : "ok")
+      : dir === -1 ? (flagged(prev.f) ? "worse" : "bad")
+      : (flagged(r.f) ? "outnorm" : "innorm");
     (groups[r.cat] = groups[r.cat] || []).push({ r: r, prev: prev, dir: dir, status: status });
   });
   const meta = {};
@@ -929,14 +944,15 @@ function renderDateTable(d, rows){
       const val = (prev && x.dir !== 0)
         ? `<span class="p">${esc(valStr(prev))}</span><span class="a">→</span><span class="c" style="color:${c}">${esc(valStr(r))}</span>`
         : `<span class="c" style="color:${c}">${esc(valStr(r))}</span>`;
-      const badge = x.status ? `<span class="bsum-badge ${x.status}">${BA_STLBL[x.status]}</span>` : "";
-      body += `<tr class="bsum-r"><td class="mk">${esc(r.marker)}</td>`
+      const st = HS_ST[x.status];
+      body += `<tr class="bsum-r"><td class="si"><span class="si-i" style="color:${st.c}" title="${st.t}">${st.g}</span></td>`
+        + `<td class="mk">${esc(r.marker)}</td>`
         + `<td class="dy">${val}</td>`
-        + `<td class="rf">${esc(refTxt(r.lo, r.hi, r.u))}</td>`
-        + `<td class="st">${badge}</td></tr>`;
+        + `<td class="rf">${esc(refTxt(r.lo, r.hi, r.u))}</td></tr>`;
     });
   });
-  return `<div class="bsum"><table class="bsum-tbl"><tbody>${body}</tbody></table></div>`;
+  const legend = `<div class="bsum-legend">` + HS_ST_LEGEND.map(k => `<span class="lg"><i style="color:${HS_ST[k].c}">${HS_ST[k].g}</i>${HS_ST_LEG[k]}</span>`).join("") + `</div>`;
+  return `<div class="bsum">${legend}<table class="bsum-tbl"><tbody>${body}</tbody></table></div>`;
 }
 
 // Compact value for "a → b" trend lines: numeric keeps a single trailing unit; qualitative uses disp().
@@ -1487,7 +1503,7 @@ $("tab-dates").addEventListener("click", (e) => { const head = e.target.closest(
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "7.8";
+const APP_VERSION = "7.9";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
