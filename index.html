@@ -158,13 +158,15 @@ body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,Bli
 .si-flat{color:var(--tx3)}
 .si-new{font-size:9px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:var(--lo);background:rgba(47,125,212,.15);border-radius:4px;padding:1px 4px;line-height:1.4;white-space:nowrap}
 .bsum-r .mk{font-weight:600;color:var(--tx);white-space:nowrap}
-.bsum-r .dy{color:var(--tx2);white-space:nowrap}
-.bsum-r .dy-val{font-variant-numeric:tabular-nums;white-space:nowrap}
-.bsum-r .dy-val .p{color:var(--tx3);white-space:nowrap}
-.bsum-r .dy-val .a{color:var(--tx3);margin:0 4px}
-.bsum-r .dy-val .c{color:var(--tx);font-weight:500;white-space:nowrap}
-.bsum-r .dy-ref{color:var(--tx3);white-space:nowrap;font-variant-numeric:tabular-nums;font-size:11px;margin-top:2px}
+.bsum-r .dy{font-variant-numeric:tabular-nums;color:var(--tx2);white-space:nowrap}
+.bsum-r .dy .p{color:var(--tx3);white-space:nowrap}
+.bsum-r .dy .a{color:var(--tx3);margin:0 4px}
+.bsum-r .dy .c{color:var(--tx);font-weight:500;white-space:nowrap}
+.bsum-r .rf{color:var(--tx3);white-space:nowrap;font-variant-numeric:tabular-nums;font-size:11px}
 .bsum-r{cursor:pointer}
+.bsum-r.flg td{background:rgba(212,69,63,.05)}
+.bsum-r.flg:hover td{background:rgba(212,69,63,.09)}
+@media(prefers-color-scheme:dark){.bsum-r.flg td{background:rgba(232,99,93,.09)}.bsum-r.flg:hover td{background:rgba(232,99,93,.15)}}
 .bsum-r .sp{width:196px}
 .bsum-r .sp .spark{width:196px;height:38px}
 .bsum-r .chev-c{width:100%;text-align:right}
@@ -932,7 +934,7 @@ function renderDateTable(d, rows){
       + (norm ? `<span class="gs ok" title="В норме">${norm}</span>` : "")
       + (m.fl ? `<span class="gs bad" title="Не в норме">${m.fl}</span>` : "")
       + dyn + `</span>`;
-    body += `<tr class="bsum-ghead"><td colspan="6"><div class="gh"><span class="gname">${esc(catName(cat))}</span>${stats}</div></td></tr>`;
+    body += `<tr class="bsum-ghead"><td colspan="7"><div class="gh"><span class="gname">${esc(catName(cat))}</span>${stats}</div></td></tr>`;
     it.forEach(x => {
       const r = x.r, prev = x.prev, mm = byName[r.marker];
       const c = flagged(r.f) ? col(r.f) : "var(--tx)";
@@ -949,12 +951,13 @@ function renderDateTable(d, rows){
       const spk = (mm && mm.numPts.length >= 2) ? spark(mm.numPts) : "";
       const mkid = mm ? mm.id : "";
       const rt = refTxt(r.lo, r.hi, r.u);
-      body += `<tr class="bsum-r" data-mk="${mkid}"><td class="si1">${normIcon}</td><td class="si2">${dynIcon}</td>`
+      body += `<tr class="bsum-r${flg ? " flg" : ""}" data-mk="${mkid}"><td class="si1">${normIcon}</td><td class="si2">${dynIcon}</td>`
         + `<td class="mk">${esc(r.marker)}</td>`
-        + `<td class="dy"><div class="dy-val">${val}</div>${rt ? `<div class="dy-ref">${esc(rt)}</div>` : ""}</td>`
+        + `<td class="dy">${val}</td>`
+        + `<td class="rf">${rt ? esc(rt) : ""}</td>`
         + `<td class="sp">${spk}</td>`
         + `<td class="chev-c"><span class="chev">⌄</span></td></tr>`
-        + `<tr class="bsum-det"><td colspan="6"><div class="bsum-detbox"></div></td></tr>`;
+        + `<tr class="bsum-det"><td colspan="7"><div class="bsum-detbox"></div></td></tr>`;
     });
   });
   const legend = `<div class="bsum-legend">`
@@ -1007,7 +1010,7 @@ function renderDates(){
     const catSum = esc(sampleLabel(arr));
     const dy = dateDyn(d, byName);
     const dyn = (dy.up || dy.down) ? ` · <span class="dmeta-dyn">${dy.up ? `<span class="dyn-up" title="Положительная динамика">↗ ${dy.up}</span>` : ""}${dy.down ? `<span class="dyn-dn" title="Отрицательная динамика">↘ ${dy.down}</span>` : ""}</span>` : "";
-    return `<div class="dcard" data-d="${d}"><div class="dhead"><div><div class="dttl">${fd(d)}${(() => { const ag = ageAt(d); return ag != null ? `<span class="dage">· ${ag} ${yearsRu(ag)}</span>` : ""; })()}</div><div class="dcats">${catSum}</div></div><div class="dmeta">${arr.length} markers · <span style="color:${fl ? "var(--hi)" : "var(--tx2)"}">${fl} out of range</span>${dyn}</div><div class="chev">⌄</div></div><div class="dbody"></div></div>`;
+    return `<div class="dcard" data-d="${d}"><div class="dhead"><div><div class="dttl">${fd(d)}${(() => { const ag = ageAt(d); return ag != null ? `<span class="dage">· ${ag} ${yearsRu(ag)}</span>` : ""; })()}</div><div class="dcats">${catSum}</div></div><div class="dmeta">${arr.length} markers · <span style="color:${fl ? "var(--hi)" : "var(--tx2)"}">${fl} out of range${fl ? ` (${Math.round(fl/arr.length*100)}%)` : ""}</span>${dyn}</div><div class="chev">⌄</div></div><div class="dbody"></div></div>`;
   }).join("") : '<div class="empty">No data.</div>';
   $("tab-dates").innerHTML = `<div class="kpis">${kpiHTML()}</div>` + cards;
 }
@@ -1527,7 +1530,7 @@ $("tab-dates").addEventListener("click", (e) => { const row = e.target.closest("
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "8.3";
+const APP_VERSION = "8.4";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
