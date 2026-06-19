@@ -75,6 +75,9 @@ body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,Bli
 .dhead:hover{background:var(--tk)}
 .dttl{font-size:15px;font-weight:500}
 .dmeta{font-size:12px;color:var(--tx2)}
+.dmeta-dyn{font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.dmeta-dyn .dyn-up{color:var(--ok)}
+.dmeta-dyn .dyn-dn{color:var(--warn);margin-left:7px}
 .dcats{font-size:12px;color:var(--tx3);margin-top:2px;line-height:1.4}
 .grp{font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--tx2);margin:18px 0 6px;padding-top:10px;border-top:1px solid var(--bd)}
 .grp:first-child{border-top:none;padding-top:0;margin-top:2px}
@@ -99,12 +102,6 @@ body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,Bli
 .cs{font-size:12px;color:var(--tx2);margin-top:2px}
 .empty{font-size:13px;color:var(--tx3);padding:10px 0}
 .bsum{margin:0 0 2px;font-size:13px}
-.bsum-top{display:flex;flex-wrap:wrap;gap:8px;margin:2px 0 4px}
-.bsum-stat{display:inline-flex;align-items:center;gap:7px;padding:5px 13px;border-radius:999px;font-size:11.5px;font-weight:600;letter-spacing:.01em}
-.bsum-stat .n{font-size:13px;font-variant-numeric:tabular-nums}
-.bsum-stat.up{background:var(--okbg);color:var(--ok)}
-.bsum-stat.down{background:var(--warnbg);color:var(--warn)}
-.bsum-empty{color:var(--ok);font-weight:500;padding:0 0 8px}
 .bsum-tbl{width:100%;border-collapse:separate;border-spacing:0}
 .bsum-ghead td{padding:16px 0 6px}
 .bsum-tbl tr:first-child .bsum-ghead td,.bsum-tbl tbody tr:first-child td{padding-top:9px}
@@ -712,6 +709,31 @@ function outDist(v, lo, hi){
   return 0;
 }
 
+// Trend direction vs the previous measurement: 1 = improving, -1 = worsening, 0 = none. Facts only.
+function markerDir(r, prev){
+  if (!prev) return 0;
+  if (r.v != null && prev.v != null){
+    const dc = outDist(r.v, r.lo, r.hi), dp = outDist(prev.v, prev.lo, prev.hi);
+    if (dc < dp) return 1;
+    if (dc > dp) return -1;
+  }
+  const pf = flagged(prev.f), cf = flagged(r.f);
+  return (pf && !cf) ? 1 : (!pf && cf) ? -1 : 0;
+}
+
+// Count improving / worsening markers for a date (used in the date-card header).
+function dateDyn(d, byName){
+  let up = 0, down = 0;
+  DATA._labs.forEach(r => {
+    if (r.date !== d || (r.cat && r.cat.indexOf("food_") === 0)) return;
+    const m = byName[r.marker]; if (!m) return;
+    const i = m.pts.findIndex(p => p.date === d); if (i <= 0) return;
+    const dir = markerDir(r, m.pts[i-1]);
+    if (dir === 1) up++; else if (dir === -1) down++;
+  });
+  return { up: up, down: down };
+}
+
 // Status badge labels for the four trend cases (back in range / improving / left range / worse).
 const BA_STLBL = { ok:"✓ Вернулся в норму", improve:"↗ Улучшается, вне нормы", bad:"✗ Вышел из нормы", worse:"↘ Усугубился, вне нормы" };
 
@@ -719,21 +741,13 @@ const BA_STLBL = { ok:"✓ Вернулся в норму", improve:"↗ Улу�
 // (prev → curr) and a status badge where it changed vs the previous measurement. Frameless (white card).
 function renderDateTable(d, rows){
   const byName = {}; MK.forEach(m => { byName[m.name] = m; });
-  const groups = {}; let upN = 0, downN = 0;
+  const groups = {};
   rows.forEach(r => {
     const m = byName[r.marker];
     let prev = null;
     if (m){ const i = m.pts.findIndex(p => p.date === d); if (i > 0) prev = m.pts[i-1]; }
-    let dir = 0;
-    if (prev){
-      if (r.v != null && prev.v != null){
-        const dc = outDist(r.v, r.lo, r.hi), dp = outDist(prev.v, prev.lo, prev.hi);
-        if (dc < dp) dir = 1; else if (dc > dp) dir = -1;
-        else { const pf = flagged(prev.f), cf = flagged(r.f); dir = (pf && !cf) ? 1 : (!pf && cf) ? -1 : 0; }
-      } else { const pf = flagged(prev.f), cf = flagged(r.f); dir = (pf && !cf) ? 1 : (!pf && cf) ? -1 : 0; }
-    }
+    const dir = markerDir(r, prev);
     const status = dir === 1 ? (flagged(r.f) ? "improve" : "ok") : dir === -1 ? (flagged(prev.f) ? "worse" : "bad") : null;
-    if (dir === 1) upN++; else if (dir === -1) downN++;
     (groups[r.cat] = groups[r.cat] || []).push({ r: r, prev: prev, dir: dir, status: status });
   });
   const meta = {};
@@ -779,10 +793,7 @@ function renderDateTable(d, rows){
         + `<td class="st">${badge}</td></tr>`;
     });
   });
-  const top = (upN || downN) ? `<div class="bsum-top">`
-    + (upN ? `<span class="bsum-stat up">↗ Положительная динамика <span class="n">${upN}</span></span>` : "")
-    + (downN ? `<span class="bsum-stat down">↘ Отрицательная динамика <span class="n">${downN}</span></span>` : "") + `</div>` : "";
-  return `<div class="bsum">${top}<table class="bsum-tbl"><tbody>${body}</tbody></table></div>`;
+  return `<div class="bsum"><table class="bsum-tbl"><tbody>${body}</tbody></table></div>`;
 }
 
 // Compact value for "a → b" trend lines: numeric keeps a single trailing unit; qualitative uses disp().
@@ -792,12 +803,15 @@ function renderDates(){
   const byd = {};
   DATA._labs.forEach(r => { if (r.cat && r.cat.indexOf("food_") === 0) return; (byd[r.date] = byd[r.date] || []).push(r); });
   const ds = Object.keys(byd).sort().reverse();
+  const byName = {}; MK.forEach(m => { byName[m.name] = m; });
   const cards = ds.length ? ds.map(d => {
     const arr = byd[d]; const fl = arr.filter(r => flagged(r.f)).length;
     const counts = {}; arr.forEach(r => { counts[r.cat] = (counts[r.cat] || 0) + 1; });
     const cats = Object.keys(counts).sort((a,b) => counts[b] - counts[a] || catName(a).localeCompare(catName(b), "ru")).map(catName);
     const catSum = esc(cats.slice(0,5).join(", ") + (cats.length > 5 ? " +" + (cats.length - 5) : ""));
-    return `<div class="dcard" data-d="${d}"><div class="dhead"><div><div class="dttl">${fd(d)}</div><div class="dcats">${catSum}</div></div><div class="dmeta">${arr.length} markers · <span style="color:${fl ? "var(--hi)" : "var(--tx2)"}">${fl} out of range</span></div><div class="chev">⌄</div></div><div class="dbody"></div></div>`;
+    const dy = dateDyn(d, byName);
+    const dyn = (dy.up || dy.down) ? ` · <span class="dmeta-dyn">${dy.up ? `<span class="dyn-up" title="Положительная динамика">↗ ${dy.up}</span>` : ""}${dy.down ? `<span class="dyn-dn" title="Отрицательная динамика">↘ ${dy.down}</span>` : ""}</span>` : "";
+    return `<div class="dcard" data-d="${d}"><div class="dhead"><div><div class="dttl">${fd(d)}</div><div class="dcats">${catSum}</div></div><div class="dmeta">${arr.length} markers · <span style="color:${fl ? "var(--hi)" : "var(--tx2)"}">${fl} out of range</span>${dyn}</div><div class="chev">⌄</div></div><div class="dbody"></div></div>`;
   }).join("") : '<div class="empty">No data.</div>';
   $("tab-dates").innerHTML = `<div class="kpis">${kpiHTML()}</div>` + cards;
 }
@@ -1303,7 +1317,7 @@ $("tab-dates").addEventListener("click", (e) => { const head = e.target.closest(
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "7.3";
+const APP_VERSION = "7.4";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
