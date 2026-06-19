@@ -229,8 +229,6 @@ tr.fgr{cursor:pointer;border-bottom:1px solid var(--bd)}
 tr.fgr:hover{background:var(--tk)}
 tr.fgr.rec{background:var(--okbg)}
 tr.fgr.rec:hover{background:var(--okbg2)}
-table.fgtab td.cellhi{background:var(--bd)}
-table.fgtab tr.fgr.rec td.cellhi{background:var(--okbg2)}
 td.fnm .nm{font-size:13px;line-height:1.25}
 td.fnm .de{font-size:10px;color:var(--tx3);margin-top:1px}
 .cell{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:4px;font-size:11px;font-weight:700;margin:3px auto}
@@ -305,6 +303,38 @@ td.hcell .he{opacity:.3}
 .fgnum input::placeholder{color:var(--tx3)}
 .fgnum #fg-reset{padding:5px 12px;font-size:12px;margin-left:auto}
 @media(max-width:600px){td.fnm,th.fnm{min-width:92px}.cell{width:22px}}
+/* ===== Diet desktop matrix: fixed columns for uniform brick spacing ===== */
+#fg-list table.fgtab{table-layout:fixed}
+/* ===== Diet mobile: food cards (shown ≤600, table hidden) ===== */
+.fg-cards{display:none}
+.fgc-group{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--tx3);margin:16px 0 7px}
+.fgc-group:first-child{margin-top:2px}
+.fgcard{border:1px solid var(--bd);border-radius:11px;padding:11px 13px;margin-bottom:8px;background:var(--card);cursor:pointer}
+.fgcard.rec{border-color:var(--ok);background:var(--okbg)}
+.fgcard.open{border-color:var(--bd2)}
+.fgc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.fgc-name{font-weight:600;font-size:15px;color:var(--tx);line-height:1.25;min-width:0}
+.fgc-de{font-weight:400;font-size:12px;color:var(--tx3);margin-left:6px}
+.fgc-top .ov{flex-shrink:0;margin-top:1px}
+.fgc-scores{display:flex;flex-wrap:wrap;gap:5px 18px;margin-top:9px;font-size:12.5px}
+.fgc-s{display:inline-flex;align-items:center;gap:6px;color:var(--tx2)}
+.fgc-s i{font-style:normal;color:var(--tx3);font-size:11.5px}
+.dsc{letter-spacing:1.5px;font-weight:600;white-space:nowrap}
+.dsc.ok{color:var(--ok)}.dsc.caution{color:var(--warn)}.dsc.avoid{color:var(--hi)}
+.dho{opacity:.32}
+.dna{color:var(--tx3)}
+.fgc-nums{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:8px;font-size:12.5px;color:var(--tx2)}
+.fgc-nums i{font-style:normal;color:var(--tx3)}
+.fgc-nums b{font-variant-numeric:tabular-nums}
+.fgc-nums b.ok{color:var(--ok)}.fgc-nums b.caution{color:var(--warn)}.fgc-nums b.avoid{color:var(--hi)}.fgc-nums b.na{color:var(--tx3);font-weight:400}
+.fgc-layers{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}
+.lchip{font-size:10px;font-weight:700;padding:3px 7px;border-radius:6px;white-space:nowrap}
+.lchip.ok{background:rgba(29,158,117,.16);color:var(--ok)}
+.lchip.caution{background:rgba(186,117,23,.2);color:var(--warn)}
+.lchip.avoid{background:rgba(212,69,63,.16);color:var(--hi)}
+.lchip.na{background:var(--tk);color:var(--tx3)}
+.fgc-det{display:none;margin:0 1px 10px}
+@media(max-width:600px){#fg-list table.fgtab{display:none}.fg-cards{display:block}}
 /* ===== smartphone optimization (≤600px) ===== */
 @media(max-width:800px){.bsum-r .dy-date{display:block;margin-left:0;margin-top:2px}}
 @media(max-width:600px){
@@ -628,7 +658,7 @@ const FOODLB = {
 "Hanfsamen (geschält)":"Конопляные семена (очищенные)","Hanfprotein":"Конопляный протеин","Hanföl":"Конопляное масло","Natives Olivenöl extra":"Оливковое масло extra virgin","Rapsöl":"Рапсовое масло","Reiswaffeln":"Рисовые хлебцы","Reisdrink":"Рисовый напиток","Haferdrink":"Овсяный напиток","Mairübe (Weiße Rübe)":"Репа белая","Petersilienwurzel":"Корень петрушки","Frischkäse (laktosefrei)":"Сливочный сыр (без лактозы)","Speisequark (laktosefrei)":"Творог/кварк (без лактозы)","Sago":"Саго","Maisstärke (Speisestärke)":"Кукурузный крахмал","Wasserkastanie":"Водяной орех",
 "Alkohol (bes. Rotwein, Sekt, Bier)":"Алкоголь (особенно красное вино, игристое, пиво)","Gereifter Käse (Parmesan, Gouda, Cheddar)":"Выдержанные сыры (пармезан, гауда, чеддер)","Geräucherte/gepökelte Wurst (Salami, Schinken, Speck)":"Копчёности и колбасы (салями, ветчина, бекон)","Essig & eingelegte/marinierte Speisen":"Уксус, маринады и соленья","Fermentiertes (Sauerkraut, Sojasauce, Miso)":"Ферментированное (квашеная капуста, соевый соус, мисо)","Aufgewärmte/länger gelagerte Eiweißspeisen":"Разогретые/долго хранившиеся белковые блюда","Schwarzer/grüner Tee, Energydrinks":"Чёрный/зелёный чай, энергетики","Kaffee":"Кофе","Frisch gekochtes mageres Fleisch/Geflügel":"Свежее нежирное мясо/птица","Frisch zubereitete, nicht aufgewärmte Speisen":"Свежеприготовленные, не разогретые блюда"};
 
-let DATA = null, MK = [], DATES = [], CATS = [], FOODS = [], FOODCATS = [], FOODGUIDE = [];
+let DATA = null, MK = [], DATES = [], CATS = [], FOODS = [], FOODCATS = [], FOODGUIDE = [], FG_ITEMS = [];
 let F = { q: "", cat: "", mode: "all" };
 let FF = { q: "", cat: "", mode: "all" };
 let FG = { q: "", group: "", histMax: "", gutMax: "", giMax: "", proMin: "", fibMin: "", fatMax: "", recMin: "" };
@@ -1282,6 +1312,30 @@ function renderFgRules(rules, elId, title){
   }).join("");
   el.innerHTML = '<div class="rules-h">' + esc(title) + '</div>' + rows;
 }
+function fgDots(s){ if (s == null || s === "") return '<span class="dna">—</span>'; s = Math.max(0, Math.min(5, +s)); const c = s <= 1 ? "ok" : s <= 3 ? "caution" : "avoid"; return '<span class="dsc ' + c + '">' + "●".repeat(s) + '<span class="dho">' + "○".repeat(5 - s) + '</span></span>'; }
+function fgStars(rp){ if (rp == null || rp === "") return '<span class="dna">—</span>'; rp = Math.max(0, Math.min(5, +rp)); if (rp === 0) return '<span class="dna">·</span>'; const c = rp >= 4 ? "ok" : "caution"; return '<span class="dsc ' + c + '">' + "★".repeat(rp) + '<span class="dho">' + "☆".repeat(5 - rp) + '</span></span>'; }
+function fgCard(x, i){
+  const v = x.verdict;
+  const ru = foodName(x.food_de);
+  const de = (x.tested && ru !== x.food_de) ? ('<span class="fgc-de">' + esc(x.food_de) + '</span>') : "";
+  const star = ((v === "recommended" || v === "allowed") && (x.r_rec === "avoid" || x.r_rec === "caution")) ? '<span class="ovstar">*</span>' : "";
+  const sc = [];
+  if (x.hist_score != null && x.hist_score !== "") sc.push('<span class="fgc-s"><i>Гист</i>' + fgDots(x.hist_score) + '</span>');
+  if (x.gut_score != null && x.gut_score !== "") sc.push('<span class="fgc-s"><i>Кишеч</i>' + fgDots(x.gut_score) + '</span>');
+  if (x.recovery_priority != null && x.recovery_priority !== "" && +x.recovery_priority > 0) sc.push('<span class="fgc-s"><i>★Восст</i>' + fgStars(x.recovery_priority) + '</span>');
+  const nums = [];
+  const nf = (lbl, val, fn) => { if (val != null && val !== "") { const n = +val; nums.push('<span><i>' + lbl + '</i> <b class="' + fn(val) + '">' + (Number.isInteger(n) ? n : n.toFixed(1)) + '</b></span>'); } };
+  nf('GI', x.gi, giColor); nf('Белок', x.protein_100g, proColor); nf('Клетч', x.fiber_100g, fibColor); nf('Жир', x.fat_100g, fatColor);
+  const layers = LAYERS.map(([k, s]) => { const r = x[k]; return r ? ('<span class="lchip ' + (RCLS[r] || "na") + '">' + s + (RSYM[r] ? (' ' + RSYM[r]) : '') + '</span>') : ""; }).join("")
+    + (x.r_rec ? ('<span class="lchip ' + (RECCLS[x.r_rec] || "na") + '">Dr' + ((x.r_rec === "avoid" || x.r_rec === "caution") ? (' ' + RECSYM[x.r_rec]) : "") + '</span>') : "");
+  return '<div class="fgcard ' + (v === "recommended" ? "rec" : "") + '" data-ci="' + i + '">'
+    + '<div class="fgc-top"><div class="fgc-name">' + esc(ru) + de + '</div><span class="ov ' + (VCLS[v] || "allow") + '">' + (VSHORT[v] || v) + '</span>' + star + '</div>'
+    + (sc.length ? '<div class="fgc-scores">' + sc.join("") + '</div>' : "")
+    + (nums.length ? '<div class="fgc-nums">' + nums.join("") + '</div>' : "")
+    + (layers ? '<div class="fgc-layers">' + layers + '</div>' : "")
+    + '</div>'
+    + '<div class="fgc-det" data-cfor="' + i + '"></div>';
+}
 function renderFoodGuide(){
   const allRows = FOODGUIDE || [];
   const isRule = (x) => x.food_group && x.food_group.indexOf("general") === 0;
@@ -1310,7 +1364,8 @@ function renderFoodGuide(){
   if (!all.length){ $("fg-list").innerHTML = '<div class="empty">No diet data.</div>'; return; }
   if (!arr.length){ $("fg-list").innerHTML = '<div class="empty">Nothing found.</div>'; return; }
   const span = LAYERS.length + 10;
-  let body = "";
+  let body = "", cardsBody = "";
+  FG_ITEMS = [];
   let i = 0;
   const cats = {};
   arr.forEach(x => { const g = x.food_group || "general"; (cats[g] = cats[g] || []).push(x); });
@@ -1323,6 +1378,7 @@ function renderFoodGuide(){
     const items = cats[g];
     items.sort((a,b) => { const va = VORDER.indexOf(a.verdict), vb = VORDER.indexOf(b.verdict); return va !== vb ? va - vb : foodName(a.food_de).localeCompare(foodName(b.food_de), "ru"); });
     body += '<tr class="grp"><td colspan="' + span + '">' + esc(catName(g)) + ' · ' + items.length + '</td></tr>';
+    cardsBody += '<div class="fgc-group">' + esc(catName(g)) + ' · ' + items.length + '</div>';
     items.forEach(x => {
       const v = x.verdict;
       const ru = foodName(x.food_de);
@@ -1336,11 +1392,14 @@ function renderFoodGuide(){
         + '<td class="fov"><span class="ov ' + (VCLS[v] || "allow") + '">' + (VSHORT[v] || v) + '</span>' + star + '</td>'
         + '</tr>';
       body += '<tr class="det" data-for="' + i + '" style="display:none"><td colspan="' + span + '">' + fgDetail(x) + '</td></tr>';
+      cardsBody += fgCard(x, i);
+      FG_ITEMS[i] = x;
       i++;
     });
   });
   const head = '<thead><tr><th class="fnm">Food</th><th class="hcol">Hist</th><th class="hcol">Gut</th><th class="hcol">★Rec</th><th class="numh">GI</th><th class="numh">Protein</th><th class="numh">Fiber</th><th class="numh">Fat</th>' + LAYERS.map(([,s]) => '<th class="lyr">' + s + '</th>').join("") + '<th class="lyr">Dr/Lab</th><th class="fov">Verdict</th></tr></thead>';
-  $("fg-list").innerHTML = '<table class="fgtab">' + head + '<tbody>' + body + '</tbody></table>';
+  const colg = '<colgroup><col style="width:23%"><col style="width:7%"><col style="width:7%"><col style="width:7%"><col style="width:4%"><col style="width:6%"><col style="width:5.5%"><col style="width:5%"><col style="width:4.6%"><col style="width:4.6%"><col style="width:4.6%"><col style="width:4.6%"><col style="width:4.6%"><col style="width:4.6%"><col style="width:8%"></colgroup>';
+  $("fg-list").innerHTML = '<div class="fg-cards">' + cardsBody + '</div><table class="fgtab">' + colg + head + '<tbody>' + body + '</tbody></table>';
 }
 function toggleFgDet(r){ const d = r.nextElementSibling; if (d && d.classList.contains("det")){ d.style.display = d.style.display === "none" ? "" : "none"; r.classList.toggle("open"); } }
 
@@ -1558,19 +1617,19 @@ $("fg-reset").addEventListener("click", () => {
   ["fgq","fggroup","fg-hist","fg-gut","fg-gi","fg-pro","fg-fib","fg-fat","fg-rec"].forEach(id => { const el = $(id); if (el) el.value = ""; });
   renderFoodGuide();
 });
-$("fg-list").addEventListener("click", (e) => { const r = e.target.closest("tr.fgr"); if (r) toggleFgDet(r); });
-(function fgCrosshair(){
-  const fgl = $("fg-list"); if (!fgl) return;
-  let curCell = null;
-  const clearAll = () => { if (curCell){ curCell.classList.remove("cellhi"); curCell = null; } };
-  fgl.addEventListener("mouseover", (e) => {
-    const cell = e.target.closest("td, th"); if (!cell || !fgl.contains(cell)) return;
-    const tr = cell.parentElement;
-    if (tr.classList.contains("grp") || tr.classList.contains("det")){ clearAll(); return; }
-    if (curCell !== cell){ if (curCell) curCell.classList.remove("cellhi"); cell.classList.add("cellhi"); curCell = cell; }
-  });
-  fgl.addEventListener("mouseleave", clearAll);
-})();
+$("fg-list").addEventListener("click", (e) => {
+  const card = e.target.closest(".fgcard");
+  if (card){
+    const det = card.nextElementSibling;
+    if (det && det.classList.contains("fgc-det")){
+      const open = det.style.display === "block";
+      if (!open && !det.dataset.filled){ const x = FG_ITEMS[+card.dataset.ci]; if (x) det.innerHTML = fgDetail(x); det.dataset.filled = "1"; }
+      det.style.display = open ? "none" : "block"; card.classList.toggle("open");
+    }
+    return;
+  }
+  const r = e.target.closest("tr.fgr"); if (r) toggleFgDet(r);
+});
 document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => { document.querySelectorAll(".tab").forEach(x => x.classList.remove("active")); t.classList.add("active"); const name = t.dataset.tab; ["markers","dates","food","foodguide","dayplan","reactions","reports"].forEach(p => $("tab-" + p).style.display = (p === name ? "block" : "none")); }));
 $("pscoreBtn").addEventListener("click", () => { const det = $("pscoreDetail"), btn = $("pscoreBtn"); const open = det.style.display === "block"; det.style.display = open ? "none" : "block"; btn.classList.toggle("open", !open); btn.setAttribute("aria-expanded", String(!open)); });
 document.querySelectorAll("#tab-dayplan [data-dpv]").forEach(b => b.addEventListener("click", () => {
@@ -1599,7 +1658,7 @@ $("tab-dates").addEventListener("click", (e) => { const chip = e.target.closest(
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "9.6";
+const APP_VERSION = "9.7";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
