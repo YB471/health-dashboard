@@ -991,7 +991,6 @@ function ageAt(dStr){
 function yearsRu(n){ const a = Math.abs(n)%100, b = n%10; if (a >= 11 && a <= 14) return "лет"; if (b === 1) return "год"; if (b >= 2 && b <= 4) return "года"; return "лет"; }
 
 // Sample material of a marker: blood / urine / stool (microbiology disambiguated by marker name).
-const SAMPLE_LBL1 = { blood:"Анализ крови", stool:"Анализ кала", urine:"Анализ мочи" };
 const SAMPLE_LBLN = { blood:"Кровь", stool:"Кал", urine:"Моча" };
 function sampleMat(r){
   const c = r.cat || "", n = r.marker || "";
@@ -1002,8 +1001,7 @@ function sampleMat(r){
 }
 function sampleLabel(rows){
   const mats = {}; rows.forEach(r => { mats[sampleMat(r)] = 1; });
-  const order = ["blood","urine","stool"].filter(m => mats[m]);
-  return order.length === 1 ? SAMPLE_LBL1[order[0]] : order.map(m => SAMPLE_LBLN[m]).join(" · ");
+  return ["blood","urine","stool"].filter(m => mats[m]).map(m => SAMPLE_LBLN[m]).join(" · ");
 }
 
 function renderDates(){
@@ -1013,10 +1011,12 @@ function renderDates(){
   const byName = {}; MK.forEach(m => { byName[m.name] = m; });
   const cards = ds.length ? ds.map(d => {
     const arr = byd[d]; const fl = arr.filter(r => flagged(r.f)).length;
-    const catSum = esc(sampleLabel(arr));
+    const typ = esc(sampleLabel(arr));
+    const ag = ageAt(d);
+    const sub = `· ${typ}${ag != null ? ` · ${ag} ${yearsRu(ag)}` : ""}`;
     const dy = dateDyn(d, byName);
     const dyn = (dy.up || dy.down) ? ` · <span class="dmeta-dyn">${dy.up ? `<span class="dyn-up" title="Положительная динамика">↗ ${dy.up}</span>` : ""}${dy.down ? `<span class="dyn-dn" title="Отрицательная динамика">↘ ${dy.down}</span>` : ""}</span>` : "";
-    return `<div class="dcard" data-d="${d}"><div class="dhead"><div><div class="dttl">${fd(d)}${(() => { const ag = ageAt(d); return ag != null ? `<span class="dage">· ${ag} ${yearsRu(ag)}</span>` : ""; })()}</div><div class="dcats">${catSum}</div></div><div class="dmeta">${arr.length} markers · <span style="color:${fl ? "var(--hi)" : "var(--tx2)"}">${fl} out of range${fl ? ` (${Math.round(fl/arr.length*100)}%)` : ""}</span>${dyn}</div><div class="chev">⌄</div></div><div class="dbody"></div></div>`;
+    return `<div class="dcard" data-d="${d}"><div class="dhead"><div><div class="dttl">${fd(d)}<span class="dage">${sub}</span></div></div><div class="dmeta">${arr.length} markers · <span style="color:${fl ? "var(--hi)" : "var(--tx2)"}">${fl} out of range${fl ? ` (${Math.round(fl/arr.length*100)}%)` : ""}</span>${dyn}</div><div class="chev">⌄</div></div><div class="dbody"></div></div>`;
   }).join("") : '<div class="empty">No data.</div>';
   $("tab-dates").innerHTML = `<div class="kpis">${kpiHTML()}</div>` + cards;
 }
@@ -1558,7 +1558,7 @@ $("tab-dates").addEventListener("click", (e) => { const chip = e.target.closest(
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "8.7";
+const APP_VERSION = "8.8";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
