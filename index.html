@@ -97,6 +97,7 @@ body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,Bli
 .dhead{display:grid;grid-template-columns:1fr auto 20px;align-items:center;gap:10px;padding:12px 14px;cursor:pointer}
 .dhead:hover{background:var(--tk)}
 .dttl{font-size:15px;font-weight:500}
+.dage{color:var(--tx3);font-weight:400;font-size:13px;margin-left:7px}
 .dmeta{font-size:12px;color:var(--tx2)}
 .dmeta-dyn{font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
 .dmeta-dyn .dyn-up{color:var(--ok)}
@@ -935,6 +936,17 @@ function renderDateTable(d, rows){
 // Compact value for "a → b" trend lines: numeric keeps a single trailing unit; qualitative uses disp().
 function valStr(p){ return (p.v != null && !(p.vt && /[<>]/.test(p.vt))) ? (p.v + (p.u ? (" " + p.u) : "")) : disp(p); }
 
+// Completed years at a given test date (YYYY-MM-DD), relative to birth 1987-01-04.
+const HS_BIRTH = { y: 1987, m: 0, d: 4 };
+function ageAt(dStr){
+  const p = String(dStr).split("-"); if (p.length !== 3) return null;
+  const y = +p[0], m = +p[1]-1, d = +p[2];
+  let a = y - HS_BIRTH.y;
+  if (m < HS_BIRTH.m || (m === HS_BIRTH.m && d < HS_BIRTH.d)) a--;
+  return a;
+}
+function yearsRu(n){ const a = Math.abs(n)%100, b = n%10; if (a >= 11 && a <= 14) return "лет"; if (b === 1) return "год"; if (b >= 2 && b <= 4) return "года"; return "лет"; }
+
 // Sample material of a marker: blood / urine / stool (microbiology disambiguated by marker name).
 const SAMPLE_LBL1 = { blood:"Анализ крови", stool:"Анализ кала", urine:"Анализ мочи" };
 const SAMPLE_LBLN = { blood:"Кровь", stool:"Кал", urine:"Моча" };
@@ -961,7 +973,7 @@ function renderDates(){
     const catSum = esc(sampleLabel(arr));
     const dy = dateDyn(d, byName);
     const dyn = (dy.up || dy.down) ? ` · <span class="dmeta-dyn">${dy.up ? `<span class="dyn-up" title="Положительная динамика">↗ ${dy.up}</span>` : ""}${dy.down ? `<span class="dyn-dn" title="Отрицательная динамика">↘ ${dy.down}</span>` : ""}</span>` : "";
-    return `<div class="dcard" data-d="${d}"><div class="dhead"><div><div class="dttl">${fd(d)}</div><div class="dcats">${catSum}</div></div><div class="dmeta">${arr.length} markers · <span style="color:${fl ? "var(--hi)" : "var(--tx2)"}">${fl} out of range</span>${dyn}</div><div class="chev">⌄</div></div><div class="dbody"></div></div>`;
+    return `<div class="dcard" data-d="${d}"><div class="dhead"><div><div class="dttl">${fd(d)}${(() => { const ag = ageAt(d); return ag != null ? `<span class="dage">· ${ag} ${yearsRu(ag)}</span>` : ""; })()}</div><div class="dcats">${catSum}</div></div><div class="dmeta">${arr.length} markers · <span style="color:${fl ? "var(--hi)" : "var(--tx2)"}">${fl} out of range</span>${dyn}</div><div class="chev">⌄</div></div><div class="dbody"></div></div>`;
   }).join("") : '<div class="empty">No data.</div>';
   $("tab-dates").innerHTML = `<div class="kpis">${kpiHTML()}</div>` + cards;
 }
@@ -1468,7 +1480,7 @@ $("tab-dates").addEventListener("click", (e) => { const head = e.target.closest(
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "7.6";
+const APP_VERSION = "7.7";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
