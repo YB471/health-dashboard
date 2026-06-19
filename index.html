@@ -147,7 +147,7 @@ body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,Bli
 .bsum-gc.up{background:var(--okbg);color:var(--ok)}
 .bsum-gc.down{background:var(--warnbg);color:var(--warn)}
 .bsum-gc+.bsum-gc{margin-left:5px}
-.bsum-r td{padding:8px 12px 8px 0;border-top:1px solid var(--bd);vertical-align:middle}
+.bsum-r td{padding:8px 12px 8px 0;border-top:1px solid var(--bd);vertical-align:middle;height:55px}
 .bsum-r:hover td{background:var(--tk)}
 .bsum-r td:first-child{border-top-left-radius:7px;border-bottom-left-radius:7px}
 .bsum-r td:last-child{border-top-right-radius:7px;border-bottom-right-radius:7px;padding-right:6px}
@@ -1561,7 +1561,7 @@ $("tab-dates").addEventListener("click", (e) => { const chip = e.target.closest(
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "9.2";
+const APP_VERSION = "9.3";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
