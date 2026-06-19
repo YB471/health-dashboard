@@ -98,6 +98,22 @@ body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,Bli
 .ct{font-size:13px;font-weight:500}
 .cs{font-size:12px;color:var(--tx2);margin-top:2px}
 .empty{font-size:13px;color:var(--tx3);padding:10px 0}
+.lsum{border:1px solid var(--bd);border-radius:10px;background:var(--card);padding:13px 15px;margin-bottom:14px}
+.lsum-h{font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--tx2);margin-bottom:10px}
+.lsum-h span{font-weight:400;text-transform:none;letter-spacing:0;color:var(--tx3)}
+.lsum-cols{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:680px){.lsum-cols{grid-template-columns:1fr}}
+.lsum-col{border-radius:9px;padding:10px 12px}
+.lsum-col.pos{background:var(--okbg);border:1px solid var(--bd)}
+.lsum-col.neg{background:color-mix(in srgb,var(--hi) 11%,transparent);border:1px solid var(--bd)}
+.lsum-t{font-size:13px;font-weight:600;margin-bottom:7px}
+.lsum-col.pos .lsum-t{color:var(--ok)}
+.lsum-col.neg .lsum-t{color:var(--hi)}
+.lsum-i{font-size:13px;line-height:1.5;color:var(--tx);padding:4px 0 4px 15px;position:relative}
+.lsum-i+.lsum-i{border-top:1px solid var(--bd)}
+.lsum-i::before{content:"";position:absolute;left:2px;top:11px;width:5px;height:5px;border-radius:50%}
+.lsum-col.pos .lsum-i::before{background:var(--ok)}
+.lsum-col.neg .lsum-i::before{background:var(--hi)}
 .repsum{font-size:13px;color:var(--tx);line-height:1.55;white-space:pre-wrap}
 .repsrc{font-size:11px;color:var(--tx3);margin-top:8px}
 .rephd{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--tx3);margin:12px 0 3px}
@@ -471,7 +487,7 @@ const GRPLB = {"Бобовые":"Legumes","Грибы и дрожжи":"Mushroom
 const grpName = (g) => g;
 function tickIdx(n, max){ if (n <= max) return Array.from({length:n}, (_,i)=>i); const out=[]; for(let i=0;i<max;i++) out.push(Math.round(i*(n-1)/(max-1))); return Array.from(new Set(out)); }
 
-const LB = {liver:"Liver",hematology:"Hematology",lipids:"Lipids",iron:"Iron",endocrinology:"Endocrinology",protein_electrophoresis:"Protein electrophoresis",immunoglobulins:"Immunoglobulins",allergy:"Allergy/histamine",genetics:"Genetics",glucose:"Glucose",stool:"Stool",gut_flora:"Gut flora",gut_pathogens:"Opportunistic bacteria",gut_yeasts:"Yeasts & molds",inflammation:"Inflammation",metabolic:"Metabolism",electrolytes:"Electrolytes",urine:"Urine",coagulation:"Coagulation",celiac:"Celiac disease",infectiology:"Infections",pancreas:"Pancreas",kidney:"Kidney",thyroid_antibodies:"Thyroid (Ab)",microbiology:"Microbiology",vitamins:"Vitamins",toxicology:"Heavy metals",cardiac:"Heart/muscle",tumor_markers:"Tumor markers",autoimmune:"Autoimmune",fatty_acids:"Omega/fatty acids",food_vegetables:"Овощи",food_fruit:"Фрукты",food_spices:"Специи и травы",food_fish:"Рыба и морепродукты",food_grains_gluten:"Злаки с глютеном",food_meat:"Мясо",food_nuts:"Орехи и семена",food_mushrooms:"Грибы",food_grains_glutenfree:"Злаки без глютена",food_dairy:"Молочное",food_salad:"Салатные листья",food_yeast:"Дрожжи",food_beverages:"Чай, кофе, напитки",food_additives:"Добавки и масла",food_eggs:"Яйца",food_sweeteners:"Подсластители",general:"Общие правила"};
+const LB = {liver:"Печень",hematology:"Гематология",lipids:"Липиды",iron:"Железо",endocrinology:"Эндокринология",protein_electrophoresis:"Электрофорез белков",immunoglobulins:"Иммуноглобулины",allergy:"Аллергия/гистамин",genetics:"Генетика",glucose:"Глюкоза",stool:"Кал",gut_flora:"Микрофлора кишечника",gut_pathogens:"Условно-патогенные бактерии",gut_yeasts:"Дрожжи и плесени",inflammation:"Воспаление",metabolic:"Метаболизм",electrolytes:"Электролиты",urine:"Моча",coagulation:"Свёртывание",celiac:"Целиакия",infectiology:"Инфекции",pancreas:"Поджелудочная",kidney:"Почки",thyroid_antibodies:"Щитовидка (АТ)",microbiology:"Микробиология",vitamins:"Витамины",toxicology:"Тяжёлые металлы",cardiac:"Сердце/мышцы",tumor_markers:"Онкомаркеры",autoimmune:"Аутоиммунные",fatty_acids:"Омега/жирные кислоты",food_vegetables:"Овощи",food_fruit:"Фрукты",food_spices:"Специи и травы",food_fish:"Рыба и морепродукты",food_grains_gluten:"Злаки с глютеном",food_meat:"Мясо",food_nuts:"Орехи и семена",food_mushrooms:"Грибы",food_grains_glutenfree:"Злаки без глютена",food_dairy:"Молочное",food_salad:"Салатные листья",food_yeast:"Дрожжи",food_beverages:"Чай, кофе, напитки",food_additives:"Добавки и масла",food_eggs:"Яйца",food_sweeteners:"Подсластители",general:"Общие правила"};
 
 const FOODLB = {
 "Artischocke":"Артишок","Aubergine":"Баклажан","Bleichsellerie":"Сельдерей черешковый","Blumenkohl":"Цветная капуста","Brokkoli":"Брокколи","Chili Cayenne":"Чили кайенский","Chinakohl":"Пекинская капуста","Dicke Bohne":"Бобы садовые","Erbse":"Горох","Grüne/Gelbe Bohne":"Зелёная/жёлтая фасоль","Grünkohl":"Капуста кале","Gurke":"Огурец","Karotte":"Морковь","Kartoffel":"Картофель","Kichererbse":"Нут","Knollensellerie":"Сельдерей корневой","Kohlrabi":"Кольраби","Kürbis":"Тыква","Lauch":"Лук-порей","Linse":"Чечевица","Mangold":"Мангольд","Mungobohne":"Маш","Olive":"Оливки","Paprikaschote":"Сладкий перец","Pastinake":"Пастернак","Radieschen":"Редис","Rosenkohl":"Брюссельская капуста","Rote Beete":"Свёкла","Rotkohl":"Краснокочанная капуста","Sojabohne":"Соя","Spargel":"Спаржа","Spinat":"Шпинат","Steckrübe":"Брюква","Süßkartoffel":"Батат","Tomate":"Помидор","Weißkohl":"Белокочанная капуста","Wirsing":"Савойская капуста","Zucchini":"Цукини","Zwiebel":"Лук репчатый",
@@ -671,17 +687,30 @@ function dateBody(d){
   return html;
 }
 
+function renderDateSummary(){
+  const hl = (DATA && DATA.highlights) || [];
+  if (!hl.length) return "";
+  const pos = hl.filter(x => x.k === "+"), neg = hl.filter(x => x.k === "-");
+  const upd = DATA.highlights_updated ? (" · обновлено " + fd(String(DATA.highlights_updated).slice(0,10))) : "";
+  const col = (items, cls, label) => items.length
+    ? `<div class="lsum-col ${cls}"><div class="lsum-t">${label}</div>${items.map(x => `<div class="lsum-i">${esc(x.t)}</div>`).join("")}</div>`
+    : "";
+  return `<div class="lsum"><div class="lsum-h">Итоги и динамика<span>${upd}</span></div>`
+    + `<div class="lsum-cols">${col(pos,"pos","✓ Хорошо / улучшается")}${col(neg,"neg","⚠ Под наблюдением")}</div></div>`;
+}
+
 function renderDates(){
   const byd = {};
   DATA._labs.forEach(r => { if (r.cat && r.cat.indexOf("food_") === 0) return; (byd[r.date] = byd[r.date] || []).push(r); });
   const ds = Object.keys(byd).sort().reverse();
-  $("tab-dates").innerHTML = ds.length ? ds.map(d => {
+  const cards = ds.length ? ds.map(d => {
     const arr = byd[d]; const fl = arr.filter(r => flagged(r.f)).length;
     const counts = {}; arr.forEach(r => { counts[r.cat] = (counts[r.cat] || 0) + 1; });
     const cats = Object.keys(counts).sort((a,b) => counts[b] - counts[a] || catName(a).localeCompare(catName(b), "ru")).map(catName);
     const catSum = esc(cats.slice(0,5).join(", ") + (cats.length > 5 ? " +" + (cats.length - 5) : ""));
     return `<div class="dcard" data-d="${d}"><div class="dhead"><div><div class="dttl">${fd(d)}</div><div class="dcats">${catSum}</div></div><div class="dmeta">${arr.length} markers · <span style="color:${fl ? "var(--hi)" : "var(--tx2)"}">${fl} out of range</span></div><div class="chev">⌄</div></div><div class="dbody"></div></div>`;
   }).join("") : '<div class="empty">No data.</div>';
+  $("tab-dates").innerHTML = renderDateSummary() + cards;
 }
 
 function toggleDate(head){
@@ -1185,7 +1214,7 @@ $("tab-dates").addEventListener("click", (e) => { const head = e.target.closest(
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "6.1";
+const APP_VERSION = "6.2";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
