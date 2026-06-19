@@ -99,15 +99,21 @@ body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,Bli
 .cs{font-size:12px;color:var(--tx2);margin-top:2px}
 .empty{font-size:13px;color:var(--tx3);padding:10px 0}
 .bsum{border:1px solid var(--bd);border-radius:9px;background:var(--tk);padding:4px 11px;margin:2px 0 12px;font-size:12.5px}
-.bsum-row{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:baseline;padding:8px 0}
-.bsum-row+.bsum-row{border-top:1px solid var(--bd)}
-.bsum-k{font-weight:600;font-size:11px;letter-spacing:.03em;white-space:nowrap;align-self:center}
-.bsum-k.dev{color:var(--hi)}.bsum-k.up{color:var(--ok)}.bsum-k.down{color:var(--warn)}
+.bsum-grp{padding:8px 0}
+.bsum-grp+.bsum-grp{border-top:1px solid var(--bd)}
+.bsum-h{font-weight:600;font-size:11.5px;letter-spacing:.03em;margin:0 0 6px}
+.bsum-h.up{color:var(--ok)}.bsum-h.down{color:var(--warn)}
+.bsum-sub{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:baseline;padding:3px 0 3px 12px}
+.bsum-sub+.bsum-sub{margin-top:2px}
+.bsum-sk{font-size:11px;font-weight:500;white-space:nowrap;align-self:center;color:var(--tx2)}
+.bsum-sk.ok,.bsum-sk.improve{color:var(--ok)}.bsum-sk.bad{color:var(--hi)}.bsum-sk.worse{color:var(--warn)}
 .bsum-ok{color:var(--ok);font-weight:500;padding:2px 0}
 .bsum-i{display:inline-block;padding:2px 9px;border-radius:999px;border:1px solid var(--bd);background:var(--card);color:var(--tx2);line-height:1.45}
 .bsum-i b{font-weight:600;color:var(--tx)}
-.bsum-row.up-row .bsum-i{border-color:var(--ok)}
-.bsum-row.down-row .bsum-i{border-color:var(--warn)}
+.bsum-sub.ok .bsum-i{border-color:var(--ok)}
+.bsum-sub.improve .bsum-i{border:1px dashed var(--ok)}
+.bsum-sub.bad .bsum-i{border:1px dashed var(--hi)}
+.bsum-sub.worse .bsum-i{border:1px dashed var(--warn)}
 .repsum{font-size:13px;color:var(--tx);line-height:1.55;white-space:pre-wrap}
 .repsrc{font-size:11px;color:var(--tx3);margin-top:8px}
 .rephd{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--tx3);margin:12px 0 3px}
@@ -688,37 +694,42 @@ function outDist(v, lo, hi){
   return 0;
 }
 
-// Factual per-block digest: deviations + objective trend vs the previous measurement. No interpretation.
+// Factual per-block digest: objective trend vs the previous measurement, split by whether the
+// marker is now in range or still out. Deviations themselves are already shown (colored) in the list below.
 function blockAnalysis(d){
   const rows = DATA._labs.filter(r => r.date === d && !(r.cat && r.cat.indexOf("food_") === 0));
   if (!rows.length) return "";
   const byName = {}; MK.forEach(m => { byName[m.name] = m; });
-  const dev = [], up = [], down = [];
+  const upIn = [], upOut = [], downNew = [], downWorse = [];
+  let comparable = 0;
   rows.forEach(r => {
-    if (flagged(r.f)){
-      const ar = r.f === "high" ? "↑" : r.f === "low" ? "↓" : "•";
-      dev.push(`<span class="bsum-i"><b>${esc(r.marker)}</b> <span style="color:${col(r.f)}">${esc(disp(r))} ${ar}</span></span>`);
-    }
     const m = byName[r.marker];
     let prev = null;
     if (m){ const i = m.pts.findIndex(p => p.date === d); if (i > 0) prev = m.pts[i-1]; }
     if (!prev) return;
-    const trend = (arr) => arr.push(`<span class="bsum-i"><b>${esc(r.marker)}</b> ${esc(valStr(prev))} → ${esc(valStr(r))}</span>`);
+    comparable++;
+    const chip = `<span class="bsum-i"><b>${esc(r.marker)}</b> ${esc(valStr(prev))} → ${esc(valStr(r))}</span>`;
+    let dir = 0;
     if (r.v != null && prev.v != null){
       const dc = outDist(r.v, r.lo, r.hi), dp = outDist(prev.v, prev.lo, prev.hi);
-      if (dc < dp) trend(up);
-      else if (dc > dp) trend(down);
-      else { const pf = flagged(prev.f), cf = flagged(r.f); if (pf && !cf) trend(up); else if (!pf && cf) trend(down); }
+      if (dc < dp) dir = 1;
+      else if (dc > dp) dir = -1;
+      else { const pf = flagged(prev.f), cf = flagged(r.f); dir = (pf && !cf) ? 1 : (!pf && cf) ? -1 : 0; }
     } else {
       const pf = flagged(prev.f), cf = flagged(r.f);
-      if (pf && !cf) trend(up); else if (!pf && cf) trend(down);
+      dir = (pf && !cf) ? 1 : (!pf && cf) ? -1 : 0;
     }
+    if (dir === 1) (flagged(r.f) ? upOut : upIn).push(chip);
+    else if (dir === -1) (flagged(prev.f) ? downWorse : downNew).push(chip);
   });
+  const sub = (items, cls, label) => items.length ? `<div class="bsum-sub ${cls}"><span class="bsum-sk ${cls}">${label} · ${items.length}</span>${items.join("")}</div>` : "";
   let html = "";
-  if (dev.length) html += `<div class="bsum-row"><span class="bsum-k dev">⚠ Вне нормы · ${dev.length}</span>${dev.join("")}</div>`;
-  else html += `<div class="bsum-row"><span class="bsum-ok">✓ Все показатели в пределах нормы</span></div>`;
-  if (up.length) html += `<div class="bsum-row up-row"><span class="bsum-k up">↗ Положительная динамика · ${up.length}</span>${up.join("")}</div>`;
-  if (down.length) html += `<div class="bsum-row down-row"><span class="bsum-k down">↘ Отрицательная динамика · ${down.length}</span>${down.join("")}</div>`;
+  const upN = upIn.length + upOut.length, downN = downNew.length + downWorse.length;
+  if (upN) html += `<div class="bsum-grp"><div class="bsum-h up">↗ Положительная динамика · ${upN}</div>`
+    + sub(upIn, "ok", "✓ Вернулись в норму") + sub(upOut, "improve", "↗ Улучшаются, ещё вне нормы") + `</div>`;
+  if (downN) html += `<div class="bsum-grp"><div class="bsum-h down">↘ Отрицательная динамика · ${downN}</div>`
+    + sub(downNew, "bad", "✗ Вышли из нормы") + sub(downWorse, "worse", "↘ Усугубились, вне нормы") + `</div>`;
+  if (!html) html = `<div class="bsum-sub"><span class="bsum-ok">${comparable ? "✓ Без значимой динамики к прошлому замеру" : "Первый замер этих маркеров — сравнивать не с чем"}</span></div>`;
   return `<div class="bsum">${html}</div>`;
 }
 
@@ -1240,7 +1251,7 @@ $("tab-dates").addEventListener("click", (e) => { const head = e.target.closest(
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "6.4";
+const APP_VERSION = "6.5";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
