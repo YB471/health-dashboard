@@ -98,8 +98,8 @@ body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,Bli
 .ct{font-size:13px;font-weight:500}
 .cs{font-size:12px;color:var(--tx2);margin-top:2px}
 .empty{font-size:13px;color:var(--tx3);padding:10px 0}
-.bsum{border:1px solid var(--bd);border-radius:12px;background:var(--tk);padding:14px 16px 6px;margin:12px 0 16px;font-size:13px}
-.bsum-top{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:2px}
+.bsum{margin:0 0 2px;font-size:13px}
+.bsum-top{display:flex;flex-wrap:wrap;gap:8px;margin:2px 0 4px}
 .bsum-stat{display:inline-flex;align-items:center;gap:7px;padding:5px 13px;border-radius:999px;font-size:11.5px;font-weight:600;letter-spacing:.01em}
 .bsum-stat .n{font-size:13px;font-variant-numeric:tabular-nums}
 .bsum-stat.up{background:var(--okbg);color:var(--ok)}
@@ -113,21 +113,22 @@ body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,Bli
 .bsum-gc.down{background:var(--warnbg);color:var(--warn)}
 .bsum-gc+.bsum-gc{margin-left:5px}
 .bsum-r td{padding:8px 12px 8px 0;border-top:1px solid var(--bd);vertical-align:middle}
-.bsum-r:hover td{background:var(--card)}
+.bsum-r:hover td{background:var(--tk)}
 .bsum-r td:first-child{border-top-left-radius:7px;border-bottom-left-radius:7px}
 .bsum-r td:last-child{border-top-right-radius:7px;border-bottom-right-radius:7px;padding-right:6px}
-.bsum-r .mk{font-weight:600;color:var(--tx);padding-left:6px}
+.bsum-r .mk{font-weight:600;color:var(--tx);padding-left:6px;white-space:nowrap}
 .bsum-r .dy{font-variant-numeric:tabular-nums;color:var(--tx2);white-space:nowrap}
 .bsum-r .dy .p{color:var(--tx3);white-space:nowrap}
 .bsum-r .dy .a{color:var(--tx3);margin:0 4px}
 .bsum-r .dy .c{color:var(--tx);font-weight:500;white-space:nowrap}
-.bsum-r .st{text-align:right;white-space:nowrap}
+.bsum-r .rf{color:var(--tx3);white-space:nowrap;font-variant-numeric:tabular-nums}
+.bsum-r .st{width:100%;text-align:right;white-space:nowrap}
 .bsum-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 11px;border-radius:999px;font-size:11px;font-weight:600;letter-spacing:.01em;line-height:1.35;border:1px solid transparent;white-space:nowrap}
 .bsum-badge.ok{background:var(--okbg2);color:var(--ok)}
 .bsum-badge.improve{background:var(--okbg);color:var(--ok)}
 .bsum-badge.bad{background:var(--hibg);color:var(--hi)}
 .bsum-badge.worse{background:var(--warnbg);color:var(--warn)}
-@media(max-width:680px){.bsum-r .dy,.bsum-r .st{white-space:normal}}
+@media(max-width:680px){.bsum-r .dy,.bsum-r .st,.bsum-r .mk{white-space:normal}}
 .repsum{font-size:13px;color:var(--tx);line-height:1.55;white-space:pre-wrap}
 .repsrc{font-size:11px;color:var(--tx3);margin-top:8px}
 .rephd{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--tx3);margin:12px 0 3px}
@@ -667,17 +668,8 @@ function toggleDetail(row){
 }
 
 function dateBody(d){
-  const arr = DATA._labs.filter(r => r.date === d && !(r.cat && r.cat.indexOf("food_") === 0)).slice().sort((a,b) => {
-    if (flagged(a.f) !== flagged(b.f)) return flagged(a.f) ? -1 : 1;
-    const ca = catName(a.cat), cb = catName(b.cat);
-    if (ca !== cb) return ca.localeCompare(cb, "ru");
-    return a.marker.localeCompare(b.marker, "ru");
-  });
-  let html = blockAnalysis(d) + arr.map(r => {
-    const c = flagged(r.f) ? col(r.f) : "var(--tx)";
-    const rt = refTxt(r.lo, r.hi, r.u);
-    return `<div class="drow"><div class="m">${esc(r.marker)} <span class="ref">${esc(catName(r.cat))}</span></div><div class="mval" style="color:${c}">${esc(disp(r))}</div><div class="ref">${esc(rt)}</div></div>`;
-  }).join("");
+  const rows = DATA._labs.filter(r => r.date === d && !(r.cat && r.cat.indexOf("food_") === 0));
+  let html = rows.length ? renderDateTable(d, rows) : '<div class="empty">No data.</div>';
   (DATA.recs || []).filter(x => x.rec_date === d).forEach(rc => {
     const de = rc.body ? esc(rc.body) : "";
     const ru = rc.body_ru ? esc(rc.body_ru) : "";
@@ -709,55 +701,69 @@ function outDist(v, lo, hi){
   return 0;
 }
 
-// Factual per-block digest: trend vs the previous measurement, as a table grouped by lab category.
-// Status badge encodes the four cases (back in range / improving / left range / worse). Facts only.
+// Status badge labels for the four trend cases (back in range / improving / left range / worse).
 const BA_STLBL = { ok:"✓ Вернулся в норму", improve:"↗ Улучшается, вне нормы", bad:"✗ Вышел из нормы", worse:"↘ Усугубился, вне нормы" };
-const BA_STORD = { bad:0, worse:1, improve:2, ok:3 };
-function blockAnalysis(d){
-  const rows = DATA._labs.filter(r => r.date === d && !(r.cat && r.cat.indexOf("food_") === 0));
-  if (!rows.length) return "";
+
+// Unified per-date view: EVERY marker grouped by lab category, showing value + reference, plus the trend
+// (prev → curr) and a status badge where it changed vs the previous measurement. Frameless (white card).
+function renderDateTable(d, rows){
   const byName = {}; MK.forEach(m => { byName[m.name] = m; });
-  const groups = {}; let upN = 0, downN = 0, comparable = 0;
+  const groups = {}; let upN = 0, downN = 0;
   rows.forEach(r => {
     const m = byName[r.marker];
     let prev = null;
     if (m){ const i = m.pts.findIndex(p => p.date === d); if (i > 0) prev = m.pts[i-1]; }
-    if (!prev) return;
-    comparable++;
     let dir = 0;
-    if (r.v != null && prev.v != null){
-      const dc = outDist(r.v, r.lo, r.hi), dp = outDist(prev.v, prev.lo, prev.hi);
-      if (dc < dp) dir = 1; else if (dc > dp) dir = -1;
-      else { const pf = flagged(prev.f), cf = flagged(r.f); dir = (pf && !cf) ? 1 : (!pf && cf) ? -1 : 0; }
-    } else { const pf = flagged(prev.f), cf = flagged(r.f); dir = (pf && !cf) ? 1 : (!pf && cf) ? -1 : 0; }
-    if (dir === 0) return;
-    const status = dir === 1 ? (flagged(r.f) ? "improve" : "ok") : (flagged(prev.f) ? "worse" : "bad");
-    if (dir === 1) upN++; else downN++;
-    (groups[r.cat] = groups[r.cat] || []).push({ marker: r.marker, p: valStr(prev), c: valStr(r), status: status, dir: dir });
+    if (prev){
+      if (r.v != null && prev.v != null){
+        const dc = outDist(r.v, r.lo, r.hi), dp = outDist(prev.v, prev.lo, prev.hi);
+        if (dc < dp) dir = 1; else if (dc > dp) dir = -1;
+        else { const pf = flagged(prev.f), cf = flagged(r.f); dir = (pf && !cf) ? 1 : (!pf && cf) ? -1 : 0; }
+      } else { const pf = flagged(prev.f), cf = flagged(r.f); dir = (pf && !cf) ? 1 : (!pf && cf) ? -1 : 0; }
+    }
+    const status = dir === 1 ? (flagged(r.f) ? "improve" : "ok") : dir === -1 ? (flagged(prev.f) ? "worse" : "bad") : null;
+    if (dir === 1) upN++; else if (dir === -1) downN++;
+    (groups[r.cat] = groups[r.cat] || []).push({ r: r, prev: prev, dir: dir, status: status });
   });
-  if (!upN && !downN)
-    return `<div class="bsum"><div class="bsum-empty">${comparable ? "✓ Без значимой динамики к прошлому замеру" : "Первый замер этих маркеров — сравнивать не с чем"}</div></div>`;
+  const meta = {};
+  Object.keys(groups).forEach(c => {
+    const it = groups[c];
+    meta[c] = { fl: it.filter(x => flagged(x.r.f)).length, ch: it.filter(x => x.dir !== 0).length,
+                up: it.filter(x => x.dir > 0).length, dn: it.filter(x => x.dir < 0).length };
+  });
   const cats = Object.keys(groups).sort((a,b) => {
-    const na = groups[a].filter(x => x.dir < 0).length, nb = groups[b].filter(x => x.dir < 0).length;
-    if (na !== nb) return nb - na;
-    if (groups[b].length !== groups[a].length) return groups[b].length - groups[a].length;
+    if (meta[a].fl !== meta[b].fl) return meta[b].fl - meta[a].fl;
+    if (meta[a].ch !== meta[b].ch) return meta[b].ch - meta[a].ch;
     return catName(a).localeCompare(catName(b), "ru");
   });
   let body = "";
   cats.forEach(cat => {
-    const items = groups[cat].slice().sort((x,y) => BA_STORD[x.status] - BA_STORD[y.status] || x.marker.localeCompare(y.marker, "ru"));
-    const pos = items.filter(x => x.dir > 0).length, neg = items.length - pos;
-    const gc = (neg ? `<span class="bsum-gc down">↘ ${neg}</span>` : "") + (pos ? `<span class="bsum-gc up">↗ ${pos}</span>` : "");
-    body += `<tr class="bsum-ghead"><td colspan="3">${esc(catName(cat))}${gc}</td></tr>`;
-    items.forEach(x => {
-      body += `<tr class="bsum-r"><td class="mk">${esc(x.marker)}</td>`
-        + `<td class="dy"><span class="p">${esc(x.p)}</span><span class="a">→</span><span class="c">${esc(x.c)}</span></td>`
-        + `<td class="st"><span class="bsum-badge ${x.status}">${BA_STLBL[x.status]}</span></td></tr>`;
+    const it = groups[cat].slice().sort((x,y) => {
+      const fx = flagged(x.r.f) ? 0 : 1, fy = flagged(y.r.f) ? 0 : 1;
+      if (fx !== fy) return fx - fy;
+      const cx = x.dir !== 0 ? 0 : 1, cy = y.dir !== 0 ? 0 : 1;
+      if (cx !== cy) return cx - cy;
+      return x.r.marker.localeCompare(y.r.marker, "ru");
+    });
+    const m = meta[cat];
+    const gc = (m.dn ? `<span class="bsum-gc down">↘ ${m.dn}</span>` : "") + (m.up ? `<span class="bsum-gc up">↗ ${m.up}</span>` : "");
+    body += `<tr class="bsum-ghead"><td colspan="4">${esc(catName(cat))}${gc}</td></tr>`;
+    it.forEach(x => {
+      const r = x.r, prev = x.prev;
+      const c = flagged(r.f) ? col(r.f) : "var(--tx)";
+      const val = (prev && x.dir !== 0)
+        ? `<span class="p">${esc(valStr(prev))}</span><span class="a">→</span><span class="c" style="color:${c}">${esc(valStr(r))}</span>`
+        : `<span class="c" style="color:${c}">${esc(valStr(r))}</span>`;
+      const badge = x.status ? `<span class="bsum-badge ${x.status}">${BA_STLBL[x.status]}</span>` : "";
+      body += `<tr class="bsum-r"><td class="mk">${esc(r.marker)}</td>`
+        + `<td class="dy">${val}</td>`
+        + `<td class="rf">${esc(refTxt(r.lo, r.hi, r.u))}</td>`
+        + `<td class="st">${badge}</td></tr>`;
     });
   });
-  const top = `<div class="bsum-top">`
+  const top = (upN || downN) ? `<div class="bsum-top">`
     + (upN ? `<span class="bsum-stat up">↗ Положительная динамика <span class="n">${upN}</span></span>` : "")
-    + (downN ? `<span class="bsum-stat down">↘ Отрицательная динамика <span class="n">${downN}</span></span>` : "") + `</div>`;
+    + (downN ? `<span class="bsum-stat down">↘ Отрицательная динамика <span class="n">${downN}</span></span>` : "") + `</div>` : "";
   return `<div class="bsum">${top}<table class="bsum-tbl"><tbody>${body}</tbody></table></div>`;
 }
 
@@ -1279,7 +1285,7 @@ $("tab-dates").addEventListener("click", (e) => { const head = e.target.closest(
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "7.1";
+const APP_VERSION = "7.2";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
