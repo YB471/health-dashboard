@@ -25,7 +25,7 @@ body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,Bli
 .pmeta{display:flex;flex-wrap:wrap;gap:5px 18px;margin-top:6px;font-size:13px;color:var(--tx2)}
 .pmeta b{color:var(--tx);font-weight:600}
 .btn2{padding:7px 12px;font-size:13px;border:1px solid var(--bd2);border-radius:8px;background:transparent;color:inherit;cursor:pointer;margin-left:6px}
-.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin:18px 0 4px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin:0 0 16px}
 .kpi{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:13px 15px}
 .kn{font-size:23px;font-weight:500}
 .kl{font-size:12px;color:var(--tx2);margin-top:3px}
@@ -1251,7 +1251,7 @@ $("tab-dates").addEventListener("click", (e) => { const head = e.target.closest(
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "6.5";
+const APP_VERSION = "6.6";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
