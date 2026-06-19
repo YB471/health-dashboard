@@ -160,7 +160,7 @@ body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,Bli
 .si-new{font-size:9px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:var(--lo);background:rgba(47,125,212,.15);border-radius:4px;padding:1px 4px;line-height:1.4;white-space:nowrap}
 .bsum-r .mk{font-weight:600;color:var(--tx);white-space:nowrap}
 .bsum-r .dy{font-variant-numeric:tabular-nums;color:var(--tx2);white-space:nowrap;width:100%}
-.bsum-r .dy-date{color:var(--tx3);font-size:11px;margin-top:2px;font-variant-numeric:tabular-nums}
+.bsum-r .dy-date{color:var(--tx3);font-size:11px;margin-left:12px;font-variant-numeric:tabular-nums;white-space:nowrap}
 .bsum-r .dy .p{color:var(--tx3);white-space:nowrap}
 .bsum-r .dy .a{color:var(--tx3);margin:0 4px}
 .bsum-r .dy .c{color:var(--tx);font-weight:500;white-space:nowrap}
@@ -304,6 +304,50 @@ td.hcell .he{opacity:.3}
 .fgnum input::placeholder{color:var(--tx3)}
 .fgnum #fg-reset{padding:5px 12px;font-size:12px;margin-left:auto}
 @media(max-width:600px){td.fnm,th.fnm{min-width:92px}.cell{width:22px}}
+/* ===== smartphone optimization (≤600px) ===== */
+@media(max-width:800px){.bsum-r .dy-date{display:block;margin-left:0;margin-top:2px}}
+@media(max-width:600px){
+  .btn2{padding:10px 14px;font-size:14px;min-height:40px}
+  .tabs{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{flex:0 0 auto;white-space:nowrap;padding:11px 13px}
+  .ps-meta{min-width:0}
+  .ps-band,.ps-ttl{overflow-wrap:anywhere}
+  .controls input{flex:1 1 100%;min-width:0}
+  .controls select{flex:1 1 100%;min-width:0;max-width:100%}
+  .modebtn{padding-top:11px;padding-bottom:11px;min-height:44px}
+  .controls .modebtns{flex:1 1 100%}
+  .controls .modebtn{flex:1;text-align:center}
+  #tab-dayplan .modebtns{display:flex}
+  #tab-dayplan .modebtn{flex:1;text-align:center}
+  .dhead{grid-template-columns:1fr 20px;row-gap:4px}
+  .dhead>.chev{grid-row:1;grid-column:2}
+  .dhead>:nth-child(2){grid-column:1/2}
+  .dmeta{line-height:1.5}
+  .dmeta-dyn{white-space:normal}
+  .dttl .dage{display:block;margin-left:0;margin-top:2px}
+  .bsum{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .bsum-r .mk{overflow-wrap:anywhere}
+  .bsum-r td{height:auto;padding-top:9px;padding-bottom:9px}
+  .bsum-legend{gap:8px 10px}
+  .bsum-legend .lg{padding:8px 11px;font-size:12px}
+  .fpbtns{display:grid;grid-template-columns:1fr 1fr;width:100%;overflow:visible}
+  .fpbtn{border-right:0;border:1px solid var(--bd);border-radius:6px;padding-top:11px;padding-bottom:11px;min-height:44px}
+  .fgwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table.fgtab{min-width:max-content}
+  #food-list,#igg4-list,#ige-list{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .fgnum input,.fgnum select{padding:8px 9px}
+  .fgnum input{width:64px}
+  .fgnum #fg-reset{margin-left:0}
+  .rx-form{flex-direction:column;align-items:stretch}
+  .rx-form input,.rx-form select{width:100%;min-width:0;padding:10px 11px;font-size:15px}
+  .rx-form #rx-add{width:100%;margin-left:0;padding:11px 12px}
+  #rx-status{margin:2px 0 0;display:block;text-align:center}
+  .repsum{overflow-wrap:anywhere}
+}
+@media(max-width:390px){
+  .wrap{padding-left:13px;padding-right:13px}
+}
 </style>
 </head>
 <body>
@@ -966,7 +1010,7 @@ function renderMarkerTable(entries, showDate){
       const dyc = !prev ? "new" : (x.dir === 1 ? "up" : x.dir === -1 ? "down" : "flat");
       body += `<tr class="bsum-r${flg ? " flg" : ""}" data-mk="${mkid}" data-n="${nrm}" data-d="${dyc}"><td class="si1">${normIcon}</td><td class="si2">${dynIcon}</td>`
         + `<td class="mk">${esc(r.marker)}${rt ? `<div class="mk-ref">${esc(rt)}</div>` : ""}</td>`
-        + `<td class="dy">${val}${showDate ? `<div class="dy-date">${fd(r.date)}</div>` : ""}</td>`
+        + `<td class="dy">${val}${showDate ? `<span class="dy-date">${fd(r.date)}</span>` : ""}</td>`
         + `<td class="sp">${spk}</td>`
         + `<td class="chev-c"><span class="chev">⌄</span></td></tr>`
         + `<tr class="bsum-det"><td colspan="6"><div class="bsum-detbox"></div></td></tr>`;
@@ -1563,7 +1607,7 @@ $("tab-dates").addEventListener("click", (e) => { const chip = e.target.closest(
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "9.4";
+const APP_VERSION = "9.5";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
