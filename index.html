@@ -233,7 +233,7 @@ td.fnm .nm{font-size:13px;line-height:1.25}
 td.fnm .de{font-size:10px;color:var(--tx3);margin-top:1px}
 .cell{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:4px;font-size:11px;font-weight:700;margin:3px auto}
 #fg-list th.lyr,#fg-list td.lyr{padding-left:1px;padding-right:1px}
-#fg-list th.lyr{font-size:9px;letter-spacing:0}
+#fg-list th.lyr{font-size:8px;letter-spacing:0}
 #fg-list th.hcol{padding-left:9px;padding-right:9px}
 .cell.ok{background:rgba(29,158,117,.20);color:var(--ok)}
 .cell.caution{background:rgba(186,117,23,.22);color:var(--warn)}
@@ -1397,8 +1397,8 @@ function renderFoodGuide(){
       i++;
     });
   });
-  const head = '<thead><tr><th class="fnm">Food</th><th class="hcol">Hist</th><th class="hcol">Gut</th><th class="hcol">★Rec</th><th class="numh">GI</th><th class="numh">Protein</th><th class="numh">Fiber</th><th class="numh">Fat</th>' + LAYERS.map(([,s]) => '<th class="lyr">' + s + '</th>').join("") + '<th class="lyr">Dr/Lab</th><th class="fov">Verdict</th></tr></thead>';
-  const colg = '<colgroup><col style="width:23%"><col style="width:7%"><col style="width:7%"><col style="width:7%"><col style="width:4%"><col style="width:6%"><col style="width:5.5%"><col style="width:5%"><col style="width:4.6%"><col style="width:4.6%"><col style="width:4.6%"><col style="width:4.6%"><col style="width:4.6%"><col style="width:4.6%"><col style="width:8%"></colgroup>';
+  const head = '<thead><tr><th class="fnm">Food</th><th class="hcol">Hist</th><th class="hcol">Gut</th><th class="hcol">★Rec</th><th class="numh">GI</th><th class="numh">Protein</th><th class="numh">Fiber</th><th class="numh">Fat</th>' + LAYERS.map(([,s]) => '<th class="lyr">' + s + '</th>').join("") + '<th class="lyr">Dr</th><th class="fov">Verdict</th></tr></thead>';
+  const colg = '<colgroup><col style="width:27%"><col style="width:8%"><col style="width:8%"><col style="width:8%"><col style="width:5%"><col style="width:7%"><col style="width:6.5%"><col style="width:6%"><col style="width:2.7%"><col style="width:2.7%"><col style="width:2.7%"><col style="width:2.7%"><col style="width:2.7%"><col style="width:2.7%"><col style="width:8.3%"></colgroup>';
   $("fg-list").innerHTML = '<div class="fg-cards">' + cardsBody + '</div><table class="fgtab">' + colg + head + '<tbody>' + body + '</tbody></table>';
 }
 function toggleFgDet(r){ const d = r.nextElementSibling; if (d && d.classList.contains("det")){ d.style.display = d.style.display === "none" ? "" : "none"; r.classList.toggle("open"); } }
@@ -1658,7 +1658,7 @@ $("tab-dates").addEventListener("click", (e) => { const chip = e.target.closest(
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "9.7";
+const APP_VERSION = "9.8";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
