@@ -174,8 +174,12 @@ body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,Bli
 .bsum-det td{padding:0;border-top:0}
 .bsum-detbox{margin:2px 0 8px}
 .bsum-legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:11px;color:var(--tx2);margin:0 0 12px}
-.bsum-legend .lg{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.bsum-legend{user-select:none}
+.bsum-legend .lg{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;cursor:pointer;padding:3px 9px;border-radius:999px;border:1px solid transparent;transition:background .12s,opacity .12s}
 .bsum-legend .lg.lg-gap{margin-left:6px}
+.bsum-legend .lg:hover{background:var(--tk)}
+.bsum-legend .lg.active{background:var(--tk);border-color:var(--bd2)}
+.bsum-legend.has-filter .lg:not(.active){opacity:.4}
 .bsum-legend .lg i{font-style:normal;font-weight:700;font-size:12px}
 @media(max-width:680px){.bsum-r .dy,.bsum-r .mk{white-space:normal}.bsum-r .sp{display:none}}
 .repsum{font-size:13px;color:var(--tx);line-height:1.55;white-space:pre-wrap}
@@ -951,7 +955,9 @@ function renderDateTable(d, rows){
       const spk = (mm && mm.numPts.length >= 2) ? spark(mm.numPts) : "";
       const mkid = mm ? mm.id : "";
       const rt = refTxt(r.lo, r.hi, r.u);
-      body += `<tr class="bsum-r${flg ? " flg" : ""}" data-mk="${mkid}"><td class="si1">${normIcon}</td><td class="si2">${dynIcon}</td>`
+      const nrm = flg ? "out" : "in";
+      const dyc = !prev ? "new" : (x.dir === 1 ? "up" : x.dir === -1 ? "down" : "flat");
+      body += `<tr class="bsum-r${flg ? " flg" : ""}" data-mk="${mkid}" data-n="${nrm}" data-d="${dyc}"><td class="si1">${normIcon}</td><td class="si2">${dynIcon}</td>`
         + `<td class="mk">${esc(r.marker)}${rt ? `<div class="mk-ref">${esc(rt)}</div>` : ""}</td>`
         + `<td class="dy">${val}</td>`
         + `<td class="sp">${spk}</td>`
@@ -959,13 +965,13 @@ function renderDateTable(d, rows){
         + `<tr class="bsum-det"><td colspan="6"><div class="bsum-detbox"></div></td></tr>`;
     });
   });
-  const legend = `<div class="bsum-legend">`
-    + `<span class="lg"><i style="color:var(--ok)">●</i>в норме</span>`
-    + `<span class="lg"><i style="color:var(--hi)">●</i>вне нормы</span>`
-    + `<span class="lg lg-gap"><i style="color:var(--ok)">↗</i>стал ближе к норме</span>`
-    + `<span class="lg"><i style="color:var(--warn)">↘</i>стал дальше от нормы</span>`
-    + `<span class="lg"><i style="color:var(--tx3)">–</i>без изменений</span>`
-    + `<span class="lg"><span class="si-new">new</span> впервые</span></div>`;
+  const legend = `<div class="bsum-legend" title="Нажми, чтобы отфильтровать">`
+    + `<span class="lg" data-dim="norm" data-v="in"><i style="color:var(--ok)">●</i>в норме</span>`
+    + `<span class="lg" data-dim="norm" data-v="out"><i style="color:var(--hi)">●</i>вне нормы</span>`
+    + `<span class="lg lg-gap" data-dim="dyn" data-v="up"><i style="color:var(--ok)">↗</i>стал ближе к норме</span>`
+    + `<span class="lg" data-dim="dyn" data-v="down"><i style="color:var(--warn)">↘</i>стал дальше от нормы</span>`
+    + `<span class="lg" data-dim="dyn" data-v="flat"><i style="color:var(--tx3)">–</i>без изменений</span>`
+    + `<span class="lg" data-dim="dyn" data-v="new"><span class="si-new">new</span> впервые</span></div>`;
   return `<div class="bsum">${legend}<table class="bsum-tbl"><tbody>${body}</tbody></table></div>`;
 }
 
@@ -1022,6 +1028,28 @@ function toggleDate(head){
   card.classList.toggle("open", willOpen);
   body.style.display = willOpen ? "block" : "none";
   const ch = head.querySelector(".chev"); if (ch) ch.style.transform = willOpen ? "rotate(180deg)" : "";
+}
+
+// Legend chips act as filters for the date table: norm-status (in/out) + dynamics (up/down/flat/new).
+// OR within a dimension, AND across dimensions; empty dimension = no constraint. Per-card.
+function toggleBsumFilter(chip){
+  chip.classList.toggle("active");
+  const box = chip.closest(".bsum"); if (!box) return;
+  const leg = chip.closest(".bsum-legend");
+  if (leg) leg.classList.toggle("has-filter", !!leg.querySelector(".lg.active"));
+  const setOf = (dim) => { const s = new Set(); box.querySelectorAll(`.bsum-legend .lg.active[data-dim="${dim}"]`).forEach(c => s.add(c.dataset.v)); return s; };
+  const nf = setOf("norm"), df = setOf("dyn");
+  let ghead = null, anyVis = false;
+  box.querySelectorAll("tbody > tr").forEach(tr => {
+    if (tr.classList.contains("bsum-ghead")){ if (ghead) ghead.style.display = anyVis ? "" : "none"; ghead = tr; anyVis = false; return; }
+    if (!tr.classList.contains("bsum-r")) return;
+    const vis = (nf.size === 0 || nf.has(tr.dataset.n)) && (df.size === 0 || df.has(tr.dataset.d));
+    tr.style.display = vis ? "" : "none";
+    if (vis) anyVis = true;
+    const det = tr.nextElementSibling;
+    if (det && det.classList.contains("bsum-det")) det.style.display = (vis && tr.classList.contains("open")) ? "table-row" : "none";
+  });
+  if (ghead) ghead.style.display = anyVis ? "" : "none";
 }
 
 // Expand a marker row in the Labs-by-Date table → detailed chart + history (reuses All Labs detailHTML).
@@ -1525,11 +1553,11 @@ if ($("rx-add")) $("rx-add").addEventListener("click", async () => {
   finally { btn.disabled = false; btn.textContent = prev; }
 });
 $("mk-list").addEventListener("click", (e) => { const row = e.target.closest(".mrow"); if (row) toggleDetail(row); });
-$("tab-dates").addEventListener("click", (e) => { const row = e.target.closest("tr.bsum-r"); if (row && row.dataset.mk){ toggleMkDetail(row); return; } const head = e.target.closest(".dhead"); if (head) toggleDate(head); });
+$("tab-dates").addEventListener("click", (e) => { const chip = e.target.closest(".bsum-legend .lg"); if (chip){ toggleBsumFilter(chip); return; } const row = e.target.closest("tr.bsum-r"); if (row && row.dataset.mk){ toggleMkDetail(row); return; } const head = e.target.closest(".dhead"); if (head) toggleDate(head); });
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "8.5";
+const APP_VERSION = "8.6";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
