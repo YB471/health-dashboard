@@ -355,11 +355,6 @@ td.hcell .he{opacity:.3}
     <div class="controls">
       <input id="q" type="text" placeholder="Search marker…">
       <select id="cat"></select>
-      <div class="modebtns">
-        <button class="modebtn active" data-mode="all">All</button>
-        <button class="modebtn" data-mode="flagged">Out of range</button>
-        <button class="modebtn" data-mode="trend">With trend</button>
-      </div>
     </div>
     <div id="mk-count" class="secs"></div>
     <div id="mk-list"></div>
@@ -822,12 +817,11 @@ function renderMarkers(){
   const total = MK.filter(m => m.cat.indexOf("food_") !== 0);
   let arr = total;
   if (F.cat) arr = arr.filter(m => m.cat === F.cat);
-  if (F.mode === "flagged") arr = arr.filter(m => m.flagged);
-  else if (F.mode === "trend") arr = arr.filter(m => m.numPts.length >= 2);
   if (F.q){ const q = F.q.toLowerCase(); arr = arr.filter(m => m.name.toLowerCase().includes(q) || catName(m.cat).toLowerCase().includes(q)); }
-  arr = sortMK(arr);
   $("mk-count").textContent = "Showing " + arr.length + " of " + total.length;
-  $("mk-list").innerHTML = arr.length ? arr.map(markerRow).join("") : '<div class="empty">Nothing found.</div>';
+  if (!arr.length){ $("mk-list").innerHTML = '<div class="empty">Nothing found.</div>'; return; }
+  const entries = arr.map(m => ({ r: m.last, prev: (m.pts.length >= 2 ? m.pts[m.pts.length - 2] : null), m: m }));
+  $("mk-list").innerHTML = renderMarkerTable(entries);
 }
 
 function toggleDetail(row){
@@ -902,13 +896,21 @@ function dateDyn(d, byName){
 // designations — norm status (● in/out of range) + dynamics (↗ улучшился / ↘ ухудшился / new впервые). Frameless.
 function renderDateTable(d, rows){
   const byName = {}; MK.forEach(m => { byName[m.name] = m; });
-  const groups = {};
-  rows.forEach(r => {
-    const m = byName[r.marker];
-    let prev = null;
+  const entries = rows.map(r => {
+    const m = byName[r.marker]; let prev = null;
     if (m){ const i = m.pts.findIndex(p => p.date === d); if (i > 0) prev = m.pts[i-1]; }
-    const dir = markerDir(r, prev);
-    (groups[r.cat] = groups[r.cat] || []).push({ r: r, prev: prev, dir: dir });
+    return { r: r, prev: prev, m: m };
+  });
+  return renderMarkerTable(entries);
+}
+
+// Category-grouped table from entries {r: current point, prev: previous point|null, m: MK entry}.
+// Shared by Labs-by-Date (per-date) and All Labs (latest vs previous). Includes the status-legend filters.
+function renderMarkerTable(entries){
+  const groups = {};
+  entries.forEach(e => {
+    const dir = markerDir(e.r, e.prev);
+    (groups[e.r.cat] = groups[e.r.cat] || []).push({ r: e.r, prev: e.prev, m: e.m, dir: dir });
   });
   const meta = {};
   Object.keys(groups).forEach(c => {
@@ -941,7 +943,7 @@ function renderDateTable(d, rows){
       + dyn + `</span>`;
     body += `<tr class="bsum-ghead"><td colspan="6"><div class="gh"><span class="gname">${esc(catName(cat))}</span>${stats}</div></td></tr>`;
     it.forEach(x => {
-      const r = x.r, prev = x.prev, mm = byName[r.marker];
+      const r = x.r, prev = x.prev, mm = x.m;
       const c = flagged(r.f) ? col(r.f) : "var(--tx)";
       const val = prev
         ? `<span class="p">${esc(valStr(prev))}</span><span class="a">→</span><span class="c" style="color:${c}">${esc(valStr(r))}</span>`
@@ -1478,7 +1480,6 @@ function showApp(){ $("app").style.display = "block"; }
 
 $("q").addEventListener("input", (e) => { F.q = e.target.value.trim(); renderMarkers(); });
 $("cat").addEventListener("change", (e) => { F.cat = e.target.value; renderMarkers(); });
-document.querySelectorAll("#tab-markers .modebtn").forEach(b => b.addEventListener("click", () => { document.querySelectorAll("#tab-markers .modebtn").forEach(x => x.classList.remove("active")); b.classList.add("active"); F.mode = b.dataset.mode; renderMarkers(); }));
 document.querySelectorAll("#fp-igg .modebtn").forEach(b => b.addEventListener("click", () => { document.querySelectorAll("#fp-igg .modebtn").forEach(x => x.classList.remove("active")); b.classList.add("active"); FF.mode = b.dataset.fmode; renderFood(); }));
 document.querySelectorAll("#tab-food .fpbtn").forEach(b => b.addEventListener("click", () => { document.querySelectorAll("#tab-food .fpbtn").forEach(x => x.classList.remove("active")); b.classList.add("active"); const k = b.dataset.fp; ["igg","igg4","ige","compare"].forEach(p => $("fp-" + p).style.display = (p === k ? "block" : "none")); }));
 document.querySelectorAll("#tab-food [data-pm]").forEach(b => b.addEventListener("click", () => { const kind = b.dataset.pm; b.parentElement.querySelectorAll("[data-pm]").forEach(x => x.classList.remove("active")); b.classList.add("active"); PAN[kind].mode = b.dataset.m; renderPanel(kind); }));
@@ -1553,12 +1554,12 @@ if ($("rx-add")) $("rx-add").addEventListener("click", async () => {
   } catch(_e){ $("rx-status").textContent = "Ошибка сохранения"; }
   finally { btn.disabled = false; btn.textContent = prev; }
 });
-$("mk-list").addEventListener("click", (e) => { const row = e.target.closest(".mrow"); if (row) toggleDetail(row); });
+$("mk-list").addEventListener("click", (e) => { const chip = e.target.closest(".bsum-legend .lg"); if (chip){ toggleBsumFilter(chip); return; } const row = e.target.closest("tr.bsum-r"); if (row && row.dataset.mk) toggleMkDetail(row); });
 $("tab-dates").addEventListener("click", (e) => { const chip = e.target.closest(".bsum-legend .lg"); if (chip){ toggleBsumFilter(chip); return; } const row = e.target.closest("tr.bsum-r"); if (row && row.dataset.mk){ toggleMkDetail(row); return; } const head = e.target.closest(".dhead"); if (head) toggleDate(head); });
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "8.9";
+const APP_VERSION = "9.0";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
