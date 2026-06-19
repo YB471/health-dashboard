@@ -26,18 +26,20 @@ body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,Bli
 .pmeta b{color:var(--tx);font-weight:600}
 .btn2{padding:7px 12px;font-size:13px;border:1px solid var(--bd2);border-radius:8px;background:transparent;color:inherit;cursor:pointer;margin-left:6px}
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin:0 0 16px}
-.score-card{border:1px solid var(--bd);border-radius:12px;background:var(--card);padding:16px 18px;margin:0 0 16px}
-.score-head{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
-.score-gauge{flex:0 0 auto}
-.score-ring{width:104px;height:104px;display:block}
-.score-ring .sr-bg{fill:none;stroke:var(--tk);stroke-width:9}
-.score-ring .sr-fg{fill:none;stroke-width:9;stroke-linecap:round;transform:rotate(-90deg);transform-origin:60px 60px;transition:stroke-dashoffset .7s ease}
-.sr-num{text-anchor:middle;dominant-baseline:middle;font-size:34px;font-weight:700;fill:var(--tx)}
-.sr-den{text-anchor:middle;font-size:12px;fill:var(--tx3)}
-.score-meta{flex:1 1 240px;min-width:200px}
-.score-ttl{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--tx2)}
-.score-ttl span{color:var(--tx3);font-weight:500}
-.score-band{font-size:15px;font-weight:600;margin:5px 0 6px;line-height:1.35}
+.phead{display:flex;align-items:center;justify-content:space-between;gap:12px 16px;flex-wrap:wrap}
+.pinfo{flex:1 1 auto;min-width:0}
+.pscore{display:flex;align-items:center;gap:11px;background:none;border:0;cursor:pointer;padding:6px 8px;border-radius:10px;flex:0 0 auto;font:inherit;color:inherit;text-align:left}
+.pscore:hover{background:var(--tk)}
+.ps-ring{width:54px;height:54px;flex:0 0 auto}
+.ps-ring .sr-bg{fill:none;stroke:var(--tk);stroke-width:6}
+.ps-ring .sr-fg{fill:none;stroke-width:6;stroke-linecap:round;transform:rotate(-90deg);transform-origin:30px 30px;transition:stroke-dashoffset .7s ease}
+.ps-num{text-anchor:middle;dominant-baseline:middle;font-size:20px;font-weight:700;fill:var(--tx)}
+.ps-meta{display:flex;flex-direction:column;line-height:1.3}
+.ps-ttl{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--tx3)}
+.ps-band{font-size:13.5px;font-weight:600;margin-top:2px}
+.ps-chev{color:var(--tx3);font-size:13px;margin-left:2px;transition:transform .2s}
+.pscore.open .ps-chev{transform:rotate(180deg)}
+#pscoreDetail{display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--bd)}
 .score-note{font-size:12.5px;color:var(--tx2);line-height:1.5}
 .score-pillars{display:grid;grid-template-columns:1fr 1fr;gap:11px 24px;margin:16px 0 2px}
 @media(max-width:560px){.score-pillars{grid-template-columns:1fr}}
@@ -303,13 +305,19 @@ td.hcell .he{opacity:.3}
   </div>
 
   <div class="pcard">
-    <div class="pname">Yaroslav Burda</div>
-    <div class="pmeta">
-      <span id="pbirth">04.01.1987</span>
-      <span>Height <b>175 cm</b></span>
-      <span>Weight <b>55–63 kg</b></span>
-      <span>Blood type <b>B (III) Rh+</b></span>
+    <div class="phead">
+      <div class="pinfo">
+        <div class="pname">Yaroslav Burda</div>
+        <div class="pmeta">
+          <span id="pbirth">04.01.1987</span>
+          <span>Height <b>175 cm</b></span>
+          <span>Weight <b>55–63 kg</b></span>
+          <span>Blood type <b>B (III) Rh+</b></span>
+        </div>
+      </div>
+      <button class="pscore" id="pscoreBtn" type="button" aria-expanded="false"></button>
     </div>
+    <div id="pscoreDetail"></div>
   </div>
 
   <div class="tabs">
@@ -323,7 +331,6 @@ td.hcell .he{opacity:.3}
   </div>
 
   <div id="tab-markers" class="panel">
-    <div id="score"></div>
     <div id="kpis" class="kpis"></div>
     <div class="controls">
       <input id="q" type="text" placeholder="Search marker…">
@@ -649,12 +656,12 @@ const HS_H_CM = 175, HS_W_KG = 55, HS_W_PREV_KG = 63;
 const HS_DISCLAIMER = "Это личный трекинговый индекс здорового старения по управляемым текущим показателям — не прогноз продолжительности жизни и не диагноз. Он намеренно сильно учитывает массу тела и непреднамеренную потерю веса: сейчас это главный управляемый риск, поэтому при отличных анализах общий балл всё равно ограничен потолком. Низкие триглицериды и низкая глюкоза натощак не считаются риском; известный лабораторный артефакт (алюминий в стеклянной пробирке) исключён из подсчёта. Высокий общий белок/IgA и лёгкая лейкопения — повод для наблюдения у врача. Балл считается локально и прозрачно; любые решения по питанию, ферментам и обследованиям — только с твоей медицинской командой.";
 
 function hsBand(s){
-  if (s >= 93) return { label: "Отлично — профиль близок к оптимуму", c: "var(--ok)" };
-  if (s >= 85) return { label: "Очень хорошо — показатели близки к оптимуму", c: "var(--ok)" };
-  if (s >= 75) return { label: "Хорошо — большинство показателей в порядке", c: "var(--ok)" };
-  if (s >= 60) return { label: "Удовлетворительно — хорошая база, один риск тянет вниз", c: "var(--warn)" };
-  if (s >= 40) return { label: "Зона риска — есть активная проблема", c: "var(--hi)" };
-  return { label: "Критично — нужна срочная коррекция", c: "var(--hi)" };
+  if (s >= 93) return { short: "Отлично", label: "Отлично — профиль близок к оптимуму", c: "var(--ok)" };
+  if (s >= 85) return { short: "Очень хорошо", label: "Очень хорошо — показатели близки к оптимуму", c: "var(--ok)" };
+  if (s >= 75) return { short: "Хорошо", label: "Хорошо — большинство показателей в порядке", c: "var(--ok)" };
+  if (s >= 60) return { short: "Удовлетворительно", label: "Удовлетворительно — хорошая база, один риск тянет вниз", c: "var(--warn)" };
+  if (s >= 40) return { short: "Зона риска", label: "Зона риска — есть активная проблема", c: "var(--hi)" };
+  return { short: "Критично", label: "Критично — нужна срочная коррекция", c: "var(--hi)" };
 }
 
 function healthScore(){
@@ -735,24 +742,23 @@ function healthScore(){
 }
 
 function renderScore(){
-  if (!MK.length) { $("score").innerHTML = ""; return; }
+  const btn = $("pscoreBtn"), det = $("pscoreDetail");
+  if (!btn || !det) return;
+  if (!MK.length) { btn.innerHTML = ""; det.innerHTML = ""; return; }
   const r = healthScore(), b = hsBand(r.score);
-  const C = 2*Math.PI*52, off = C*(1 - r.score/100);
+  const C = 2*Math.PI*26, off = C*(1 - r.score/100);
+  const ring = `<svg viewBox="0 0 60 60" class="ps-ring" aria-hidden="true">`
+    + `<circle class="sr-bg" cx="30" cy="30" r="26"></circle>`
+    + `<circle class="sr-fg" cx="30" cy="30" r="26" style="stroke:${b.c};stroke-dasharray:${C.toFixed(1)};stroke-dashoffset:${off.toFixed(1)}"></circle>`
+    + `<text class="ps-num" x="30" y="31">${r.score}</text></svg>`;
+  btn.innerHTML = ring
+    + `<span class="ps-meta"><span class="ps-ttl">Индекс здоровья</span><span class="ps-band" style="color:${b.c}">${esc(b.short)}</span></span>`
+    + `<span class="ps-chev">⌄</span>`;
   const barC = (s) => s>=75?"var(--ok)" : s>=50?"var(--warn)" : "var(--hi)";
-  const ring = `<svg viewBox="0 0 120 120" class="score-ring" aria-hidden="true">`
-    + `<circle class="sr-bg" cx="60" cy="60" r="52"></circle>`
-    + `<circle class="sr-fg" cx="60" cy="60" r="52" style="stroke:${b.c};stroke-dasharray:${C.toFixed(1)};stroke-dashoffset:${off.toFixed(1)}"></circle>`
-    + `<text class="sr-num" x="60" y="60">${r.score}</text><text class="sr-den" x="60" y="80">/ 100</text></svg>`;
   const pills = r.pillars.map(p => { const s = Math.round(p.s); return `<div class="score-pill"><div class="sp-top"><span class="sp-l">${p.label}</span><span class="sp-n">${s}<i>/100</i></span></div><div class="sp-bar"><i style="width:${s}%;background:${barC(p.s)}"></i></div><div class="sp-w">вес в индексе ${p.w}%</div></div>`; }).join("");
   const lossTxt = (r.trendKnown && r.lossPct > 2) ? `, непреднамеренная потеря ~${Math.round(r.lossPct)}% (${HS_W_PREV_KG}→${HS_W_KG} кг)` : "";
-  const note = `Главный рычаг — масса тела: ИМТ ${r.bmi.toFixed(1)}${lossTxt}. Анализы в большинстве отличные; при возврате веса к норме тот же профиль даёт ~88–90.`;
-  $("score").innerHTML = `<div class="score-card">`
-    + `<div class="score-head"><div class="score-gauge">${ring}</div>`
-    + `<div class="score-meta"><div class="score-ttl">Индекс здоровья <span>· ориентир на долголетие</span></div>`
-    + `<div class="score-band" style="color:${b.c}">${esc(b.label)}</div>`
-    + `<div class="score-note">${esc(note)}</div></div></div>`
-    + `<div class="score-pillars">${pills}</div>`
-    + `<div class="score-disc">${esc(HS_DISCLAIMER)}</div></div>`;
+  const note = `${esc(b.label)}. Главный рычаг — масса тела: ИМТ ${r.bmi.toFixed(1)}${lossTxt}. Анализы в большинстве отличные; при возврате веса к норме тот же профиль даёт ~88–90.`;
+  det.innerHTML = `<div class="score-note">${note}</div><div class="score-pillars">${pills}</div><div class="score-disc">${esc(HS_DISCLAIMER)}</div>`;
 }
 
 function fillCats(){
@@ -1454,6 +1460,7 @@ $("fg-list").addEventListener("click", (e) => { const r = e.target.closest("tr.f
   fgl.addEventListener("mouseleave", clearAll);
 })();
 document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => { document.querySelectorAll(".tab").forEach(x => x.classList.remove("active")); t.classList.add("active"); const name = t.dataset.tab; ["markers","dates","food","foodguide","dayplan","reactions","reports"].forEach(p => $("tab-" + p).style.display = (p === name ? "block" : "none")); }));
+$("pscoreBtn").addEventListener("click", () => { const det = $("pscoreDetail"), btn = $("pscoreBtn"); const open = det.style.display === "block"; det.style.display = open ? "none" : "block"; btn.classList.toggle("open", !open); btn.setAttribute("aria-expanded", String(!open)); });
 document.querySelectorAll("#tab-dayplan [data-dpv]").forEach(b => b.addEventListener("click", () => {
   document.querySelectorAll("#tab-dayplan [data-dpv]").forEach(x => x.classList.remove("active"));
   b.classList.add("active");
@@ -1480,7 +1487,7 @@ $("tab-dates").addEventListener("click", (e) => { const head = e.target.closest(
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "7.7";
+const APP_VERSION = "7.8";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
