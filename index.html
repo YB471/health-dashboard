@@ -584,16 +584,17 @@ function prep(D){
   DATA = D;
 }
 
-function renderKPIs(){
+function kpiHTML(){
   const bm = MK.filter(m => m.cat.indexOf("food_") !== 0);
   const fl = bm.filter(m => m.flagged).length;
   const period = DATES.length ? (fd(DATES[0]) + " – " + fd(DATES[DATES.length-1])) : "—";
-  $("kpis").innerHTML =
-    `<div class="kpi"><div class="kn">${bm.length}</div><div class="kl">markers</div></div>`
+  return `<div class="kpi"><div class="kn">${bm.length}</div><div class="kl">markers</div></div>`
     + `<div class="kpi"><div class="kn" style="color:${fl ? "var(--hi)" : "inherit"}">${fl}</div><div class="kl">out of range (latest)</div></div>`
     + `<div class="kpi"><div class="kn">${DATES.length}</div><div class="kl">test dates</div></div>`
     + `<div class="kpi"><div class="kn" style="font-size:15px">${period}</div><div class="kl">tracking period</div></div>`;
 }
+
+function renderKPIs(){ $("kpis").innerHTML = kpiHTML(); }
 
 function fillCats(){
   const opts = ['<option value="">All categories</option>'].concat(CATS.filter(c => c.indexOf("food_") !== 0).map(c => `<option value="${esc(c)}">${esc(catName(c))}</option>`));
@@ -748,7 +749,7 @@ function renderDates(){
     const catSum = esc(cats.slice(0,5).join(", ") + (cats.length > 5 ? " +" + (cats.length - 5) : ""));
     return `<div class="dcard" data-d="${d}"><div class="dhead"><div><div class="dttl">${fd(d)}</div><div class="dcats">${catSum}</div></div><div class="dmeta">${arr.length} markers · <span style="color:${fl ? "var(--hi)" : "var(--tx2)"}">${fl} out of range</span></div><div class="chev">⌄</div></div><div class="dbody"></div></div>`;
   }).join("") : '<div class="empty">No data.</div>';
-  $("tab-dates").innerHTML = cards;
+  $("tab-dates").innerHTML = `<div class="kpis">${kpiHTML()}</div>` + cards;
 }
 
 function toggleDate(head){
@@ -1252,7 +1253,7 @@ $("tab-dates").addEventListener("click", (e) => { const head = e.target.closest(
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "6.7";
+const APP_VERSION = "6.8";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
