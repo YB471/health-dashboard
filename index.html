@@ -162,7 +162,7 @@ body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,Bli
 .bsum-r .dy .p{color:var(--tx3);white-space:nowrap}
 .bsum-r .dy .a{color:var(--tx3);margin:0 4px}
 .bsum-r .dy .c{color:var(--tx);font-weight:500;white-space:nowrap}
-.bsum-r .rf{color:var(--tx3);white-space:nowrap;font-variant-numeric:tabular-nums;font-size:11px}
+.bsum-r .mk-ref{font-weight:400;color:var(--tx3);white-space:nowrap;font-variant-numeric:tabular-nums;font-size:11px;margin-top:2px}
 .bsum-r{cursor:pointer}
 .bsum-r.flg td{background:rgba(212,69,63,.05)}
 .bsum-r.flg:hover td{background:rgba(212,69,63,.09)}
@@ -934,7 +934,7 @@ function renderDateTable(d, rows){
       + (norm ? `<span class="gs ok" title="В норме">${norm}</span>` : "")
       + (m.fl ? `<span class="gs bad" title="Не в норме">${m.fl}</span>` : "")
       + dyn + `</span>`;
-    body += `<tr class="bsum-ghead"><td colspan="7"><div class="gh"><span class="gname">${esc(catName(cat))}</span>${stats}</div></td></tr>`;
+    body += `<tr class="bsum-ghead"><td colspan="6"><div class="gh"><span class="gname">${esc(catName(cat))}</span>${stats}</div></td></tr>`;
     it.forEach(x => {
       const r = x.r, prev = x.prev, mm = byName[r.marker];
       const c = flagged(r.f) ? col(r.f) : "var(--tx)";
@@ -945,26 +945,25 @@ function renderDateTable(d, rows){
       const normIcon = `<span class="si-norm" style="color:${flg ? "var(--hi)" : "var(--ok)"}" title="${flg ? "Вне нормы" : "В норме"}">●</span>`;
       let dynIcon;
       if (!prev) dynIcon = `<span class="si-new" title="Первый замер этого показателя">new</span>`;
-      else if (x.dir === 1) dynIcon = `<span class="si-dyn" style="color:var(--ok)" title="Стало лучше: ближе к норме или вошёл в норму">↗</span>`;
-      else if (x.dir === -1) dynIcon = `<span class="si-dyn" style="color:var(--warn)" title="Стало хуже: дальше от нормы или вышел из нормы">↘</span>`;
+      else if (x.dir === 1) dynIcon = `<span class="si-dyn" style="color:var(--ok)" title="Стал ближе к норме">↗</span>`;
+      else if (x.dir === -1) dynIcon = `<span class="si-dyn" style="color:var(--warn)" title="Стал дальше от нормы">↘</span>`;
       else dynIcon = `<span class="si-dyn si-flat" title="Без изменений к прошлому замеру">–</span>`;
       const spk = (mm && mm.numPts.length >= 2) ? spark(mm.numPts) : "";
       const mkid = mm ? mm.id : "";
       const rt = refTxt(r.lo, r.hi, r.u);
       body += `<tr class="bsum-r${flg ? " flg" : ""}" data-mk="${mkid}"><td class="si1">${normIcon}</td><td class="si2">${dynIcon}</td>`
-        + `<td class="mk">${esc(r.marker)}</td>`
+        + `<td class="mk">${esc(r.marker)}${rt ? `<div class="mk-ref">${esc(rt)}</div>` : ""}</td>`
         + `<td class="dy">${val}</td>`
-        + `<td class="rf">${rt ? esc(rt) : ""}</td>`
         + `<td class="sp">${spk}</td>`
         + `<td class="chev-c"><span class="chev">⌄</span></td></tr>`
-        + `<tr class="bsum-det"><td colspan="7"><div class="bsum-detbox"></div></td></tr>`;
+        + `<tr class="bsum-det"><td colspan="6"><div class="bsum-detbox"></div></td></tr>`;
     });
   });
   const legend = `<div class="bsum-legend">`
     + `<span class="lg"><i style="color:var(--ok)">●</i>в норме</span>`
     + `<span class="lg"><i style="color:var(--hi)">●</i>вне нормы</span>`
-    + `<span class="lg lg-gap"><i style="color:var(--ok)">↗</i>улучшился</span>`
-    + `<span class="lg"><i style="color:var(--warn)">↘</i>ухудшился</span>`
+    + `<span class="lg lg-gap"><i style="color:var(--ok)">↗</i>стал ближе к норме</span>`
+    + `<span class="lg"><i style="color:var(--warn)">↘</i>стал дальше от нормы</span>`
     + `<span class="lg"><i style="color:var(--tx3)">–</i>без изменений</span>`
     + `<span class="lg"><span class="si-new">new</span> впервые</span></div>`;
   return `<div class="bsum">${legend}<table class="bsum-tbl"><tbody>${body}</tbody></table></div>`;
@@ -1530,7 +1529,7 @@ $("tab-dates").addEventListener("click", (e) => { const row = e.target.closest("
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "8.4";
+const APP_VERSION = "8.5";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
