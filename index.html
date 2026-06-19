@@ -259,8 +259,6 @@ td.hcell .he{opacity:.3}
     </div>
   </div>
 
-  <div id="kpis" class="kpis"></div>
-
   <div class="tabs">
     <button class="tab active" data-tab="markers">All Labs</button>
     <button class="tab" data-tab="dates">Labs by Date</button>
@@ -272,6 +270,7 @@ td.hcell .he{opacity:.3}
   </div>
 
   <div id="tab-markers" class="panel">
+    <div id="kpis" class="kpis"></div>
     <div class="controls">
       <input id="q" type="text" placeholder="Search marker…">
       <select id="cat"></select>
@@ -1241,7 +1240,7 @@ $("tab-dates").addEventListener("click", (e) => { const head = e.target.closest(
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "6.3";
+const APP_VERSION = "6.4";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
