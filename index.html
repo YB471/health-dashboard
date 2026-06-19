@@ -161,12 +161,19 @@ body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,Bli
 .bsum-r .dy .p{color:var(--tx3);white-space:nowrap}
 .bsum-r .dy .a{color:var(--tx3);margin:0 4px}
 .bsum-r .dy .c{color:var(--tx);font-weight:500;white-space:nowrap}
-.bsum-r .rf{color:var(--tx3);white-space:nowrap;font-variant-numeric:tabular-nums;width:100%}
+.bsum-r .rf{color:var(--tx3);white-space:nowrap;font-variant-numeric:tabular-nums;font-size:11px}
+.bsum-r{cursor:pointer}
+.bsum-r .sp{width:128px}
+.bsum-r .sp .spark{width:128px;height:30px}
+.bsum-r .chev-c{width:100%;text-align:right}
+.bsum-r .chev-c .chev{color:var(--tx3);font-size:13px;display:inline-block;transition:transform .2s}
+.bsum-det td{padding:0;border-top:0}
+.bsum-detbox{margin:2px 0 8px}
 .bsum-legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:11px;color:var(--tx2);margin:0 0 12px}
 .bsum-legend .lg{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
 .bsum-legend .lg.lg-gap{margin-left:6px}
 .bsum-legend .lg i{font-style:normal;font-weight:700;font-size:12px}
-@media(max-width:680px){.bsum-r .dy,.bsum-r .mk{white-space:normal}}
+@media(max-width:680px){.bsum-r .dy,.bsum-r .mk{white-space:normal}.bsum-r .sp{display:none}}
 .repsum{font-size:13px;color:var(--tx);line-height:1.55;white-space:pre-wrap}
 .repsrc{font-size:11px;color:var(--tx3);margin-top:8px}
 .rephd{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--tx3);margin:12px 0 3px}
@@ -922,11 +929,11 @@ function renderDateTable(d, rows){
       + (norm ? `<span class="gs ok" title="В норме">${norm}</span>` : "")
       + (m.fl ? `<span class="gs bad" title="Не в норме">${m.fl}</span>` : "")
       + dyn + `</span>`;
-    body += `<tr class="bsum-ghead"><td colspan="5"><div class="gh"><span class="gname">${esc(catName(cat))}</span>${stats}</div></td></tr>`;
+    body += `<tr class="bsum-ghead"><td colspan="7"><div class="gh"><span class="gname">${esc(catName(cat))}</span>${stats}</div></td></tr>`;
     it.forEach(x => {
-      const r = x.r, prev = x.prev;
+      const r = x.r, prev = x.prev, mm = byName[r.marker];
       const c = flagged(r.f) ? col(r.f) : "var(--tx)";
-      const val = (prev && x.dir !== 0)
+      const val = prev
         ? `<span class="p">${esc(valStr(prev))}</span><span class="a">→</span><span class="c" style="color:${c}">${esc(valStr(r))}</span>`
         : `<span class="c" style="color:${c}">${esc(valStr(r))}</span>`;
       const flg = flagged(r.f);
@@ -935,10 +942,15 @@ function renderDateTable(d, rows){
       if (!prev) dynIcon = `<span class="si-new" title="Первый замер этого показателя">new</span>`;
       else if (x.dir === 1) dynIcon = `<span class="si-dyn" style="color:var(--ok)" title="Улучшился">↗</span>`;
       else if (x.dir === -1) dynIcon = `<span class="si-dyn" style="color:var(--warn)" title="Ухудшился">↘</span>`;
-      body += `<tr class="bsum-r"><td class="si1">${normIcon}</td><td class="si2">${dynIcon}</td>`
+      const spk = (mm && mm.numPts.length >= 2) ? spark(mm.numPts) : "";
+      const mkid = mm ? mm.id : "";
+      body += `<tr class="bsum-r" data-mk="${mkid}"><td class="si1">${normIcon}</td><td class="si2">${dynIcon}</td>`
         + `<td class="mk">${esc(r.marker)}</td>`
         + `<td class="dy">${val}</td>`
-        + `<td class="rf">${esc(refTxt(r.lo, r.hi, r.u))}</td></tr>`;
+        + `<td class="rf">${esc(refTxt(r.lo, r.hi, r.u))}</td>`
+        + `<td class="sp">${spk}</td>`
+        + `<td class="chev-c"><span class="chev">⌄</span></td></tr>`
+        + `<tr class="bsum-det"><td colspan="7"><div class="bsum-detbox"></div></td></tr>`;
     });
   });
   const legend = `<div class="bsum-legend">`
@@ -1003,6 +1015,18 @@ function toggleDate(head){
   card.classList.toggle("open", willOpen);
   body.style.display = willOpen ? "block" : "none";
   const ch = head.querySelector(".chev"); if (ch) ch.style.transform = willOpen ? "rotate(180deg)" : "";
+}
+
+// Expand a marker row in the Labs-by-Date table → detailed chart + history (reuses All Labs detailHTML).
+function toggleMkDetail(row){
+  const det = row.nextElementSibling;
+  if (!det || !det.classList.contains("bsum-det")) return;
+  const box = det.querySelector(".bsum-detbox");
+  const willOpen = !row.classList.contains("open");
+  if (willOpen && !box.dataset.filled){ const id = +row.dataset.mk; box.innerHTML = detailCache[id] || (detailCache[id] = detailHTML(MK[id])); box.dataset.filled = "1"; }
+  row.classList.toggle("open", willOpen);
+  det.style.display = willOpen ? "table-row" : "none";
+  const ch = row.querySelector(".chev"); if (ch) ch.style.transform = willOpen ? "rotate(180deg)" : "";
 }
 
 function toggleRep(head){
@@ -1494,11 +1518,11 @@ if ($("rx-add")) $("rx-add").addEventListener("click", async () => {
   finally { btn.disabled = false; btn.textContent = prev; }
 });
 $("mk-list").addEventListener("click", (e) => { const row = e.target.closest(".mrow"); if (row) toggleDetail(row); });
-$("tab-dates").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleDate(head); });
+$("tab-dates").addEventListener("click", (e) => { const row = e.target.closest("tr.bsum-r"); if (row && row.dataset.mk){ toggleMkDetail(row); return; } const head = e.target.closest(".dhead"); if (head) toggleDate(head); });
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "8.0";
+const APP_VERSION = "8.1";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
