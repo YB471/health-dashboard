@@ -150,8 +150,12 @@ body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,Bli
 .bsum-r:hover td{background:var(--tk)}
 .bsum-r td:first-child{border-top-left-radius:7px;border-bottom-left-radius:7px}
 .bsum-r td:last-child{border-top-right-radius:7px;border-bottom-right-radius:7px;padding-right:6px}
-.bsum-r .si{width:1%;padding:8px 9px 8px 7px;text-align:center;white-space:nowrap}
-.si-i{font-weight:700;font-size:13px;line-height:1;display:inline-block}
+.bsum-r .si1,.bsum-r .si2{width:1%;white-space:nowrap;text-align:center;vertical-align:middle}
+.bsum-r .si1{padding:8px 0 8px 7px}
+.bsum-r .si2{padding:8px 9px 8px 6px}
+.si-norm{font-weight:700;font-size:12px;line-height:1;display:inline-block}
+.si-dyn{font-weight:700;font-size:13px;line-height:1;display:inline-block}
+.si-new{font-size:9px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:var(--lo);background:rgba(47,125,212,.15);border-radius:4px;padding:1px 4px;line-height:1.4;white-space:nowrap}
 .bsum-r .mk{font-weight:600;color:var(--tx);white-space:nowrap}
 .bsum-r .dy{font-variant-numeric:tabular-nums;color:var(--tx2);white-space:nowrap}
 .bsum-r .dy .p{color:var(--tx3);white-space:nowrap}
@@ -160,6 +164,7 @@ body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,Bli
 .bsum-r .rf{color:var(--tx3);white-space:nowrap;font-variant-numeric:tabular-nums;width:100%}
 .bsum-legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:11px;color:var(--tx2);margin:0 0 12px}
 .bsum-legend .lg{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.bsum-legend .lg.lg-gap{margin-left:6px}
 .bsum-legend .lg i{font-style:normal;font-weight:700;font-size:12px}
 @media(max-width:680px){.bsum-r .dy,.bsum-r .mk{white-space:normal}}
 .repsum{font-size:13px;color:var(--tx);line-height:1.55;white-space:pre-wrap}
@@ -876,24 +881,8 @@ function dateDyn(d, byName){
   return { up: up, down: down };
 }
 
-// Status badge labels for the four trend cases (back in range / improving / left range / worse).
-const BA_STLBL = { ok:"✓ Вернулся в норму", improve:"↗ Улучшается, вне нормы", bad:"✗ Вышел из нормы", worse:"↘ Усугубился, вне нормы" };
-
-// Unified per-date view: EVERY marker grouped by lab category, showing value + reference, plus the trend
-// (prev → curr) and a status badge where it changed vs the previous measurement. Frameless (white card).
-// Per-marker status designation (7 states): icon + color + tooltip.
-const HS_ST = {
-  innorm:  { g:"●", c:"var(--ok)",   t:"В норме" },
-  outnorm: { g:"●", c:"var(--hi)",   t:"Вне нормы" },
-  newm:    { g:"○", c:"var(--tx3)",  t:"Первый замер этого показателя" },
-  ok:      { g:"✓", c:"var(--ok)",   t:"Вернулся в норму" },
-  bad:     { g:"✗", c:"var(--hi)",   t:"Вышел из нормы" },
-  improve: { g:"↗", c:"var(--ok)",   t:"Улучшается, ещё вне нормы" },
-  worse:   { g:"↘", c:"var(--warn)", t:"Усугубился, вне нормы" },
-};
-const HS_ST_LEGEND = ["innorm","outnorm","ok","bad","improve","worse","newm"];
-const HS_ST_LEG = { innorm:"в норме", outnorm:"вне нормы", ok:"вернулся", bad:"вышел", improve:"улучшается", worse:"усугубился", newm:"впервые" };
-
+// Unified per-date view: EVERY marker grouped by lab category, showing value + reference and TWO leading
+// designations — norm status (● in/out of range) + dynamics (↗ улучшился / ↘ ухудшился / new впервые). Frameless.
 function renderDateTable(d, rows){
   const byName = {}; MK.forEach(m => { byName[m.name] = m; });
   const groups = {};
@@ -902,11 +891,7 @@ function renderDateTable(d, rows){
     let prev = null;
     if (m){ const i = m.pts.findIndex(p => p.date === d); if (i > 0) prev = m.pts[i-1]; }
     const dir = markerDir(r, prev);
-    const status = !prev ? "newm"
-      : dir === 1 ? (flagged(r.f) ? "improve" : "ok")
-      : dir === -1 ? (flagged(prev.f) ? "worse" : "bad")
-      : (flagged(r.f) ? "outnorm" : "innorm");
-    (groups[r.cat] = groups[r.cat] || []).push({ r: r, prev: prev, dir: dir, status: status });
+    (groups[r.cat] = groups[r.cat] || []).push({ r: r, prev: prev, dir: dir });
   });
   const meta = {};
   Object.keys(groups).forEach(c => {
@@ -937,21 +922,31 @@ function renderDateTable(d, rows){
       + (norm ? `<span class="gs ok" title="В норме">${norm}</span>` : "")
       + (m.fl ? `<span class="gs bad" title="Не в норме">${m.fl}</span>` : "")
       + dyn + `</span>`;
-    body += `<tr class="bsum-ghead"><td colspan="4"><div class="gh"><span class="gname">${esc(catName(cat))}</span>${stats}</div></td></tr>`;
+    body += `<tr class="bsum-ghead"><td colspan="5"><div class="gh"><span class="gname">${esc(catName(cat))}</span>${stats}</div></td></tr>`;
     it.forEach(x => {
       const r = x.r, prev = x.prev;
       const c = flagged(r.f) ? col(r.f) : "var(--tx)";
       const val = (prev && x.dir !== 0)
         ? `<span class="p">${esc(valStr(prev))}</span><span class="a">→</span><span class="c" style="color:${c}">${esc(valStr(r))}</span>`
         : `<span class="c" style="color:${c}">${esc(valStr(r))}</span>`;
-      const st = HS_ST[x.status];
-      body += `<tr class="bsum-r"><td class="si"><span class="si-i" style="color:${st.c}" title="${st.t}">${st.g}</span></td>`
+      const flg = flagged(r.f);
+      const normIcon = `<span class="si-norm" style="color:${flg ? "var(--hi)" : "var(--ok)"}" title="${flg ? "Вне нормы" : "В норме"}">●</span>`;
+      let dynIcon = "";
+      if (!prev) dynIcon = `<span class="si-new" title="Первый замер этого показателя">new</span>`;
+      else if (x.dir === 1) dynIcon = `<span class="si-dyn" style="color:var(--ok)" title="Улучшился">↗</span>`;
+      else if (x.dir === -1) dynIcon = `<span class="si-dyn" style="color:var(--warn)" title="Ухудшился">↘</span>`;
+      body += `<tr class="bsum-r"><td class="si1">${normIcon}</td><td class="si2">${dynIcon}</td>`
         + `<td class="mk">${esc(r.marker)}</td>`
         + `<td class="dy">${val}</td>`
         + `<td class="rf">${esc(refTxt(r.lo, r.hi, r.u))}</td></tr>`;
     });
   });
-  const legend = `<div class="bsum-legend">` + HS_ST_LEGEND.map(k => `<span class="lg"><i style="color:${HS_ST[k].c}">${HS_ST[k].g}</i>${HS_ST_LEG[k]}</span>`).join("") + `</div>`;
+  const legend = `<div class="bsum-legend">`
+    + `<span class="lg"><i style="color:var(--ok)">●</i>в норме</span>`
+    + `<span class="lg"><i style="color:var(--hi)">●</i>вне нормы</span>`
+    + `<span class="lg lg-gap"><i style="color:var(--ok)">↗</i>улучшился</span>`
+    + `<span class="lg"><i style="color:var(--warn)">↘</i>ухудшился</span>`
+    + `<span class="lg"><span class="si-new">new</span> впервые</span></div>`;
   return `<div class="bsum">${legend}<table class="bsum-tbl"><tbody>${body}</tbody></table></div>`;
 }
 
@@ -1503,7 +1498,7 @@ $("tab-dates").addEventListener("click", (e) => { const head = e.target.closest(
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "7.9";
+const APP_VERSION = "8.0";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
