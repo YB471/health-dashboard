@@ -169,8 +169,10 @@ body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,Bli
 .bsum-r.flg td{background:rgba(212,69,63,.05)}
 .bsum-r.flg:hover td{background:rgba(212,69,63,.09)}
 @media(prefers-color-scheme:dark){.bsum-r.flg td{background:rgba(232,99,93,.09)}.bsum-r.flg:hover td{background:rgba(232,99,93,.15)}}
-.bsum-r .sp{width:196px}
-.bsum-r .sp .spark{width:196px;height:38px}
+.bsum-r .sp,.bsum-r .sp .spark{width:184px}
+.bsum-r .sp .spark{height:38px}
+@media(max-width:1000px){.bsum-r .sp,.bsum-r .sp .spark{width:150px}}
+@media(max-width:760px){.bsum-r .sp,.bsum-r .sp .spark{width:110px}}
 .bsum-r .chev-c{text-align:right}
 .bsum-r .chev-c .chev{color:var(--tx3);font-size:13px;display:inline-block;transition:transform .2s}
 .bsum-det{display:none}
@@ -1561,7 +1563,7 @@ $("tab-dates").addEventListener("click", (e) => { const chip = e.target.closest(
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "9.3";
+const APP_VERSION = "9.4";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
