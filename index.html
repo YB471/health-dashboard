@@ -160,6 +160,7 @@ body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,Bli
 .si-new{font-size:9px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:var(--lo);background:rgba(47,125,212,.15);border-radius:4px;padding:1px 4px;line-height:1.4;white-space:nowrap}
 .bsum-r .mk{font-weight:600;color:var(--tx);white-space:nowrap}
 .bsum-r .dy{font-variant-numeric:tabular-nums;color:var(--tx2);white-space:nowrap;width:100%}
+.bsum-r .dy-date{color:var(--tx3);font-size:11px;margin-top:2px;font-variant-numeric:tabular-nums}
 .bsum-r .dy .p{color:var(--tx3);white-space:nowrap}
 .bsum-r .dy .a{color:var(--tx3);margin:0 4px}
 .bsum-r .dy .c{color:var(--tx);font-weight:500;white-space:nowrap}
@@ -822,7 +823,7 @@ function renderMarkers(){
   $("mk-count").textContent = "Showing " + arr.length + " of " + total.length;
   if (!arr.length){ $("mk-list").innerHTML = '<div class="empty">Nothing found.</div>'; return; }
   const entries = arr.map(m => ({ r: m.last, prev: (m.pts.length >= 2 ? m.pts[m.pts.length - 2] : null), m: m }));
-  $("mk-list").innerHTML = renderMarkerTable(entries);
+  $("mk-list").innerHTML = renderMarkerTable(entries, true);
 }
 
 function toggleDetail(row){
@@ -907,7 +908,7 @@ function renderDateTable(d, rows){
 
 // Category-grouped table from entries {r: current point, prev: previous point|null, m: MK entry}.
 // Shared by Labs-by-Date (per-date) and All Labs (latest vs previous). Includes the status-legend filters.
-function renderMarkerTable(entries){
+function renderMarkerTable(entries, showDate){
   const groups = {};
   entries.forEach(e => {
     const dir = markerDir(e.r, e.prev);
@@ -963,7 +964,7 @@ function renderMarkerTable(entries){
       const dyc = !prev ? "new" : (x.dir === 1 ? "up" : x.dir === -1 ? "down" : "flat");
       body += `<tr class="bsum-r${flg ? " flg" : ""}" data-mk="${mkid}" data-n="${nrm}" data-d="${dyc}"><td class="si1">${normIcon}</td><td class="si2">${dynIcon}</td>`
         + `<td class="mk">${esc(r.marker)}${rt ? `<div class="mk-ref">${esc(rt)}</div>` : ""}</td>`
-        + `<td class="dy">${val}</td>`
+        + `<td class="dy">${val}${showDate ? `<div class="dy-date">${fd(r.date)}</div>` : ""}</td>`
         + `<td class="sp">${spk}</td>`
         + `<td class="chev-c"><span class="chev">⌄</span></td></tr>`
         + `<tr class="bsum-det"><td colspan="6"><div class="bsum-detbox"></div></td></tr>`;
@@ -1560,7 +1561,7 @@ $("tab-dates").addEventListener("click", (e) => { const chip = e.target.closest(
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "9.1";
+const APP_VERSION = "9.2";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
