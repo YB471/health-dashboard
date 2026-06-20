@@ -637,29 +637,48 @@ td.hcell .he{opacity:.3}
     #tab-plan .rp-front.f1{background:var(--okbg)}
     #tab-plan .rp-front.f2{background:rgba(47,125,212,.13)}
     #tab-plan .rp-front.f3{background:var(--hibg)}
-    #tab-plan .rp-sh{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--tx3);margin:28px 2px 14px;padding-bottom:8px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:8px}
+    #tab-plan .rp-sh{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--tx3);margin:28px 2px 6px;padding-bottom:8px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:8px}
     #tab-plan .rp-sh .n{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:var(--tk);color:var(--tx2);font-size:11px;letter-spacing:0}
-    #tab-plan .rp-dir{border-left:3px solid var(--tx3);padding:2px 0 2px 15px;margin-bottom:20px}
+    #tab-plan .rp-cap1{font-size:12px;color:var(--tx3);margin:0 2px 16px;line-height:1.5}
+    #tab-plan .rp-dir{border-left:3px solid var(--tx3);padding:2px 0 4px 15px;margin-bottom:22px}
     #tab-plan .rp-dir.d1{border-color:var(--ok)}
     #tab-plan .rp-dir.d2{border-color:var(--lo)}
     #tab-plan .rp-dir.d3{border-color:var(--hi)}
     #tab-plan .rp-dt{font-size:15.5px;font-weight:600;margin-bottom:4px}
-    #tab-plan .rp-dp{font-size:12.5px;color:var(--tx2);line-height:1.5;margin-bottom:6px}
-    #tab-plan .rp-item{display:grid;grid-template-columns:1fr auto;gap:3px 12px;padding:9px 0;border-top:1px solid var(--bd)}
-    #tab-plan .rp-iname{font-size:13.5px;font-weight:600;color:var(--tx)}
-    #tab-plan .rp-pill{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap;height:fit-content}
+    #tab-plan .rp-dp{font-size:12.5px;color:var(--tx2);line-height:1.5;margin-bottom:10px}
+    #tab-plan .rp-prh{display:grid;grid-template-columns:1fr 22px 1.3fr;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--tx3);padding-bottom:5px}
+    #tab-plan .rp-prh .r{grid-column:3}
+    #tab-plan .rp-pr{display:grid;grid-template-columns:1fr 22px 1.3fr;border-top:1px solid var(--bd)}
+    #tab-plan .rp-prob{padding:11px 12px 11px 0}
+    #tab-plan .rp-arrow{display:flex;align-items:center;justify-content:center;color:var(--tx3);font-size:14px}
+    #tab-plan .rp-sol{padding:11px 0 11px 13px;border-left:1px solid var(--bd)}
+    #tab-plan .rp-pt{font-size:13.5px;font-weight:600;color:var(--tx);line-height:1.35}
+    #tab-plan .rp-pe{font-size:11.5px;color:var(--tx3);margin-top:3px}
+    #tab-plan .rp-st{font-size:13.5px;font-weight:600;color:var(--tx);line-height:1.35}
+    #tab-plan .rp-sw{font-size:12.5px;color:var(--tx2);margin-top:3px;line-height:1.5}
+    #tab-plan .rp-pill{display:inline-block;font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;white-space:nowrap;margin-left:6px;vertical-align:middle}
     #tab-plan .rp-pill.ok{background:var(--okbg);color:var(--ok)}
     #tab-plan .rp-pill.add{background:rgba(47,125,212,.15);color:var(--lo)}
     #tab-plan .rp-pill.care{background:var(--hibg);color:var(--hi)}
-    #tab-plan .rp-itext{grid-column:1/-1;font-size:13px;color:var(--tx2);line-height:1.5}
-    #tab-plan .rp-note{font-size:12px;color:var(--tx3);margin-top:10px;padding-left:15px;border-left:3px solid transparent}
+    #tab-plan .rp-labm{display:none}
+    #tab-plan .rp-note{font-size:12px;color:var(--tx3);margin-top:11px}
+    @media(max-width:600px){
+      #tab-plan .rp-prh{display:none}
+      #tab-plan .rp-pr{grid-template-columns:1fr}
+      #tab-plan .rp-arrow{display:none}
+      #tab-plan .rp-prob{padding:12px 0 0}
+      #tab-plan .rp-sol{border-left:0;padding:9px 0 12px 0}
+      #tab-plan .rp-labm{display:block;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+      #tab-plan .rp-prob .rp-labm{color:var(--hi)}
+      #tab-plan .rp-sol .rp-labm{color:var(--ok)}
+    }
     #tab-plan .rp-two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
     @media(max-width:600px){#tab-plan .rp-two{grid-template-columns:1fr}}
     #tab-plan .rp-box{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:13px 15px}
     #tab-plan .rp-box h4{margin:0 0 9px;font-size:13.5px;color:var(--tx)}
     #tab-plan .rp-box ul{margin:0;padding-left:17px;font-size:12.5px;color:var(--tx2);line-height:1.7}
     #tab-plan .rp-box li b{color:var(--tx);font-weight:600}
-    #tab-plan .rp-pyr{display:flex;flex-direction:column;align-items:center;gap:5px}
+    #tab-plan .rp-pyr{display:flex;flex-direction:column;align-items:center;gap:5px;margin-top:14px}
     #tab-plan .rp-lvl{width:100%;border-radius:8px;padding:9px 12px;text-align:center;border:1px solid var(--bd)}
     #tab-plan .rp-lvl .a{font-size:12.5px;font-weight:700;color:var(--tx)}
     #tab-plan .rp-lvl .b{font-size:11.5px;color:var(--tx2);margin-top:1px}
@@ -668,15 +687,15 @@ td.hcell .he{opacity:.3}
     #tab-plan .rp-lvl.l2{width:85%;background:rgba(47,125,212,.12)}
     #tab-plan .rp-lvl.l1{width:100%;background:var(--okbg)}
     @media(max-width:600px){#tab-plan .rp-lvl.l4{width:80%}#tab-plan .rp-lvl.l3{width:90%}}
-    #tab-plan .rp-cap{text-align:center;font-size:11.5px;color:var(--tx3);margin-top:9px}
-    #tab-plan .rp-tl{display:flex;flex-direction:column}
+    #tab-plan .rp-capc{text-align:center;font-size:11.5px;color:var(--tx3);margin-top:9px}
+    #tab-plan .rp-tl{display:flex;flex-direction:column;margin-top:14px}
     #tab-plan .rp-ti{display:grid;grid-template-columns:150px 1fr;gap:14px;padding:11px 0;border-top:1px solid var(--bd)}
     #tab-plan .rp-ti:first-child{border-top:0}
     @media(max-width:560px){#tab-plan .rp-ti{grid-template-columns:1fr;gap:3px}}
     #tab-plan .rp-when{font-size:13px;font-weight:700;color:var(--tx)}
     #tab-plan .rp-act{font-size:13px;color:var(--tx2);line-height:1.5}
     #tab-plan .rp-act b{color:var(--tx);font-weight:600}
-    #tab-plan .rp-rules{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:6px 16px 14px;font-size:12.5px;color:var(--tx2);line-height:1.6}
+    #tab-plan .rp-rules{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:6px 16px 14px;font-size:12.5px;color:var(--tx2);line-height:1.6;margin-top:14px}
     #tab-plan .rp-rules b{color:var(--tx)}
     #tab-plan .rp-rules ul{margin:0;padding-left:18px}
     #tab-plan .rp-rules li{margin-top:8px}
@@ -692,34 +711,86 @@ td.hcell .he{opacity:.3}
       </div>
     </div>
 
-    <div class="rp-sh"><span class="n">1</span>Три направления — проблема и что с ней делаем</div>
+    <div class="rp-sh"><span class="n">1</span>Проблема → решение, по трём блокам</div>
+    <div class="rp-cap1">Слева — <b style="color:var(--tx2)">проблема/диагноз</b> и доказательство в анализах. Справа напротив — <b style="color:var(--tx2)">решение</b> и почему оно помогает. Метка показывает статус: <span class="rp-pill ok">назначено</span> <span class="rp-pill add">добавить</span> <span class="rp-pill care">с врачом</span></div>
 
     <div class="rp-dir d1">
       <div class="rp-dt">🍽️ Пищеварение и ЖКТ</div>
-      <div class="rp-dp">Поджелудочная даёт мало ферментов (эластаза ↓), желчь вялая, не хватает DAO и лактазы → еда плохо усваивается, отсюда вздутие и потеря веса.</div>
-      <div class="rp-item"><div class="rp-iname">Kreon</div><span class="rp-pill ok">назначено</span><div class="rp-itext">Ферменты — в середине каждого приёма с жиром/белком.</div></div>
-      <div class="rp-item"><div class="rp-iname">Урсофальк (УДХК)</div><span class="rp-pill ok">назначено</span><div class="rp-itext">На ночь. Улучшает желчь и усвоение жиров, снижает билирубин, бережёт печень.</div></div>
-      <div class="rp-item"><div class="rp-iname">DAOSIN + низкогистаминовая диета</div><span class="rp-pill ok">назначено</span><div class="rp-itext">DAO за 15 мин до еды; свежее, без выдержанного сыра, рыбы-консервов, томатов, красного вина.</div></div>
-      <div class="rp-item"><div class="rp-iname">Лактаза / безлактозное</div><span class="rp-pill ok">назначено</span><div class="rp-itext">При молочном; проще держать рацион безлактозным.</div></div>
-      <div class="rp-item"><div class="rp-iname">Витамин B6 (P5P) + витамин C</div><span class="rp-pill add">добавить</span><div class="rp-itext">Кофакторы фермента DAO — естественная поддержка против гистамина.</div></div>
-      <div class="rp-note">Гастрит тип C (лёгкий) + лёгкая ГЭРБ → щадящая еда, без раздражающего; острого лечения не требует.</div>
+      <div class="rp-dp">Поджелудочная даёт мало ферментов, желчь вялая, не хватает DAO и лактазы → еда плохо усваивается, отсюда вздутие и потеря веса.</div>
+      <div class="rp-prh"><span>Проблема / диагноз</span><span></span><span class="r">Решение + почему</span></div>
+
+      <div class="rp-pr">
+        <div class="rp-prob"><div class="rp-labm">Проблема</div><div class="rp-pt">Недостаточность поджелудочной (EPI)</div><div class="rp-pe">эластаза 49.6 → 142 · норма &gt;200</div></div>
+        <div class="rp-arrow">→</div>
+        <div class="rp-sol"><div class="rp-labm">Решение</div><div class="rp-st">Kreon во время еды<span class="rp-pill ok">назначено</span></div><div class="rp-sw">Замещает недостающие ферменты → еда усваивается, останавливается потеря веса.</div></div>
+      </div>
+
+      <div class="rp-pr">
+        <div class="rp-prob"><div class="rp-labm">Проблема</div><div class="rp-pt">Вялая желчь, перегиб жёлчного + ↑ билирубин</div><div class="rp-pe">МРТ: ЖП перегнут; билирубин до 1.8</div></div>
+        <div class="rp-arrow">→</div>
+        <div class="rp-sol"><div class="rp-labm">Решение</div><div class="rp-st">Урсофальк (УДХК), на ночь<span class="rp-pill ok">назначено</span></div><div class="rp-sw">Разжижает желчь, улучшает усвоение жиров, снижает билирубин, бережёт печень.</div></div>
+      </div>
+
+      <div class="rp-pr">
+        <div class="rp-prob"><div class="rp-labm">Проблема</div><div class="rp-pt">Гистаминовая непереносимость</div><div class="rp-pe">DAO 2.2 · норма &gt;10; расщепление ~0%</div></div>
+        <div class="rp-arrow">→</div>
+        <div class="rp-sol"><div class="rp-labm">Решение</div><div class="rp-st">DAOSIN до еды + низкогистаминовая диета<span class="rp-pill ok">назначено</span></div><div class="rp-sw">Даёт недостающий фермент DAO → меньше гистамина → меньше приливов и ЖКТ-реакций. B6 (P5P) + витамин C — кофакторы DAO.</div></div>
+      </div>
+
+      <div class="rp-pr">
+        <div class="rp-prob"><div class="rp-labm">Проблема</div><div class="rp-pt">Лактозная непереносимость</div><div class="rp-pe">генетика C/C −13910 (первичная)</div></div>
+        <div class="rp-arrow">→</div>
+        <div class="rp-sol"><div class="rp-labm">Решение</div><div class="rp-st">Лактаза / безлактозное<span class="rp-pill ok">назначено</span></div><div class="rp-sw">Расщепляет или убирает лактозу → нет вздутия и диареи от молочного.</div></div>
+      </div>
+
+      <div class="rp-pr">
+        <div class="rp-prob"><div class="rp-labm">Проблема</div><div class="rp-pt">Гастрит тип C + лёгкая ГЭРБ</div><div class="rp-pe">гистология биопсии</div></div>
+        <div class="rp-arrow">→</div>
+        <div class="rp-sol"><div class="rp-labm">Решение</div><div class="rp-st">Щадящая еда, без раздражающего</div><div class="rp-sw">Снижает раздражение слизистой; острого лечения не требует.</div></div>
+      </div>
     </div>
 
     <div class="rp-dir d2">
       <div class="rp-dt">🦠 Кишечник и слизистая</div>
-      <div class="rp-dp">Лакто- и бифидобактерий нет, разрослись Klebsiella/Citrobacter; барьер слизистой ослаблен (sIgA ↓); на МРТ — застой стула.</div>
-      <div class="rp-item"><div class="rp-iname">Пробиотик — узкий, низкогистаминный</div><span class="rp-pill add">добавить</span><div class="rp-itext">Bifidobacterium longum/infantis/breve + L. rhamnosus/plantarum, не 53-штаммовый микс. Отдельно от еды и лекарств.</div></div>
-      <div class="rp-item"><div class="rp-iname">Пребиотик + клетчатка</div><span class="rp-pill add">добавить</span><div class="rp-itext">Наращивать медленно с малой дозы (ориентир ~30 г/день).</div></div>
-      <div class="rp-item"><div class="rp-iname">Цинк-карнозин / L-глутамин</div><span class="rp-pill add">добавить</span><div class="rp-itext">Восстановление слизистой, помогает и при гастрите типа C. Короткими курсами.</div></div>
-      <div class="rp-item"><div class="rp-iname">Магний цитрат</div><span class="rp-pill add">добавить</span><div class="rp-itext">Вечером — от запора/копростаза (магний в крови у тебя в норме, безопасно).</div></div>
+      <div class="rp-dp">Лакто- и бифидобактерий нет, разрослись условно-патогенные; барьер слизистой ослаблен; на МРТ — застой стула.</div>
+      <div class="rp-prh"><span>Проблема / диагноз</span><span></span><span class="r">Решение + почему</span></div>
+
+      <div class="rp-pr">
+        <div class="rp-prob"><div class="rp-labm">Проблема</div><div class="rp-pt">Дисбиоз: разрослись Klebsiella, Citrobacter, Enterobacter</div><div class="rp-pe">экограмма кала; лакто/бифидо не выявляются</div></div>
+        <div class="rp-arrow">→</div>
+        <div class="rp-sol"><div class="rp-labm">Решение</div><div class="rp-st">Пробиотик (узкий, низкогистаминный) + пребиотик<span class="rp-pill add">добавить</span></div><div class="rp-sw">Заселяем полезные бактерии и кормим их → вытесняем условно-патогенов. Узкий состав — чтобы не подкинуть гистамин.</div></div>
+      </div>
+
+      <div class="rp-pr">
+        <div class="rp-prob"><div class="rp-labm">Проблема</div><div class="rp-pt">Ослаблен барьер слизистой</div><div class="rp-pe">sIgA ↓ (169) · β-дефензин ↑</div></div>
+        <div class="rp-arrow">→</div>
+        <div class="rp-sol"><div class="rp-labm">Решение</div><div class="rp-st">Цинк-карнозин / L-глутамин<span class="rp-pill add">добавить</span></div><div class="rp-sw">Питание и восстановление клеток слизистой → крепче барьер; помогает и при гастрите C.</div></div>
+      </div>
+
+      <div class="rp-pr">
+        <div class="rp-prob"><div class="rp-labm">Проблема</div><div class="rp-pt">Копростаз (застой стула)</div><div class="rp-pe">МРТ: выраженный застой по толстой кишке</div></div>
+        <div class="rp-arrow">→</div>
+        <div class="rp-sol"><div class="rp-labm">Решение</div><div class="rp-st">Магний цитрат вечером + вода + клетчатка<span class="rp-pill add">добавить</span></div><div class="rp-sw">Мягко налаживает стул; застой иначе ухудшает дисбиоз и обратное всасывание металлов.</div></div>
+      </div>
     </div>
 
     <div class="rp-dir d3">
       <div class="rp-dt">☣️ Тяжёлые металлы</div>
-      <div class="rp-dp">Ртуть 36.9 (норма &lt;2.0, подтверждена) и алюминий 72.4 (норма &lt;5) — острые находки, отдельная линия с врачом.</div>
-      <div class="rp-item"><div class="rp-iname">Убрать источник</div><span class="rp-pill care">с врачом</span><div class="rp-itext">Рыба, амальгамовые пломбы, БАДы, посуда. Пересдать через 4–6 недель.</div></div>
-      <div class="rp-item"><div class="rp-iname">DMPS (Dimaval), капельницы</div><span class="rp-pill care">с врачом</span><div class="rp-itext">Твоё решение — как рекомендовал врач. Курсом под контролем (почки, контроль ртути).</div></div>
-      <div class="rp-note">✓ Сорбенты (цеолит/бентонит) не нужны — выбран DMPS; и они бы разгоняли алюминий.</div>
+      <div class="rp-dp">Острые находки этого года — отдельная линия с врачом.</div>
+      <div class="rp-prh"><span>Проблема / диагноз</span><span></span><span class="r">Решение + почему</span></div>
+
+      <div class="rp-pr">
+        <div class="rp-prob"><div class="rp-labm">Проблема</div><div class="rp-pt">Ртуть резко повышена</div><div class="rp-pe">36.9 · норма &lt;2.0 · подтверждена (было 1.8)</div></div>
+        <div class="rp-arrow">→</div>
+        <div class="rp-sol"><div class="rp-labm">Решение</div><div class="rp-st">Убрать источник + DMPS капельницы<span class="rp-pill care">с врачом</span></div><div class="rp-sw">Источник = причина роста; DMPS связывает и выводит ртуть. Курс под контролем почек.</div></div>
+      </div>
+
+      <div class="rp-pr">
+        <div class="rp-prob"><div class="rp-labm">Проблема</div><div class="rp-pt">Алюминий повышен</div><div class="rp-pe">72.4 · норма &lt;5</div></div>
+        <div class="rp-arrow">→</div>
+        <div class="rp-sol"><div class="rp-labm">Решение</div><div class="rp-st">Найти источник, пересдать · НЕ цеолит/бентонит<span class="rp-pill care">с врачом</span></div><div class="rp-sw">Цеолит/бентонит — сами алюмосиликаты и могут поднять алюминий.</div></div>
+      </div>
+      <div class="rp-note">✓ Сорбенты не нужны — выбран DMPS.</div>
     </div>
 
     <div class="rp-sh"><span class="n">2</span>Фон: дефициты и наблюдение</div>
@@ -736,7 +807,7 @@ td.hcell .he{opacity:.3}
       <div class="rp-box">
         <h4>👁 Наблюдать <span style="font-weight:400;color:var(--tx3);font-size:12px">(контроль, не лечить)</span></h4>
         <ul>
-          <li><b>Билирубin</b> — вероятно синдром Жильбера (Урсофальк его снижает).</li>
+          <li><b>Билирубин</b> — вероятно синдром Жильбера (Урсофальк его снижает).</li>
           <li><b>Лейкоциты</b> — лёгкая лейкопения, следить в динамике.</li>
           <li><b>H. pylori</b> — серология +, кал/биопсия −; спросить про эрадикацию.</li>
           <li><b>Сальмонелла</b> — доследовать; <b>ЛПНП</b> до 171 — диета.</li>
@@ -751,7 +822,7 @@ td.hcell .he{opacity:.3}
       <div class="rp-lvl l2"><div class="a">Поддержка — ежедневно</div><div class="b">B6+C · магний · цинк-карнозин / L-глутамин</div></div>
       <div class="rp-lvl l1"><div class="a">🟢 Фундамент — каждый день, обязательно</div><div class="b">Kreon · Урсофальк · DAOSIN + диета · лактаза · про- + пребиотик</div></div>
     </div>
-    <div class="rp-cap">Снизу вверх: сначала держим фундамент, потом добавляем слои поверх.</div>
+    <div class="rp-capc">Снизу вверх: сначала держим фундамент, потом добавляем слои поверх.</div>
 
     <div class="rp-sh"><span class="n">4</span>Распорядок дня — когда что принимать</div>
     <div class="rp-tl">
