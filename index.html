@@ -287,6 +287,16 @@ td.hcell .he{opacity:.3}
 .dp-total{font-weight:600;font-size:14px;padding:11px 14px;border:1px solid var(--ok);border-radius:10px;background:var(--okbg);margin:6px 0 12px}
 .dp-rules{font-size:12px;color:var(--tx2);line-height:1.55;background:var(--tk);border-radius:10px;padding:11px 14px}
 .dp-rules b{color:var(--tx)}
+.dp-shop{margin:18px 0 4px;border:1px solid var(--bd);border-radius:12px;background:var(--card);padding:14px 16px}
+.dp-shop-h{font-size:14px;font-weight:700;color:var(--tx);margin-bottom:5px}
+.dp-shop-note{font-size:12px;color:var(--tx2);line-height:1.5;margin-bottom:8px}
+.dp-shop-grp{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--tx3);margin:13px 0 3px}
+.dp-shop-i{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:8px 0;border-bottom:1px solid var(--bd);text-decoration:none;color:var(--tx)}
+.dp-shop-i:hover{color:var(--ok)}
+.dp-shop-i .ru{font-size:13px;font-weight:500;min-width:0}
+.dp-shop-i .de{font-size:11px;color:var(--tx3);text-align:right;flex-shrink:0;max-width:50%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dp-shop-i:hover .de{color:var(--ok)}
+.dp-shop-i .de::after{content:" ↗"}
 .detbox .ccomment{font-size:12.5px;color:var(--tx);background:var(--tk);border-radius:7px;padding:7px 10px;margin-bottom:6px;line-height:1.5}
 .detbox .fwmeta{margin:2px 0 4px;font-size:11.5px;color:var(--tx2)}
 .phase{display:inline-block;font-size:10px;font-weight:600;padding:2px 7px;border-radius:999px;border:1px solid var(--bd2)}
@@ -529,7 +539,7 @@ td.hcell .he{opacity:.3}
   </div>
 
   <div id="tab-dayplan" class="panel" style="display:none">
-    <div class="dp-intro">Дни для <b>набора веса</b>: <b>3 приёма</b>, <b>без мяса</b>, безлактозно, только продукты с оценкой <b>гистамин и кишечник ≤1/5</b>. Ориентир <b>≈2500 ккал</b> в 3 больших приёма. Калории добираем маслами (оливковое/конопляное/гхи), маскарпоне/сливками, конопляными семечками и кленовым сиропом; белок — безлактозный творог/Hüttenkäse, конопляные семечки, киноа/гречка/пшено. <b>Рыба — иногда</b> (варианты 2 и 4), только ультрасвежая. <b>Kreon</b> с каждым приёмом, где есть жир/белок. 5 взаимозаменяемых вариантов:</div>
+    <div class="dp-intro">Дни для <b>набора веса</b>: <b>3 приёма</b>, <b>без мяса</b>, безлактозно, только продукты с оценкой <b>гистамин и кишечник ≤1/5</b>. Ориентир <b>≈2500 ккал</b> в 3 больших приёма. Калории добираем маслами (оливковое/конопляное/гхи), маскарпоне/сливками, конопляными семечками и кленовым сиропом; белок — безлактозный творог/Hüttenkäse, конопляные семечки, киноа/гречка/пшено. <b>Всё без глютена и без лактозы</b>, мяса нет. <b>Рыба — иногда</b> (варианты 2 и 4), только ультрасвежая. <b>Kreon</b> с каждым приёмом, где есть жир/белок. 5 взаимозаменяемых вариантов; внизу — <b>список покупок со ссылками на Knuspr</b>.</div>
 
     <div class="modebtns" style="margin-bottom:12px">
       <button class="modebtn active" data-dpv="1">Вариант 1</button>
@@ -541,7 +551,7 @@ td.hcell .he{opacity:.3}
 
     <div id="dpv-1">
       <div class="dp-vtitle">Вариант 1 · творожно-зерновой (без рыбы)</div>
-      <div class="dp-meal"><div class="dp-h">🌅 Завтрак <span class="dp-kc">≈830 ккал · 30 г</span></div><ul><li>Рисовая каша (<b>рисовая манка</b> 60 г) на <b>безлактозном цельном молоке</b> (250 мл) + 1 ст.л. <b>гхи</b> + 2 ст.л. <b>конопляных семечек</b></li><li>+ <b>безлактозный творог</b> (100 г), <b>черника</b> и 1 ч.л. <b>кленового сиропа</b></li></ul></div>
+      <div class="dp-meal"><div class="dp-h">🌅 Завтрак <span class="dp-kc">≈830 ккал · 30 г</span></div><ul><li>Рисовая каша (<b>рисовые хлопья zartschmelzend</b> 60 г) на <b>безлактозном цельном молоке</b> (250 мл) + 1 ст.л. <b>гхи</b> + 2 ст.л. <b>конопляных семечек</b></li><li>+ <b>безлактозный творог</b> (100 г), <b>черника</b> и 1 ч.л. <b>кленового сиропа</b></li></ul></div>
       <div class="dp-meal"><div class="dp-h">🍽️ Обед <span class="dp-kc">≈860 ккал · 32 г</span></div><ul><li><b>Киноа</b> (80 г сухой) + тушёные <b>цукини и пак-чой</b> на 2 ст.л. <b>оливкового масла</b></li><li>+ <b>безлактозный Hüttenkäse</b> (150 г), свежая <b>петрушка/базилик</b></li></ul></div>
       <div class="dp-meal"><div class="dp-h">🌙 Ужин <span class="dp-kc">≈820 ккал · 28 г</span></div><ul><li><b>Гречка</b> (70 г сухой) + тушёные <b>кольраби и белая репа</b> на 1 ст.л. <b>конопляного масла</b></li><li>+ <b>безлактозный творог</b> (150 г) с 1 ст.л. <b>маскарпоне</b>, <b>укроп</b></li></ul></div>
       <div class="dp-total">Итого: ≈2510 ккал · ≈90 г белка</div>
@@ -577,6 +587,46 @@ td.hcell .he{opacity:.3}
       <div class="dp-meal"><div class="dp-h">🍽️ Обед <span class="dp-kc">≈850 ккал · 28 г</span></div><ul><li><b>Рис</b> (80 г) с тушёными <b>цукини, пак-чой и паприкой</b> на 2 ст.л. <b>оливкового масла</b></li><li>+ <b>безлактозный Hüttenkäse</b> (150 г)</li></ul></div>
       <div class="dp-meal"><div class="dp-h">🌙 Ужин <span class="dp-kc">≈810 ккал · 22 г</span></div><ul><li><b>Пшённая каша</b> на <b>безлактозном молоке</b> + 1 ст.л. <b>гхи</b> + 1 ст.л. <b>маскарпоне</b></li><li>+ 2 ст.л. <b>конопляных семечек</b></li></ul></div>
       <div class="dp-total">Итого: ≈2510 ккал · ≈84 г белка</div>
+    </div>
+
+    <div class="dp-shop">
+      <div class="dp-shop-h">🛒 Список покупок (Knuspr)</div>
+      <div class="dp-shop-note">Конкретные товары на <b>Knuspr</b> (knuspr.de) — нажми, чтобы открыть и добавить в корзину. Всё <b>без глютена</b> и <b>без лактозы</b>, мяса нет. Если позиции нет в наличии — рядом будут аналоги в той же категории. Рыбу бери только свежую, в день готовки.</div>
+      <div class="dp-shop-grp">Каши и крупы</div>
+      <a class="dp-shop-i" href="https://www.knuspr.de/6553-alnatura-bio-reisflocken-zartschmelzend" target="_blank" rel="noopener"><span class="ru">Рисовые хлопья (рисовый крем, zartschmelzend)</span><span class="de">Alnatura BIO Reisflocken</span></a>
+      <a class="dp-shop-i" href="https://www.knuspr.de/9592-bauckhof-bio-hirseflocken" target="_blank" rel="noopener"><span class="ru">Пшённые хлопья</span><span class="de">Bauckhof Bio Hirseflocken</span></a>
+      <a class="dp-shop-i" href="https://www.knuspr.de/6205-alnatura-bio-reiswaffeln-vollkorn-mit-meersalz" target="_blank" rel="noopener"><span class="ru">Рисовые хлебцы</span><span class="de">Alnatura Reiswaffeln Vollkorn</span></a>
+      <a class="dp-shop-i" href="https://www.knuspr.de/6695-alnatura-bio-quinoa" target="_blank" rel="noopener"><span class="ru">Киноа</span><span class="de">Alnatura BIO Quinoa</span></a>
+      <a class="dp-shop-i" href="https://www.knuspr.de/72162-kitchin-buchweizen" target="_blank" rel="noopener"><span class="ru">Гречка</span><span class="de">Kitchin Buchweizen</span></a>
+      <a class="dp-shop-i" href="https://www.knuspr.de/10055-alnatura-bio-hirse" target="_blank" rel="noopener"><span class="ru">Пшено</span><span class="de">Alnatura Bio Hirse</span></a>
+      <a class="dp-shop-i" href="https://www.knuspr.de/6720-alnatura-bio-himalaya-basmati-reis" target="_blank" rel="noopener"><span class="ru">Рис басмати</span><span class="de">Alnatura BIO Himalaya Basmati</span></a>
+      <a class="dp-shop-i" href="https://www.knuspr.de/22038-fairtrade-original-bio-vollkornreisnudeln-glutenfrei" target="_blank" rel="noopener"><span class="ru">Рисовая лапша</span><span class="de">Fairtrade Vollkornreisnudeln glutenfrei</span></a>
+      <div class="dp-shop-grp">Молочное (безлактозное)</div>
+      <a class="dp-shop-i" href="https://www.knuspr.de/78029-lac-speisequark-40-fett-laktosefrei" target="_blank" rel="noopener"><span class="ru">Творог сливочный 40% (калорийный)</span><span class="de">LAC Speisequark 40% laktosefrei</span></a>
+      <a class="dp-shop-i" href="https://www.knuspr.de/25096-zuger-bio-huttenkase-laktosefrei" target="_blank" rel="noopener"><span class="ru">Зернёный творог</span><span class="de">Züger Bio Hüttenkäse laktosefrei</span></a>
+      <a class="dp-shop-i" href="https://www.knuspr.de/19590-minus-l-mascarpone-laktosefrei" target="_blank" rel="noopener"><span class="ru">Маскарпоне</span><span class="de">Minus L Mascarpone laktosefrei</span></a>
+      <a class="dp-shop-i" href="https://www.knuspr.de/12002-minus-l-frischkaese-laktosefrei" target="_blank" rel="noopener"><span class="ru">Сливочный сыр</span><span class="de">Minus L Frischkäse laktosefrei</span></a>
+      <a class="dp-shop-i" href="https://www.knuspr.de/99770-lac-frischmilch-3-5-fett-laktosefrei" target="_blank" rel="noopener"><span class="ru">Цельное молоко 3,5%</span><span class="de">LAC Frischmilch 3,5% laktosefrei</span></a>
+      <div class="dp-shop-grp">Жиры и семечки</div>
+      <a class="dp-shop-i" href="https://www.knuspr.de/11427-ghee-easy-bio-ghee" target="_blank" rel="noopener"><span class="ru">Гхи (топлёное масло)</span><span class="de">Ghee Easy Bio Ghee</span></a>
+      <a class="dp-shop-i" href="https://www.knuspr.de/1171-gaea-bio-natives-olivenoel-extra" target="_blank" rel="noopener"><span class="ru">Оливковое масло extra virgin</span><span class="de">GAEA Bio Natives Olivenöl extra</span></a>
+      <a class="dp-shop-i" href="https://www.knuspr.de/9784-alnatura-bio-hanfoel-nativ" target="_blank" rel="noopener"><span class="ru">Конопляное масло</span><span class="de">Alnatura Bio Hanföl nativ</span></a>
+      <a class="dp-shop-i" href="https://www.knuspr.de/6716-alnatura-bio-hanfsamen-geschaelt" target="_blank" rel="noopener"><span class="ru">Очищенные семена конопли</span><span class="de">Alnatura BIO Hanfsamen geschält</span></a>
+      <div class="dp-shop-grp">Сладкое и ягоды</div>
+      <a class="dp-shop-i" href="https://www.knuspr.de/6722-alnatura-bio-grade-a-ahornsirup" target="_blank" rel="noopener"><span class="ru">Кленовый сироп</span><span class="de">Alnatura BIO Ahornsirup Grade A</span></a>
+      <a class="dp-shop-i" href="https://www.knuspr.de/78701-pack-d-bio-heidelbeeren" target="_blank" rel="noopener"><span class="ru">Черника (заморозка)</span><span class="de">PACK'D BIO Heidelbeeren TK</span></a>
+      <a class="dp-shop-i" href="https://www.knuspr.de/4578-bio-inside-bio-himbeeren" target="_blank" rel="noopener"><span class="ru">Малина (заморозка)</span><span class="de">bio inside BIO Himbeeren TK</span></a>
+      <div class="dp-shop-grp">Овощи и салат</div>
+      <a class="dp-shop-i" href="https://www.knuspr.de/90-zucchini-1-stk" target="_blank" rel="noopener"><span class="ru">Цукини</span><span class="de">Zucchini, 1 Stk.</span></a>
+      <a class="dp-shop-i" href="https://www.knuspr.de/19522-shanghai-pak-choi-1-stk" target="_blank" rel="noopener"><span class="ru">Пак-чой</span><span class="de">Shanghai Pak Choi, 1 Stk.</span></a>
+      <a class="dp-shop-i" href="https://www.knuspr.de/31-kohlrabi-ohne-gruen-1-stk" target="_blank" rel="noopener"><span class="ru">Кольраби</span><span class="de">Kohlrabi ohne Grün, 1 Stk.</span></a>
+      <a class="dp-shop-i" href="https://www.knuspr.de/84-paprika-rot-1-stk" target="_blank" rel="noopener"><span class="ru">Перец красный</span><span class="de">Paprika Rot, 1 Stk.</span></a>
+      <a class="dp-shop-i" href="https://www.knuspr.de/14538-salatgurke-1-stk" target="_blank" rel="noopener"><span class="ru">Огурец</span><span class="de">Salatgurke, 1 Stk.</span></a>
+      <a class="dp-shop-i" href="https://www.knuspr.de/71996-feldsalat-schale" target="_blank" rel="noopener"><span class="ru">Полевой салат (корн)</span><span class="de">Feldsalat, Schale</span></a>
+      <div class="dp-shop-grp">Рыба — иногда (только свежая)</div>
+      <a class="dp-shop-i" href="https://www.knuspr.de/89855-costa-msc-kabeljaufilets-im-frischepack" target="_blank" rel="noopener"><span class="ru">Треска филе, свежая</span><span class="de">Costa MSC Kabeljaufilets frisch</span></a>
+      <a class="dp-shop-i" href="https://www.knuspr.de/12908-zander-filet-mit-haut" target="_blank" rel="noopener"><span class="ru">Судак филе, свежий</span><span class="de">Zander Filet mit Haut</span></a>
+      <a class="dp-shop-i" href="https://www.knuspr.de/90327-deutsche-see-forelle-im-ganzen" target="_blank" rel="noopener"><span class="ru">Радужная форель, свежая</span><span class="de">Deutsche See Forelle im Ganzen</span></a>
     </div>
 
     <div class="dp-rules"><b>Правила:</b> 3 приёма, <b>без мяса</b>; рыба только ультрасвежая и не каждый день · только продукты с <b>гистамином и кишечником ≤1/5</b> · <b>Kreon</b> с каждым приёмом, где есть масло/семечки/жирная молочка · готовь и ешь свежим, белок повторно не разогревай, остатки сразу морозь · взвешивайся раз в неделю в одинаковых условиях. Если вес продолжает падать или не стабилизируется за 2–4 недели — обратись к врачу раньше. Меню — ориентир из твоих данных, не предписание; потеря веса — к твоей медкоманде.</div>
@@ -1649,7 +1699,7 @@ $("tab-dates").addEventListener("click", (e) => { const chip = e.target.closest(
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "10.0";
+const APP_VERSION = "10.1";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
