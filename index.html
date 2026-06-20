@@ -628,168 +628,150 @@ td.hcell .he{opacity:.3}
 
   <div id="tab-plan" class="panel" style="display:none">
     <style>
-    #tab-plan .rp-intro{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px 16px;font-size:14px;color:var(--tx2);line-height:1.55;margin-bottom:14px}
-    #tab-plan .rp-intro b{color:var(--tx)}
-    #tab-plan .rp-h2{font-size:15px;font-weight:600;color:var(--tx);margin:22px 2px 10px;display:flex;align-items:center;gap:8px}
-    #tab-plan .rp-h2 .rp-num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--tk);font-size:12px;color:var(--tx2);flex:0 0 auto}
-    #tab-plan .rp-legend{display:flex;flex-wrap:wrap;gap:8px;margin:0 2px 4px}
-    #tab-plan .rp-tag{font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;white-space:nowrap}
-    #tab-plan .rp-tag.ok{background:var(--okbg);color:var(--ok)}
-    #tab-plan .rp-tag.add{background:rgba(47,125,212,.15);color:var(--lo)}
-    #tab-plan .rp-tag.care{background:var(--hibg);color:var(--hi)}
-    #tab-plan .rp-tag.watch{background:var(--tk);color:var(--tx3)}
-    #tab-plan .rp-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    @media(max-width:680px){#tab-plan .rp-grid{grid-template-columns:1fr}}
-    #tab-plan .rp-card{background:var(--card);border:1px solid var(--bd);border-left:4px solid var(--tx3);border-radius:10px;padding:13px 15px}
-    #tab-plan .rp-card.base{border-left-color:var(--ok)}
-    #tab-plan .rp-card.addc{border-left-color:var(--lo)}
-    #tab-plan .rp-card.care{border-left-color:var(--hi)}
-    #tab-plan .rp-card.watch{border-left-color:var(--warn)}
-    #tab-plan .rp-ct{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px}
-    #tab-plan .rp-cn{font-size:14.5px;font-weight:600;color:var(--tx)}
-    #tab-plan .rp-row{font-size:13px;color:var(--tx);line-height:1.5;margin-top:6px}
-    #tab-plan .rp-row b{font-weight:600}
-    #tab-plan .rp-lab{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--tx3);margin-right:6px}
-    #tab-plan .rp-row.sol{color:var(--tx)}
-    #tab-plan .rp-row.how{background:var(--tk);border-radius:7px;padding:7px 9px;margin-top:8px;color:var(--tx2)}
-    #tab-plan .rp-pyr{display:flex;flex-direction:column;align-items:center;gap:6px;margin:4px 0 2px}
-    #tab-plan .rp-lvl{width:100%;border-radius:9px;padding:11px 14px;text-align:center;border:1px solid var(--bd)}
-    #tab-plan .rp-lvl .rp-lt{font-size:13.5px;font-weight:700;color:var(--tx)}
-    #tab-plan .rp-lvl .rp-ls{font-size:12px;color:var(--tx2);margin-top:2px}
-    #tab-plan .rp-lvl.l4{width:58%;background:var(--hibg)}
-    #tab-plan .rp-lvl.l3{width:72%;background:var(--warnbg)}
-    #tab-plan .rp-lvl.l2{width:86%;background:rgba(47,125,212,.13)}
+    #tab-plan{color:var(--tx)}
+    #tab-plan .rp-hero{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:16px 18px}
+    #tab-plan .rp-hero p{margin:0;font-size:14px;line-height:1.6;color:var(--tx2)}
+    #tab-plan .rp-hero b{color:var(--tx);font-weight:600}
+    #tab-plan .rp-fronts{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px}
+    #tab-plan .rp-front{font-size:12px;font-weight:600;padding:5px 11px;border-radius:8px;border:1px solid var(--bd);color:var(--tx)}
+    #tab-plan .rp-front.f1{background:var(--okbg)}
+    #tab-plan .rp-front.f2{background:rgba(47,125,212,.13)}
+    #tab-plan .rp-front.f3{background:var(--hibg)}
+    #tab-plan .rp-sh{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--tx3);margin:28px 2px 14px;padding-bottom:8px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:8px}
+    #tab-plan .rp-sh .n{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:var(--tk);color:var(--tx2);font-size:11px;letter-spacing:0}
+    #tab-plan .rp-dir{border-left:3px solid var(--tx3);padding:2px 0 2px 15px;margin-bottom:20px}
+    #tab-plan .rp-dir.d1{border-color:var(--ok)}
+    #tab-plan .rp-dir.d2{border-color:var(--lo)}
+    #tab-plan .rp-dir.d3{border-color:var(--hi)}
+    #tab-plan .rp-dt{font-size:15.5px;font-weight:600;margin-bottom:4px}
+    #tab-plan .rp-dp{font-size:12.5px;color:var(--tx2);line-height:1.5;margin-bottom:6px}
+    #tab-plan .rp-item{display:grid;grid-template-columns:1fr auto;gap:3px 12px;padding:9px 0;border-top:1px solid var(--bd)}
+    #tab-plan .rp-iname{font-size:13.5px;font-weight:600;color:var(--tx)}
+    #tab-plan .rp-pill{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap;height:fit-content}
+    #tab-plan .rp-pill.ok{background:var(--okbg);color:var(--ok)}
+    #tab-plan .rp-pill.add{background:rgba(47,125,212,.15);color:var(--lo)}
+    #tab-plan .rp-pill.care{background:var(--hibg);color:var(--hi)}
+    #tab-plan .rp-itext{grid-column:1/-1;font-size:13px;color:var(--tx2);line-height:1.5}
+    #tab-plan .rp-note{font-size:12px;color:var(--tx3);margin-top:10px;padding-left:15px;border-left:3px solid transparent}
+    #tab-plan .rp-two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    @media(max-width:600px){#tab-plan .rp-two{grid-template-columns:1fr}}
+    #tab-plan .rp-box{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:13px 15px}
+    #tab-plan .rp-box h4{margin:0 0 9px;font-size:13.5px;color:var(--tx)}
+    #tab-plan .rp-box ul{margin:0;padding-left:17px;font-size:12.5px;color:var(--tx2);line-height:1.7}
+    #tab-plan .rp-box li b{color:var(--tx);font-weight:600}
+    #tab-plan .rp-pyr{display:flex;flex-direction:column;align-items:center;gap:5px}
+    #tab-plan .rp-lvl{width:100%;border-radius:8px;padding:9px 12px;text-align:center;border:1px solid var(--bd)}
+    #tab-plan .rp-lvl .a{font-size:12.5px;font-weight:700;color:var(--tx)}
+    #tab-plan .rp-lvl .b{font-size:11.5px;color:var(--tx2);margin-top:1px}
+    #tab-plan .rp-lvl.l4{width:56%;background:var(--hibg)}
+    #tab-plan .rp-lvl.l3{width:70%;background:var(--warnbg)}
+    #tab-plan .rp-lvl.l2{width:85%;background:rgba(47,125,212,.12)}
     #tab-plan .rp-lvl.l1{width:100%;background:var(--okbg)}
-    @media(max-width:600px){#tab-plan .rp-lvl.l4{width:78%}#tab-plan .rp-lvl.l3{width:88%}#tab-plan .rp-lvl.l2{width:96%}}
-    #tab-plan .rp-pyrcap{text-align:center;font-size:12px;color:var(--tx3);margin:8px 0 2px}
-    #tab-plan .rp-tl{display:flex;flex-direction:column;gap:9px}
-    #tab-plan .rp-ti{display:grid;grid-template-columns:128px 1fr;gap:12px;background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:11px 13px}
-    @media(max-width:560px){#tab-plan .rp-ti{grid-template-columns:1fr;gap:4px}}
+    @media(max-width:600px){#tab-plan .rp-lvl.l4{width:80%}#tab-plan .rp-lvl.l3{width:90%}}
+    #tab-plan .rp-cap{text-align:center;font-size:11.5px;color:var(--tx3);margin-top:9px}
+    #tab-plan .rp-tl{display:flex;flex-direction:column}
+    #tab-plan .rp-ti{display:grid;grid-template-columns:150px 1fr;gap:14px;padding:11px 0;border-top:1px solid var(--bd)}
+    #tab-plan .rp-ti:first-child{border-top:0}
+    @media(max-width:560px){#tab-plan .rp-ti{grid-template-columns:1fr;gap:3px}}
     #tab-plan .rp-when{font-size:13px;font-weight:700;color:var(--tx)}
-    #tab-plan .rp-what{font-size:13px;color:var(--tx2);line-height:1.5}
-    #tab-plan .rp-what b{color:var(--tx);font-weight:600}
-    #tab-plan .rp-ti.warn{border-color:var(--bd2);background:var(--hibg)}
-    #tab-plan .rp-rules{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px 16px;font-size:13px;color:var(--tx2);line-height:1.6;margin-top:14px}
+    #tab-plan .rp-act{font-size:13px;color:var(--tx2);line-height:1.5}
+    #tab-plan .rp-act b{color:var(--tx);font-weight:600}
+    #tab-plan .rp-rules{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:6px 16px 14px;font-size:12.5px;color:var(--tx2);line-height:1.6}
     #tab-plan .rp-rules b{color:var(--tx)}
-    #tab-plan .rp-rules div{margin-bottom:7px}
-    #tab-plan .rp-rules div:last-child{margin-bottom:0}
+    #tab-plan .rp-rules ul{margin:0;padding-left:18px}
+    #tab-plan .rp-rules li{margin-top:8px}
+    #tab-plan .rp-disc{font-size:11.5px;color:var(--tx3);margin-top:16px;text-align:center}
     </style>
 
-    <div class="rp-intro">
-      <b>Картина целиком.</b> Опасное (опухоль, целиакия, миокардит, колит, диабет, гипертиреоз) — <b>исключено</b>. Твои симптомы (вздутие, тошнота, потеря ~10 кг) объясняются «<b>перегруженным и плохо переваривающим ЖКТ</b>»: недостаточность поджелудочной + гистаминовая и лактозная непереносимость + дисбиоз + лёгкий гастрит. Отдельно — <b>две новые острые находки: ртуть и алюминий</b> (это решается с врачом). Ниже: каждая проблема → решение → как принимать, затем <b>пирамида приёма</b> и <b>тайминг дня</b>.
-      <div style="margin-top:8px;font-size:12px;color:var(--tx3)">Это ориентир из твоих данных, а не медицинское назначение. Дозы и состав согласуй с лечащим врачом.</div>
+    <div class="rp-hero">
+      <p><b>Картина целиком.</b> Опасное исключено (опухоль, целиакия, миокардит, колит, диабет, гипертиреоз). Симптомы и потеря ~10 кг = <b>плохое переваривание</b> + <b>разбалансированный кишечник</b>; отдельно — <b>тяжёлые металлы</b>. Лечим по трём направлениям, плюс фоном закрываем дефициты и держим под контролем «наблюдаемое».</p>
+      <div class="rp-fronts">
+        <span class="rp-front f1">🍽️ 1 · Пищеварение</span>
+        <span class="rp-front f2">🦠 2 · Кишечник</span>
+        <span class="rp-front f3">☣️ 3 · Металлы</span>
+      </div>
     </div>
 
-    <div class="rp-h2"><span class="rp-num">1</span>Проблемы → решения</div>
-    <div class="rp-legend">
-      <span class="rp-tag ok">врач назначил</span>
-      <span class="rp-tag add">добавить (с врачом)</span>
-      <span class="rp-tag care">только с врачом</span>
-      <span class="rp-tag watch">наблюдать</span>
+    <div class="rp-sh"><span class="n">1</span>Три направления — проблема и что с ней делаем</div>
+
+    <div class="rp-dir d1">
+      <div class="rp-dt">🍽️ Пищеварение и ЖКТ</div>
+      <div class="rp-dp">Поджелудочная даёт мало ферментов (эластаза ↓), желчь вялая, не хватает DAO и лактазы → еда плохо усваивается, отсюда вздутие и потеря веса.</div>
+      <div class="rp-item"><div class="rp-iname">Kreon</div><span class="rp-pill ok">назначено</span><div class="rp-itext">Ферменты — в середине каждого приёма с жиром/белком.</div></div>
+      <div class="rp-item"><div class="rp-iname">Урсофальк (УДХК)</div><span class="rp-pill ok">назначено</span><div class="rp-itext">На ночь. Улучшает желчь и усвоение жиров, снижает билирубин, бережёт печень.</div></div>
+      <div class="rp-item"><div class="rp-iname">DAOSIN + низкогистаминовая диета</div><span class="rp-pill ok">назначено</span><div class="rp-itext">DAO за 15 мин до еды; свежее, без выдержанного сыра, рыбы-консервов, томатов, красного вина.</div></div>
+      <div class="rp-item"><div class="rp-iname">Лактаза / безлактозное</div><span class="rp-pill ok">назначено</span><div class="rp-itext">При молочном; проще держать рацион безлактозным.</div></div>
+      <div class="rp-item"><div class="rp-iname">Витамин B6 (P5P) + витамин C</div><span class="rp-pill add">добавить</span><div class="rp-itext">Кофакторы фермента DAO — естественная поддержка против гистамина.</div></div>
+      <div class="rp-note">Гастрит тип C (лёгкий) + лёгкая ГЭРБ → щадящая еда, без раздражающего; острого лечения не требует.</div>
     </div>
 
-    <div class="rp-grid">
-
-      <div class="rp-card base">
-        <div class="rp-ct"><span class="rp-cn">Недостаточность поджелудочной (EPI)</span><span class="rp-tag ok">врач назначил</span></div>
-        <div class="rp-row"><span class="rp-lab">Анализы</span>Панкреатическая эластаза 49.6 → 142 (норма &gt;200).</div>
-        <div class="rp-row"><span class="rp-lab">Объясняет</span>Плохое усвоение еды → <b>потеря веса</b>, вздутие, неустойчивый стул.</div>
-        <div class="rp-row sol"><span class="rp-lab">Решение</span><b>Kreon</b> (панкреатические ферменты).</div>
-        <div class="rp-row how"><span class="rp-lab">Как</span>В <b>середине</b> каждого приёма с жиром/белком; доза по назначению (35 000+).</div>
-      </div>
-
-      <div class="rp-card base">
-        <div class="rp-ct"><span class="rp-cn">Гистаминовая непереносимость</span><span class="rp-tag ok">врач назначил</span></div>
-        <div class="rp-row"><span class="rp-lab">Анализы</span>DAO 2.2 (норма &gt;10); расщепление гистамина ~0%.</div>
-        <div class="rp-row"><span class="rp-lab">Объясняет</span>Приливы, головная боль, зуд, усиление ЖКТ-симптомов.</div>
-        <div class="rp-row sol"><span class="rp-lab">Решение</span><b>DAOSIN</b> + низкогистаминовая диета; антигистамины по схеме врача; кофакторы <b>B6 (P5P) + витамин C</b>.</div>
-        <div class="rp-row how"><span class="rp-lab">Как</span>DAOSIN <b>за 15 мин до</b> еды; диета — свежее, без выдержанного сыра, рыбы-консервов, томатов, красного вина.</div>
-      </div>
-
-      <div class="rp-card base">
-        <div class="rp-ct"><span class="rp-cn">Лактозная непереносимость</span><span class="rp-tag ok">врач назначил</span></div>
-        <div class="rp-row"><span class="rp-lab">Анализы</span>Генетика: C/C -13910 (первичная, пожизненная).</div>
-        <div class="rp-row"><span class="rp-lab">Объясняет</span>Вздутие/диарея после молочного.</div>
-        <div class="rp-row sol"><span class="rp-lab">Решение</span><b>Безлактозные</b> продукты или фермент <b>лактаза</b> (LactoStop).</div>
-        <div class="rp-row how"><span class="rp-lab">Как</span>Лактазу — с первым глотком молочного; проще держать рацион безлактозным.</div>
-      </div>
-
-      <div class="rp-card addc">
-        <div class="rp-ct"><span class="rp-cn">Дисбиоз кишечника</span><span class="rp-tag add">добавить</span></div>
-        <div class="rp-row"><span class="rp-lab">Анализы</span>Нет лакто/бифидо и E. coli; разрослись Klebsiella, Citrobacter, Enterobacter; sIgA низкий.</div>
-        <div class="rp-row"><span class="rp-lab">Объясняет</span>Вздутие, брожение, ослабленный барьер кишечника.</div>
-        <div class="rp-row sol"><span class="rp-lab">Решение</span><b>Пробиотик + пребиотик + клетчатка</b> (~30 г/день).</div>
-        <div class="rp-row how"><span class="rp-lab">Как</span>⚠️ Пробиотик — <b>узкий, низкогистаминный</b> (Bifidobacterium longum/infantis/breve, L. rhamnosus/plantarum), а не 53-штаммовый микс. Пребиотик — наращивать <b>медленно</b> с малой дозы.</div>
-      </div>
-
-      <div class="rp-card addc">
-        <div class="rp-ct"><span class="rp-cn">Раздражённая слизистая / гастрит тип C</span><span class="rp-tag add">добавить</span></div>
-        <div class="rp-row"><span class="rp-lab">Анализы</span>Гистология: гастрит тип C; sIgA кала низкий, β-дефензин высокий.</div>
-        <div class="rp-row"><span class="rp-lab">Объясняет</span>Чувствительный желудок/кишечник, переполнение.</div>
-        <div class="rp-row sol"><span class="rp-lab">Решение</span><b>Цинк-карнозин</b> и/или <b>L-глутамин</b> для слизистой.</div>
-        <div class="rp-row how"><span class="rp-lab">Как</span>Короткими курсами; цинк не передозировать (баланс с медью). С едой.</div>
-      </div>
-
-      <div class="rp-card addc">
-        <div class="rp-ct"><span class="rp-cn">Копростаз (запор)</span><span class="rp-tag add">добавить</span></div>
-        <div class="rp-row"><span class="rp-lab">Анализы</span>МРТ: выраженный застой каловых масс.</div>
-        <div class="rp-row"><span class="rp-lab">Объясняет</span>Ухудшает дисбиоз и обратное всасывание металлов.</div>
-        <div class="rp-row sol"><span class="rp-lab">Решение</span><b>Магний цитрат</b> + вода + движение + растворимая клетчатка.</div>
-        <div class="rp-row how"><span class="rp-lab">Как</span>Магний обычно <b>вечером</b>; уровень магния в крови у тебя в норме — безопасно.</div>
-      </div>
-
-      <div class="rp-card addc">
-        <div class="rp-ct"><span class="rp-cn">Дефициты микронутриентов</span><span class="rp-tag add">добавить</span></div>
-        <div class="rp-row"><span class="rp-lab">Анализы</span>Биотин 239 (&lt;250); витамин D 35–42 (низковат), разово высокий ПТГ.</div>
-        <div class="rp-row"><span class="rp-lab">Объясняет</span>Из-за EPI хуже усваиваются жирорастворимые A/D/E/K.</div>
-        <div class="rp-row sol"><span class="rp-lab">Решение</span>Восполнить <b>биотин</b>, <b>витамин D</b> (к 40–60); проверить <b>A/E/K</b>.</div>
-        <div class="rp-row how"><span class="rp-lab">Как</span>Жирорастворимые — <b>сначала анализ</b>, потом приём, с едой. <b>Фолат сперва уточнить</b> (в лаборатории он выше нормы, а в заключении «дефицит»).</div>
-      </div>
-
-      <div class="rp-card care">
-        <div class="rp-ct"><span class="rp-cn">Тяжёлые металлы</span><span class="rp-tag care">только с врачом</span></div>
-        <div class="rp-row"><span class="rp-lab">Анализы</span>Ртуть 36.9 (&lt;2.0), подтверждена; алюминий 72.4 (&lt;5).</div>
-        <div class="rp-row"><span class="rp-lab">Объясняет</span>Может сама давать утомляемость, ЖКТ- и неврологические симптомы.</div>
-        <div class="rp-row sol"><span class="rp-lab">Решение</span><b>Найти и убрать источник</b> (рыба, пломбы, БАДы, посуда) → пересдать → хелирование <b>DMPS</b> с врачом.</div>
-        <div class="rp-row how"><span class="rp-lab">Как</span>⛔ <b>Цеолит/бентонит не брать</b> — это алюмосиликаты, риск поднять алюминий и закрепить запор. Альфа-липоевую/кинзу не использовать самостоятельно.</div>
-      </div>
-
-      <div class="rp-card watch">
-        <div class="rp-ct"><span class="rp-cn">Под наблюдением</span><span class="rp-tag watch">наблюдать</span></div>
-        <div class="rp-row"><span class="rp-lab">Билирубин</span>Вероятно <b>синдром Жильбера</b> (доброкач., печёночные ферменты в норме) — подтвердить.</div>
-        <div class="rp-row"><span class="rp-lab">Кровь</span>Лёгкая лейкопения (2.9–3.5) — следить в динамике.</div>
-        <div class="rp-row"><span class="rp-lab">H. pylori</span>Серология+ с 2022, но кал/биопсия отрицательны — спросить, нужна ли эрадикация.</div>
-        <div class="rp-row"><span class="rp-lab">Прочее</span>Сальмонелла (доследовать); ЛПНП до 171 — диета, пересдать.</div>
-      </div>
-
+    <div class="rp-dir d2">
+      <div class="rp-dt">🦠 Кишечник и слизистая</div>
+      <div class="rp-dp">Лакто- и бифидобактерий нет, разрослись Klebsiella/Citrobacter; барьер слизистой ослаблен (sIgA ↓); на МРТ — застой стула.</div>
+      <div class="rp-item"><div class="rp-iname">Пробиотик — узкий, низкогистаминный</div><span class="rp-pill add">добавить</span><div class="rp-itext">Bifidobacterium longum/infantis/breve + L. rhamnosus/plantarum, не 53-штаммовый микс. Отдельно от еды и лекарств.</div></div>
+      <div class="rp-item"><div class="rp-iname">Пребиотик + клетчатка</div><span class="rp-pill add">добавить</span><div class="rp-itext">Наращивать медленно с малой дозы (ориентир ~30 г/день).</div></div>
+      <div class="rp-item"><div class="rp-iname">Цинк-карнозин / L-глутамин</div><span class="rp-pill add">добавить</span><div class="rp-itext">Восстановление слизистой, помогает и при гастрите типа C. Короткими курсами.</div></div>
+      <div class="rp-item"><div class="rp-iname">Магний цитрат</div><span class="rp-pill add">добавить</span><div class="rp-itext">Вечером — от запора/копростаза (магний в крови у тебя в норме, безопасно).</div></div>
     </div>
 
-    <div class="rp-h2"><span class="rp-num">2</span>Пирамида приёма</div>
+    <div class="rp-dir d3">
+      <div class="rp-dt">☣️ Тяжёлые металлы</div>
+      <div class="rp-dp">Ртуть 36.9 (норма &lt;2.0, подтверждена) и алюминий 72.4 (норма &lt;5) — острые находки, отдельная линия с врачом.</div>
+      <div class="rp-item"><div class="rp-iname">Убрать источник</div><span class="rp-pill care">с врачом</span><div class="rp-itext">Рыба, амальгамовые пломбы, БАДы, посуда. Пересдать через 4–6 недель.</div></div>
+      <div class="rp-item"><div class="rp-iname">DMPS (Dimaval), капельницы</div><span class="rp-pill care">с врачом</span><div class="rp-itext">Твоё решение — как рекомендовал врач. Курсом под контролем (почки, контроль ртути).</div></div>
+      <div class="rp-note">✓ Сорбенты (цеолит/бентонит) не нужны — выбран DMPS; и они бы разгоняли алюминий.</div>
+    </div>
+
+    <div class="rp-sh"><span class="n">2</span>Фон: дефициты и наблюдение</div>
+    <div class="rp-two">
+      <div class="rp-box">
+        <h4>🧩 Закрыть дефициты <span style="font-weight:400;color:var(--tx3);font-size:12px">(по анализам)</span></h4>
+        <ul>
+          <li><b>Биотин</b> — низкий, восполнить.</li>
+          <li><b>Витамин D</b> — поднять к 40–60 (+ контроль кальция и ПТГ).</li>
+          <li><b>A / E / K</b> — проверить: из-за EPI жирорастворимые усваиваются хуже.</li>
+          <li><b>Фолат</b> — сперва уточнить (в лаборатории выше нормы, а в заключении «дефицит»).</li>
+        </ul>
+      </div>
+      <div class="rp-box">
+        <h4>👁 Наблюдать <span style="font-weight:400;color:var(--tx3);font-size:12px">(контроль, не лечить)</span></h4>
+        <ul>
+          <li><b>Билирубin</b> — вероятно синдром Жильбера (Урсофальк его снижает).</li>
+          <li><b>Лейкоциты</b> — лёгкая лейкопения, следить в динамике.</li>
+          <li><b>H. pylori</b> — серология +, кал/биопсия −; спросить про эрадикацию.</li>
+          <li><b>Сальмонелла</b> — доследовать; <b>ЛПНП</b> до 171 — диета.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="rp-sh"><span class="n">3</span>Приоритет — что важнее</div>
     <div class="rp-pyr">
-      <div class="rp-lvl l4"><div class="rp-lt">⚠️ По ситуации / отдельно — с врачом</div><div class="rp-ls">Антигистамины по схеме · тяжёлые металлы (источник + DMPS)</div></div>
-      <div class="rp-lvl l3"><div class="rp-lt">Восполнение дефицитов — по анализам</div><div class="rp-ls">Биотин · витамин D · A/E/K · фолат (уточнить)</div></div>
-      <div class="rp-lvl l2"><div class="rp-lt">Поддержка — ежедневно, с врачом</div><div class="rp-ls">B6 (P5P) + витамин C · магний цитрат · цинк-карнозин / L-глутамин</div></div>
-      <div class="rp-lvl l1"><div class="rp-lt">🟢 Фундамент — каждый день, обязательно</div><div class="rp-ls">Kreon · DAOSIN · диета (низкогистаминовая + безлактозная) · про- + пребиотик</div></div>
+      <div class="rp-lvl l4"><div class="a">⚠️ С врачом / отдельно</div><div class="b">DMPS · антигистамины по схеме</div></div>
+      <div class="rp-lvl l3"><div class="a">По анализам</div><div class="b">Биотин · витамин D · A/E/K</div></div>
+      <div class="rp-lvl l2"><div class="a">Поддержка — ежедневно</div><div class="b">B6+C · магний · цинк-карнозин / L-глутамин</div></div>
+      <div class="rp-lvl l1"><div class="a">🟢 Фундамент — каждый день, обязательно</div><div class="b">Kreon · Урсофальк · DAOSIN + диета · лактаза · про- + пребиотик</div></div>
     </div>
-    <div class="rp-pyrcap">Снизу вверх: от обязательного фундамента к ситуативному. Сначала держим основание, потом добавляем слои поверх.</div>
+    <div class="rp-cap">Снизу вверх: сначала держим фундамент, потом добавляем слои поверх.</div>
 
-    <div class="rp-h2"><span class="rp-num">3</span>Тайминг дня — что до еды, что во время</div>
+    <div class="rp-sh"><span class="n">4</span>Распорядок дня — когда что принимать</div>
     <div class="rp-tl">
-      <div class="rp-ti"><div class="rp-when">🌅 Утро, натощак</div><div class="rp-what">Стакан тёплой воды. (Магний удобнее перенести на вечер.)</div></div>
-      <div class="rp-ti"><div class="rp-when">⏱️ За 15 мин до еды</div><div class="rp-what"><b>DAOSIN (DAO)</b> перед <b>каждым</b> приёмом · по схеме врача — антигистамин (Telfast / Famotidin).</div></div>
-      <div class="rp-ti"><div class="rp-when">🍽️ Во время еды</div><div class="rp-what"><b>Kreon</b> в середине приёма · <b>лактаза</b>, если есть молочное · с едой, где есть жир — <b>A/D/E/K, биотин, B6, витамин C</b>.</div></div>
-      <div class="rp-ti"><div class="rp-when">🌿 Между приёмами</div><div class="rp-what"><b>Пробиотик + пребиотик</b> — отдельно, через <b>≥2–3 ч</b> от лекарств и сорбентов. Пребиотик наращивать с малой дозы.</div></div>
-      <div class="rp-ti"><div class="rp-when">🌙 Вечер</div><div class="rp-what"><b>Магний цитрат</b> (от запора). Пробиотик часто удобно принять на ночь.</div></div>
-      <div class="rp-ti warn"><div class="rp-when">⛔ Сорбенты / «детокс»</div><div class="rp-what"><b>Цеолит/бентонит не рекомендую</b> (алюминий). Если врач одобрит любой сорбент — строго <b>отдельно, ≥2–3 ч</b> от всего остального.</div></div>
+      <div class="rp-ti"><div class="rp-when">🌅 Утро, натощак</div><div class="rp-act">Стакан тёплой воды.</div></div>
+      <div class="rp-ti"><div class="rp-when">⏱️ За 15 мин до еды</div><div class="rp-act"><b>DAOSIN</b> перед каждым приёмом · антигистамин — если назначен врачом.</div></div>
+      <div class="rp-ti"><div class="rp-when">🍽️ Во время еды</div><div class="rp-act"><b>Kreon</b> в середине приёма · <b>лактаза</b> при молочном · с жирной едой — <b>A/D/E/K, биотин, B6, C</b>.</div></div>
+      <div class="rp-ti"><div class="rp-when">🌿 Между приёмами</div><div class="rp-act"><b>Пробиотик + пребиотик</b> — отдельно, через ≥2–3 ч от лекарств. Пребиотик наращивать медленно.</div></div>
+      <div class="rp-ti"><div class="rp-when">🌙 Вечер / на ночь</div><div class="rp-act"><b>Урсофальк</b> (как назначил врач) · <b>магний цитрат</b> от запора.</div></div>
+      <div class="rp-ti"><div class="rp-when">💉 По плану врача</div><div class="rp-act"><b>DMPS</b> — капельницы курсом, отдельно.</div></div>
     </div>
 
+    <div class="rp-sh"><span class="n">5</span>Контроль и правила</div>
     <div class="rp-rules">
-      <div><b>Инструкция и правила:</b></div>
-      <div>⚠️ <b>Вводи по одному новому средству раз в 1–2 недели</b> и записывай реакцию во вкладке <b>Reaction Log</b> — при DAO почти на нуле иначе не понять, что помогает, а что триггерит.</div>
-      <div>🧪 <b>Дозы и весь список согласуй с врачом.</b> Жирорастворимые (A/E/K) — сначала анализ, потом приём.</div>
-      <div>🔁 <b>Контроль через ~3 месяца:</b> эластаза кала, экограмма (вернулись ли лакто/бифидо), железо/ферритин, витамин D, металлы, липиды.</div>
-      <div>☣️ <b>Ртуть/алюминий — отдельная линия с врачом</b> (источник + DMPS); цеолит/бентонит не бери.</div>
-      <div>ℹ️ Это ориентир из твоих данных, не назначение. Все решения о лечении — с лечащим врачом.</div>
+      <ul>
+        <li>⚠️ <b>Вводи по одному новому средству раз в 1–2 недели</b> и записывай реакцию во вкладке <b>Reaction Log</b> — при DAO почти на нуле иначе не понять, что помогает, а что триггерит.</li>
+        <li>💊 <b>Назначенное врачом (Kreon, Урсофальк, DAOSIN) не отменяй сам.</b> Дозы добавок согласуй с врачом; A/E/K — сначала анализ.</li>
+        <li>🔁 <b>Контроль через ~3 месяца:</b> эластаза кала, экограмма (лакто/бифидо), железо/ферритин, витамин D, металлы, билирубин и печень (на фоне Урсофалька), липиды.</li>
+        <li>☣️ <b>Ртуть/алюминий</b> — линия с врачом: источник + DMPS. Сорбенты не нужны.</li>
+      </ul>
+      <div class="rp-disc">Это ориентир из твоих данных, а не медицинское назначение. Все решения о лечении — с лечащим врачом.</div>
     </div>
   </div>
 
