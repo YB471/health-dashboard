@@ -297,6 +297,26 @@ td.hcell .he{opacity:.3}
 .dp-shop-i .de{font-size:11px;color:var(--tx3);text-align:right;flex-shrink:0;max-width:50%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dp-shop-i:hover .de{color:var(--ok)}
 .dp-shop-i .de::after{content:" ↗"}
+.sh-controls{display:flex;align-items:center;gap:12px;margin:4px 0 2px}
+.sh-prog{font-size:12px;color:var(--tx2);font-variant-numeric:tabular-nums}
+.sh-prog b{color:var(--tx);font-weight:600}
+#sh-reset{margin-left:auto}
+.sh-grp{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--tx3);margin:18px 0 4px}
+.sh-grp .sh-gnote{display:block;text-transform:none;letter-spacing:0;font-weight:400;font-size:11.5px;color:var(--tx2);margin-top:3px;line-height:1.45}
+.sh-i{display:flex;align-items:flex-start;gap:11px;padding:9px 0;border-bottom:1px solid var(--bd)}
+.sh-ck{flex:0 0 auto;width:18px;height:18px;margin-top:2px;cursor:pointer;accent-color:var(--ok)}
+.sh-body{flex:1 1 auto;min-width:0}
+.sh-top{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.sh-ru{font-size:13.5px;font-weight:500;color:var(--tx);text-decoration:none}
+.sh-ru:hover{color:var(--ok);text-decoration:underline}
+.sh-de{font-size:11px;color:var(--tx3);margin-top:1px}
+.sh-note{font-size:11.5px;color:var(--tx2);margin-top:3px;line-height:1.45}
+.sh-i.done .sh-ru{text-decoration:line-through}
+.sh-i.done .sh-body{opacity:.5}
+.sh-badge{flex:0 0 auto;font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;white-space:nowrap}
+.sh-badge.ok{background:var(--okbg);color:var(--ok)}
+.sh-badge.med{background:rgba(186,117,23,.18);color:var(--warn)}
+.sh-badge.no{background:var(--tk);color:var(--tx3)}
 .detbox .ccomment{font-size:12.5px;color:var(--tx);background:var(--tk);border-radius:7px;padding:7px 10px;margin-bottom:6px;line-height:1.5}
 .detbox .fwmeta{margin:2px 0 4px;font-size:11.5px;color:var(--tx2)}
 .phase{display:inline-block;font-size:10px;font-weight:600;padding:2px 7px;border-radius:999px;border:1px solid var(--bd2)}
@@ -436,6 +456,7 @@ td.hcell .he{opacity:.3}
     <button class="tab" data-tab="food">Food Reactions</button>
     <button class="tab" data-tab="foodguide">Diet</button>
     <button class="tab" data-tab="dayplan">Day Plan</button>
+    <button class="tab" data-tab="shopping">Shopping</button>
     <button class="tab" data-tab="reactions">Reaction Log</button>
     <button class="tab" data-tab="reports">Medical Reports</button>
   </div>
@@ -630,6 +651,13 @@ td.hcell .he{opacity:.3}
     </div>
 
     <div class="dp-rules"><b>Правила:</b> 3 приёма, <b>без мяса</b>; рыба только ультрасвежая и не каждый день · только продукты с <b>гистамином и кишечником ≤1/5</b> · <b>Kreon</b> с каждым приёмом, где есть масло/семечки/жирная молочка · готовь и ешь свежим, белок повторно не разогревай, остатки сразу морозь · взвешивайся раз в неделю в одинаковых условиях. Если вес продолжает падать или не стабилизируется за 2–4 недели — обратись к врачу раньше. Меню — ориентир из твоих данных, не предписание; потеря веса — к твоей медкоманде.</div>
+  </div>
+
+  <div id="tab-shopping" class="panel" style="display:none">
+    <div class="dp-intro">🛒 Список покупок под твой <b>безмясной</b> рацион — собран из вкладки Diet и проверен по профилю: без мяса и рыбы, <b>строго низкий гистамин</b> (свежее/несквашенное), всё молочное только <b>laktosefrei</b>, без яиц/банана/льна/мёда, упор на <b>калории и белок</b> для набора веса. Отмечай галочками — отметки <b>сохраняются в этом браузере</b>. Названия — ссылки на Knuspr. Бейджи: <b>✓ Knuspr</b> есть · <b>≈ проверь</b> уточни на месте · <b>✕ заказать отдельно</b> на Knuspr нет.</div>
+    <div class="sh-controls"><span id="sh-prog" class="sh-prog"></span><button id="sh-reset" class="btn2" type="button">Снять отметки</button></div>
+    <div id="sh-list"></div>
+    <div class="fg-disclaimer">Список — ориентир из твоих данных, <b>не назначение</b>. Спорные позиции (творог, сыворотка, красный ройбуш) тестируй малой дозой. Дозы <b>Kreon</b> и ввод новых продуктов — с врачом. Наличие и бренды на Knuspr меняются: если товара нет — рядом аналог в той же группе, а ссылка-поиск откроет замену.</div>
   </div>
 
   <div id="tab-reactions" class="panel" style="display:none">
@@ -1671,13 +1699,178 @@ $("fg-list").addEventListener("click", (e) => {
   }
   const r = e.target.closest("tr.fgr"); if (r) toggleFgDet(r);
 });
-document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => { document.querySelectorAll(".tab").forEach(x => x.classList.remove("active")); t.classList.add("active"); const name = t.dataset.tab; ["markers","dates","food","foodguide","dayplan","reactions","reports"].forEach(p => $("tab-" + p).style.display = (p === name ? "block" : "none")); }));
+document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => { document.querySelectorAll(".tab").forEach(x => x.classList.remove("active")); t.classList.add("active"); const name = t.dataset.tab; ["markers","dates","food","foodguide","dayplan","shopping","reactions","reports"].forEach(p => $("tab-" + p).style.display = (p === name ? "block" : "none")); }));
 $("pscoreBtn").addEventListener("click", () => { const det = $("pscoreDetail"), btn = $("pscoreBtn"); const open = det.style.display === "block"; det.style.display = open ? "none" : "block"; btn.classList.toggle("open", !open); btn.setAttribute("aria-expanded", String(!open)); });
 document.querySelectorAll("#tab-dayplan [data-dpv]").forEach(b => b.addEventListener("click", () => {
   document.querySelectorAll("#tab-dayplan [data-dpv]").forEach(x => x.classList.remove("active"));
   b.classList.add("active");
   ["1","2","3","4","5"].forEach(n => { const el = $("dpv-" + n); if (el) el.style.display = (n === b.dataset.dpv ? "block" : "none"); });
 }));
+
+/* ===== Shopping / Knuspr tab ===== */
+const KN = "https://www.knuspr.de/";
+const KS = KN + "suche?q=";
+const shHref = (it) => it.url ? (KN + it.url) : (it.q ? (KS + encodeURIComponent(it.q)) : KN);
+const SHOP = [
+  {g:"⭐ Ядро для набора веса", note:"Связка «калорийная основа + жир + белок» = 400–600 ккал с миски. Бери это в первую очередь.", items:[
+    {ru:"Рисовая каша-крем (хлопья)", de:"Alnatura BIO Reisflocken zartschmelzend", conf:"ok", url:"6553-alnatura-bio-reisflocken-zartschmelzend"},
+    {ru:"Сливки 30% безлактозные", de:"Minus L Schlagsahne 30% laktosefrei", conf:"ok", q:"Minus L Schlagsahne 30% laktosefrei", note:"Сладкие, НЕ saure Sahne."},
+    {ru:"MCT-масло (в кашу/смузи)", de:"biozentrale Flüssiges Kokosöl MCT 90%", conf:"ok", q:"biozentrale Kokosöl MCT"},
+    {ru:"Творог 40% безлактозный", de:"LAC Speisequark 40% laktosefrei", conf:"ok", url:"78029-lac-speisequark-40-fett-laktosefrei", note:"Кисломолочный — есть свежим, малыми порциями."},
+    {ru:"Паста из тыквенных семечек", de:"KoRo Kürbiskernmus", conf:"med", q:"KoRo Kürbiskernmus"},
+    {ru:"Мальтодекстрин (добор калорий)", de:"Nutricia Maltodextrin", conf:"ok", q:"Nutricia Maltodextrin"},
+  ]},
+  {g:"🫒 Масла и жиры", note:"Крупную порцию жира — с Kreon. Нерафинированные лей в готовое, не жарь.", items:[
+    {ru:"MCT-масло", de:"biozentrale Flüssiges Kokosöl MCT 90%", conf:"ok", q:"biozentrale Kokosöl MCT", note:"Ближайшее к C8/C10 на Knuspr."},
+    {ru:"Чистое MCT C8/C10", de:"MCT-Öl C8/C10 (Dr. Goerg и пр.)", conf:"no", q:"MCT Öl C8 C10", note:"На Knuspr нет — заказать отдельно."},
+    {ru:"Оливковое extra virgin", de:"GAEA Bio Natives Olivenöl extra", conf:"ok", url:"1171-gaea-bio-natives-olivenoel-extra"},
+    {ru:"Оливковое extra virgin (альт.)", de:"Alnatura BIO Olivenöl", conf:"ok", url:"20985-alnatura-bio-olivenoel"},
+    {ru:"Конопляное масло", de:"Alnatura Bio Hanföl nativ", conf:"ok", url:"9784-alnatura-bio-hanfoel-nativ", note:"НЕ льняное; только в готовое."},
+    {ru:"Рапсовое нерафинированное", de:"Alnatura Bio Rapsöl nativ", conf:"ok", q:"Alnatura Bio Rapsöl nativ"},
+    {ru:"Масло для жарки (рафинир.)", de:"Byodo Bio Bratöl Raps", conf:"ok", q:"Byodo Bio Bratöl Raps"},
+    {ru:"Гхи топлёное (для жарки)", de:"Ghee Easy Bio Ghee", conf:"ok", url:"11427-ghee-easy-bio-ghee", note:"Молочный белок — caution."},
+    {ru:"Butterschmalz (лучший жир)", de:"Butaris Butterschmalz", conf:"ok", q:"Butaris Butterschmalz", note:"Почти без молочного белка и лактозы."},
+  ]},
+  {g:"🥛 Молочка — только безлактозная, свежая", note:"Всё laktosefrei. Коровий белок — IgG4 «caution», вводи малыми дозами. Творог кисломолочный — ешь свежим.", items:[
+    {ru:"Молоко свежее 3,5%", de:"LAC Frischmilch 3,5% laktosefrei", conf:"ok", url:"99770-lac-frischmilch-3-5-fett-laktosefrei"},
+    {ru:"Сливки сладкие 30%", de:"Minus L Schlagsahne 30% laktosefrei", conf:"ok", q:"Minus L Schlagsahne 30% laktosefrei", note:"НЕ saure Sahne/Crème fraîche."},
+    {ru:"Сливки 32%", de:"LAC Schlagsahne 32% laktosefrei", conf:"ok", q:"LAC Schlagsahne 32% laktosefrei"},
+    {ru:"Сливки 15% (кофе/блюда)", de:"LAC Kochsahne 15% laktosefrei", conf:"ok", q:"LAC Kochsahne 15% laktosefrei"},
+    {ru:"Маскарпоне", de:"Minus L Mascarpone laktosefrei", conf:"ok", url:"19590-minus-l-mascarpone-laktosefrei"},
+    {ru:"Сливочный сыр (Natur)", de:"Minus L Frischkäse laktosefrei", conf:"ok", url:"12002-minus-l-frischkaese-laktosefrei", note:"Только Natur, без трав/чеснока."},
+    {ru:"Зернёный творог (Hüttenkäse)", de:"Züger Bio Hüttenkäse laktosefrei", conf:"ok", url:"25096-zuger-bio-huttenkase-laktosefrei"},
+    {ru:"Творог 40% (калорийный)", de:"LAC Speisequark 40% laktosefrei", conf:"ok", url:"78029-lac-speisequark-40-fett-laktosefrei"},
+    {ru:"Моцарелла свежая", de:"Miil / Brimi Mozzarella laktosefrei", conf:"ok", q:"Mozzarella laktosefrei", note:"Молодой сыр — есть свежей."},
+    {ru:"Масло сливочное", de:"Minus L Butter laktosefrei", conf:"ok", q:"Minus L Butter laktosefrei"},
+  ]},
+  {g:"🌾 Крупы, каши, гарниры (без глютена)", note:"Без пшеницы, ржи, ячменя.", items:[
+    {ru:"Рисовые хлопья (крем)", de:"Alnatura BIO Reisflocken zartschmelzend", conf:"ok", url:"6553-alnatura-bio-reisflocken-zartschmelzend"},
+    {ru:"Рис для каши (Milchreis)", de:"Alnatura Bio Milchreis", conf:"ok", q:"Alnatura Milchreis"},
+    {ru:"Рис басмати", de:"Alnatura BIO Himalaya Basmati", conf:"ok", url:"6720-alnatura-bio-himalaya-basmati-reis"},
+    {ru:"Гречка", de:"Kitchin Buchweizen", conf:"ok", url:"72162-kitchin-buchweizen"},
+    {ru:"Гречневые хлопья", de:"Alnatura BIO Buchweizen Flocken", conf:"ok", q:"Alnatura Buchweizen Flocken"},
+    {ru:"Пшено", de:"Alnatura Bio Hirse", conf:"ok", url:"10055-alnatura-bio-hirse"},
+    {ru:"Пшённые хлопья", de:"Bauckhof Bio Hirseflocken", conf:"ok", url:"9592-bauckhof-bio-hirseflocken"},
+    {ru:"Овёс безглютеновый", de:"Bauckhof Haferflocken glutenfrei", conf:"ok", q:"Bauckhof Haferflocken glutenfrei"},
+    {ru:"Киноа", de:"Alnatura BIO Quinoa", conf:"ok", url:"6695-alnatura-bio-quinoa"},
+    {ru:"Амарант", de:"Alnatura BIO Amaranth", conf:"ok", q:"Alnatura Amaranth"},
+    {ru:"Полента", de:"Alnatura BIO Polenta", conf:"ok", q:"Alnatura Polenta"},
+    {ru:"Рисовая лапша", de:"Fairtrade Vollkornreisnudeln glutenfrei", conf:"ok", url:"22038-fairtrade-original-bio-vollkornreisnudeln-glutenfrei"},
+    {ru:"Рисовые хлебцы (Natur)", de:"biozentrale Reiswaffel Natur", conf:"ok", q:"biozentrale Reiswaffel Natur", note:"НЕ Honig-версия (с мёдом)."},
+    {ru:"Каштаны варёные", de:"Roger Descours Maronen", conf:"ok", q:"Roger Descours Maronen"},
+    {ru:"Маниок свежий", de:"Maniok (Wiegeware)", conf:"ok", q:"Maniok"},
+    {ru:"Reisgrieß / Reiscreme", de:"Reisgrieß", conf:"no", q:"Reisgrieß", note:"На Knuspr нет — замена рисовые хлопья."},
+    {ru:"Тефф / фонио / тапиока / саго", de:"Teff / Fonio / Tapioka / Sago", conf:"no", q:"Teff", note:"На Knuspr нет — заказать отдельно."},
+  ]},
+  {g:"🌻 Семена и пасты из семян", note:"Свежие партии; крупную порцию пасты — с Kreon.", items:[
+    {ru:"Очищенные семена конопли", de:"Alnatura BIO Hanfsamen geschält", conf:"ok", url:"6716-alnatura-bio-hanfsamen-geschaelt"},
+    {ru:"Паста из подсолнечника", de:"KoRo Sonnenblumenkernmus", conf:"ok", q:"KoRo Sonnenblumenkernmus"},
+    {ru:"Семена подсолнечника", de:"Alnatura Bio Sonnenblumenkerne", conf:"ok", q:"Alnatura Sonnenblumenkerne"},
+    {ru:"Тыквенные семечки", de:"Steirerkraft Kürbiskerne naturbelassen", conf:"ok", q:"Steirerkraft Kürbiskerne naturbelassen"},
+    {ru:"Паста из тыквенных семечек", de:"KoRo Kürbiskernmus", conf:"med", q:"KoRo Kürbiskernmus"},
+    {ru:"Конопляная паста", de:"KoRo Bio Hanfmus", conf:"med", q:"KoRo Hanfmus"},
+    {ru:"Макадамия несолёная", de:"Alnatura Bio Macadamianüsse", conf:"ok", q:"Alnatura Macadamia"},
+    {ru:"Кокосовая паста", de:"Alnatura Bio Kokosmus", conf:"ok", q:"Alnatura Kokosmus"},
+    {ru:"Мак молотый", de:"Kitchin Mohnsamen gemahlen", conf:"ok", q:"Kitchin Mohn"},
+  ]},
+  {g:"💪 Протеины и калорийные добавки", note:"Нейтральные изоляты на Knuspr почти отсутствуют — заказывай отдельно (KoRo, MyProtein).", items:[
+    {ru:"Мальтодекстрин (углеводы)", de:"Nutricia Maltodextrin", conf:"ok", q:"Nutricia Maltodextrin", note:"Добор калорий без объёма."},
+    {ru:"Рисовый протеин нейтр.", de:"KoRo Bio Reisprotein (neutral)", conf:"no", q:"Reisprotein neutral", note:"На Knuspr нет."},
+    {ru:"Конопляный/гороховый протеин", de:"KoRo Hanf-/Erbsenprotein (neutral)", conf:"no", q:"Hanfprotein neutral", note:"На Knuspr нет."},
+    {ru:"Сывороточный изолят нейтр.", de:"Whey Isolat neutral (ESN ISOCLEAR)", conf:"no", q:"Whey Isolat neutral", note:"Нет; коровий белок — IgG4 caution."},
+  ]},
+  {g:"🥒 Овощи (низкий гистамин/FODMAP)", note:"Без лука, чеснока, томатов, баклажана, шпината.", items:[
+    {ru:"Цуккини", de:"Zucchini", conf:"ok", url:"90-zucchini-1-stk"},
+    {ru:"Тыква Хоккайдо", de:"Hokkaido Kürbis", conf:"ok", q:"Hokkaido"},
+    {ru:"Батат", de:"Süßkartoffel", conf:"ok", q:"Süßkartoffel"},
+    {ru:"Картофель (умеренно)", de:"Kartoffeln festkochend", conf:"ok", q:"Kartoffeln festkochend", note:"IgE caution — умеренно."},
+    {ru:"Пастернак", de:"Pastinake", conf:"ok", q:"Pastinake"},
+    {ru:"Фенхель", de:"Fenchel", conf:"ok", q:"Fenchel"},
+    {ru:"Огурец", de:"Salatgurke", conf:"ok", url:"14538-salatgurke-1-stk"},
+    {ru:"Кольраби", de:"Kohlrabi", conf:"ok", url:"31-kohlrabi-ohne-gruen-1-stk"},
+    {ru:"Пак-чой", de:"Shanghai Pak Choi", conf:"ok", url:"19522-shanghai-pak-choi-1-stk"},
+    {ru:"Перец красный", de:"Paprika Rot", conf:"ok", url:"84-paprika-rot-1-stk"},
+    {ru:"Зелёная фасоль", de:"Grüne Bohnen", conf:"ok", q:"Grüne Bohnen", note:"Хорошо проваривать."},
+    {ru:"Мангольд", de:"Mangold", conf:"ok", q:"Mangold"},
+    {ru:"Пекинская капуста", de:"Chinakohl", conf:"ok", q:"Chinakohl"},
+    {ru:"Редис", de:"Radieschen", conf:"ok", q:"Radieschen"},
+    {ru:"Сельдерей черешковый", de:"Stangensellerie", conf:"ok", q:"Stangensellerie"},
+    {ru:"Сельдерей корневой", de:"Knollensellerie", conf:"ok", q:"Knollensellerie", note:"Аллерген — осторожно."},
+    {ru:"Брюква / репа / корень петрушки", de:"Steckrübe / Mairübe / Petersilienwurzel", conf:"med", q:"Steckrübe", note:"Сезонные — проверь наличие."},
+  ]},
+  {g:"🥬 Салаты, зелень, пряности", note:"Ешь свежим, остатки не храни (гистамин).", items:[
+    {ru:"Полевой салат", de:"Feldsalat", conf:"ok", url:"71996-feldsalat-schale"},
+    {ru:"Руккола", de:"Rucola", conf:"ok", q:"Rucola"},
+    {ru:"Кочанный салат", de:"Kopfsalat mit Wurzel", conf:"ok", q:"Kopfsalat"},
+    {ru:"Ромэн (романа)", de:"Römersalat / Romana", conf:"ok", q:"Romana Salat"},
+    {ru:"Эндивий", de:"Endiviensalat", conf:"ok", q:"Endiviensalat"},
+    {ru:"Айсберг", de:"Eisbergsalat", conf:"ok", q:"Eisbergsalat"},
+    {ru:"Кресс-салат", de:"Brunnenkresse", conf:"ok", q:"Brunnenkresse"},
+    {ru:"Базилик", de:"Basilikum", conf:"ok", q:"Basilikum"},
+    {ru:"Петрушка", de:"Petersilie", conf:"ok", q:"Petersilie"},
+    {ru:"Шнитт-лук", de:"Schnittlauch", conf:"ok", q:"Schnittlauch"},
+    {ru:"Укроп", de:"Dill", conf:"med", q:"Dill"},
+    {ru:"Розмарин / тимьян / орегано", de:"Kräuter im Topf", conf:"med", q:"Rosmarin Topf"},
+    {ru:"Имбирь", de:"Ingwer", conf:"ok", q:"Ingwer"},
+    {ru:"Куркума свежая", de:"Kurkuma frisch", conf:"med", q:"Kurkuma", note:"Свежий корень под вопросом; есть молотая."},
+    {ru:"Ваниль (стручок/молотая)", de:"Alnatura Bourbon Vanille", conf:"ok", q:"Alnatura Bourbon Vanille", note:"НЕ экстракт (там сахар)."},
+  ]},
+  {g:"🍓 Фрукты (низкогистаминные, в меру)", note:"Без банана, клубники, цитрусов, ананаса.", items:[
+    {ru:"Черника свежая", de:"Heidelbeeren", conf:"ok", q:"Heidelbeeren"},
+    {ru:"Черника (заморозка)", de:"PACK'D BIO Heidelbeeren", conf:"ok", url:"78701-pack-d-bio-heidelbeeren"},
+    {ru:"Малина (заморозка)", de:"bio inside BIO Himbeeren", conf:"ok", url:"4578-bio-inside-bio-himbeeren", note:"Умеренный либератор — малыми порциями."},
+    {ru:"Абрикос", de:"Aprikosen", conf:"ok", q:"Aprikosen", note:"Только свежий (не курага)."},
+    {ru:"Персик / нектарин", de:"Pfirsich / Nektarine", conf:"ok", q:"Pfirsich"},
+    {ru:"Слива", de:"Pflaumen", conf:"ok", q:"Pflaumen", note:"Только свежая (не чернослив)."},
+    {ru:"Дыня", de:"Honigmelone / Cantaloupe", conf:"ok", q:"Honigmelone", note:"«Honig» — это сорт, не мёд."},
+    {ru:"Виноград без косточек", de:"Trauben hell kernlos", conf:"ok", q:"Trauben kernlos", note:"Калорийный снек (не изюм)."},
+    {ru:"Мирабель", de:"Mirabellen", conf:"med", q:"Mirabellen", note:"Сезон авг–сен."},
+  ]},
+  {g:"☕ Напитки и подсластители", note:"Без кофе, чёрного/зелёного чая, алкоголя, мёда.", items:[
+    {ru:"Рисовый дринк", de:"Yutto Bio Reisdrink", conf:"ok", q:"Yutto Bio Reisdrink", note:"Без добавленного сахара."},
+    {ru:"Овсяный дринк", de:"Oatly Haferdrink No Sugars", conf:"ok", q:"Oatly Haferdrink No Sugars", note:"В фазе элиминации — пометка glutenfrei или рисовый."},
+    {ru:"Ромашковый чай", de:"Alnatura BIO Kamillentee", conf:"ok", q:"Alnatura Kamillentee"},
+    {ru:"Ройбуш зелёный", de:"Paper and Tea Green Rooibos", conf:"ok", q:"Green Rooibos", note:"Предпочтительнее красного (ферментир.)."},
+    {ru:"Кленовый сироп", de:"Alnatura BIO Ahornsirup", conf:"ok", url:"6722-alnatura-bio-grade-a-ahornsirup", note:"Вместо мёда."},
+    {ru:"Тростниковый сахар", de:"Alnatura Bio Rohrohrzucker", conf:"ok", q:"Alnatura Rohrohrzucker"},
+  ]},
+];
+function shLoad(){ try { return JSON.parse(localStorage.getItem("sh_done") || "{}"); } catch(_e){ return {}; } }
+function shSave(o){ try { localStorage.setItem("sh_done", JSON.stringify(o)); } catch(_e){} }
+function shProg(t, c){ const el = $("sh-prog"); if (el) el.innerHTML = "Отмечено <b>" + c + "</b> из " + t; }
+const shBadge = (c) => c === "ok" ? '<span class="sh-badge ok">✓ Knuspr</span>' : c === "med" ? '<span class="sh-badge med">≈ проверь</span>' : '<span class="sh-badge no">✕ заказать отдельно</span>';
+function renderShopping(){
+  const list = $("sh-list"); if (!list) return;
+  const done = shLoad(); let total = 0, checked = 0, h = "";
+  for (const sec of SHOP){
+    h += '<div class="sh-grp">' + esc(sec.g) + (sec.note ? '<span class="sh-gnote">' + esc(sec.note) + '</span>' : "") + '</div>';
+    for (const it of sec.items){
+      total++; const k = it.de; const on = !!done[k]; if (on) checked++;
+      h += '<div class="sh-i' + (on ? " done" : "") + '">'
+        + '<input type="checkbox" class="sh-ck"' + (on ? " checked" : "") + ' data-k="' + esc(k) + '">'
+        + '<div class="sh-body"><div class="sh-top">'
+        + '<a class="sh-ru" href="' + shHref(it) + '" target="_blank" rel="noopener">' + esc(it.ru) + '</a>'
+        + shBadge(it.conf) + '</div>'
+        + '<div class="sh-de">' + esc(it.de) + '</div>'
+        + (it.note ? '<div class="sh-note">' + esc(it.note) + '</div>' : "")
+        + '</div></div>';
+    }
+  }
+  list.innerHTML = h; shProg(total, checked);
+}
+if ($("sh-list")){
+  $("sh-list").addEventListener("change", (e) => {
+    const cb = e.target.closest(".sh-ck"); if (!cb) return;
+    const done = shLoad(); const k = cb.dataset.k;
+    if (cb.checked) done[k] = 1; else delete done[k];
+    shSave(done);
+    const sel = '.sh-ck[data-k="' + k.replace(/["\\]/g, "\\$&") + '"]';
+    document.querySelectorAll(sel).forEach(o => { o.checked = cb.checked; const row = o.closest(".sh-i"); if (row) row.classList.toggle("done", cb.checked); });
+    let t = 0, c = 0; document.querySelectorAll("#sh-list .sh-ck").forEach(o => { t++; if (o.checked) c++; }); shProg(t, c);
+  });
+  $("sh-reset").addEventListener("click", () => { shSave({}); renderShopping(); });
+  renderShopping();
+}
 if ($("rx-add")) $("rx-add").addEventListener("click", async () => {
   if (!CURPW) return;
   const g = (id) => { const el = $(id); return el ? el.value.trim() : ""; };
@@ -1699,7 +1892,7 @@ $("tab-dates").addEventListener("click", (e) => { const chip = e.target.closest(
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "10.1";
+const APP_VERSION = "10.2";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
