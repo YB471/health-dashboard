@@ -277,6 +277,7 @@ td.hcell .he{opacity:.3}
 .rule .rnote{color:var(--tx2);font-size:11.5px;margin-top:2px;line-height:1.45}
 .dp-intro{font-size:13px;color:var(--tx2);background:var(--tk);border-radius:10px;padding:11px 14px;line-height:1.55;margin-bottom:14px}
 .dp-intro b{color:var(--tx)}
+.dp-vtitle{font-size:12px;font-weight:700;letter-spacing:.03em;color:var(--tx2);margin:2px 0 9px}
 .dp-meal{border:1px solid var(--bd);border-left:3px solid var(--ok);border-radius:10px;padding:10px 14px;margin-bottom:9px;background:var(--card)}
 .dp-h{font-weight:600;font-size:14px;display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
 .dp-kc{font-size:12px;font-weight:500;color:var(--tx2);white-space:nowrap}
@@ -528,68 +529,57 @@ td.hcell .he{opacity:.3}
   </div>
 
   <div id="tab-dayplan" class="panel" style="display:none">
-    <div class="dp-intro">Примерный день для <b>набора веса</b>: низкогистаминно, безлактозно, щадяще для поджелудочной, из твоих рекомендованных продуктов. Ориентир <b>≈2500 ккал · ≈110 г белка</b>. Мясо — только в первой половине дня (завтрак/обед), когда переносится лучше; <b>вечером мяса нет</b> — рыба или без неё. В основных приёмах (завтрак/обед/ужин) — <b>овощи и зелень</b>. Свежесть — закон; <b>Kreon с каждым приёмом</b>, где есть жир или белок (включая масла, семечки, перекусы). 3 взаимозаменяемых варианта:</div>
+    <div class="dp-intro">Дни для <b>набора веса</b>: <b>3 приёма</b>, <b>без мяса</b>, безлактозно, только продукты с оценкой <b>гистамин и кишечник ≤1/5</b>. Ориентир <b>≈2500 ккал</b> в 3 больших приёма. Калории добираем маслами (оливковое/конопляное/гхи), маскарпоне/сливками, конопляными семечками и кленовым сиропом; белок — безлактозный творог/Hüttenkäse, конопляные семечки, киноа/гречка/пшено. <b>Рыба — иногда</b> (варианты 2 и 4), только ультрасвежая. <b>Kreon</b> с каждым приёмом, где есть жир/белок. 5 взаимозаменяемых вариантов:</div>
 
     <div class="modebtns" style="margin-bottom:12px">
       <button class="modebtn active" data-dpv="1">Вариант 1</button>
       <button class="modebtn" data-dpv="2">Вариант 2</button>
       <button class="modebtn" data-dpv="3">Вариант 3</button>
+      <button class="modebtn" data-dpv="4">Вариант 4</button>
+      <button class="modebtn" data-dpv="5">Вариант 5</button>
     </div>
 
     <div id="dpv-1">
-      <div class="dp-meal"><div class="dp-h">🌅 Завтрак <span class="dp-kc">≈560 ккал · 28 г</span></div><ul>
-        <li>Обжаренная грудка <b>индейки/курицы</b> (100 г) с <b>цукини и фенхелем</b> на <b>оливковом масле</b> + свежий <b>укроп/петрушка</b></li>
-        <li>+ гарнир: <b>гречка или рис</b> (50 г сухой) <span class="alt">или батат</span></li></ul></div>
-      <div class="dp-meal"><div class="dp-h">🥤 Смузи <span class="dp-kc">≈300 ккал · 18 г</span></div><ul>
-        <li><b>Безлактозный кварк</b> (150 г) + дыня/черника + 1 ч.л. <b>MCT-масла</b></li></ul></div>
-      <div class="dp-meal"><div class="dp-h">🍽️ Обед <span class="dp-kc">≈620 ккал · 36 г</span></div><ul>
-        <li>Свежая <b>индейка/курица</b> (150 г) + <b>рис</b> (75 г) + тушёные <b>цукини и фенхель</b> + 1 ст.л. <b>оливкового масла</b></li></ul></div>
-      <div class="dp-meal"><div class="dp-h">🥜 Полдник <span class="dp-kc">≈260 ккал · 5 г</span></div><ul>
-        <li>2–3 <b>рисовых хлебца</b> + <b>макадамия</b>/конопляные семечки</li></ul></div>
-      <div class="dp-meal"><div class="dp-h">🌙 Ужин <span class="dp-kc">≈540 ккал · 30 г</span></div><ul>
-        <li><b>Ультрасвежая белая рыба</b> (треска/судак/морской язык, 160 г) + <b>полента/гречка</b> (60 г) + пак-чой + <b>рапсовое масло</b></li>
-        <li class="alt">Без рыбы: гречка + зернёный творог + тушёные овощи</li></ul></div>
-      <div class="dp-meal"><div class="dp-h">🛏️ На ночь <span class="dp-kc">≈240 ккал · 13 г</span></div><ul>
-        <li><b>Зернёный творог</b> (120 г) + конопляное/MCT масло + дыня</li></ul></div>
-      <div class="dp-total">Итого: ≈2520 ккал · ≈113 г белка</div>
+      <div class="dp-vtitle">Вариант 1 · творожно-зерновой (без рыбы)</div>
+      <div class="dp-meal"><div class="dp-h">🌅 Завтрак <span class="dp-kc">≈830 ккал · 30 г</span></div><ul><li>Рисовая каша (<b>рисовая манка</b> 60 г) на <b>безлактозном цельном молоке</b> (250 мл) + 1 ст.л. <b>гхи</b> + 2 ст.л. <b>конопляных семечек</b></li><li>+ <b>безлактозный творог</b> (100 г), <b>черника</b> и 1 ч.л. <b>кленового сиропа</b></li></ul></div>
+      <div class="dp-meal"><div class="dp-h">🍽️ Обед <span class="dp-kc">≈860 ккал · 32 г</span></div><ul><li><b>Киноа</b> (80 г сухой) + тушёные <b>цукини и пак-чой</b> на 2 ст.л. <b>оливкового масла</b></li><li>+ <b>безлактозный Hüttenkäse</b> (150 г), свежая <b>петрушка/базилик</b></li></ul></div>
+      <div class="dp-meal"><div class="dp-h">🌙 Ужин <span class="dp-kc">≈820 ккал · 28 г</span></div><ul><li><b>Гречка</b> (70 г сухой) + тушёные <b>кольраби и белая репа</b> на 1 ст.л. <b>конопляного масла</b></li><li>+ <b>безлактозный творог</b> (150 г) с 1 ст.л. <b>маскарпоне</b>, <b>укроп</b></li></ul></div>
+      <div class="dp-total">Итого: ≈2510 ккал · ≈90 г белка</div>
     </div>
 
     <div id="dpv-2" style="display:none">
-      <div class="dp-meal"><div class="dp-h">🌅 Завтрак <span class="dp-kc">≈520 ккал · 24 г</span></div><ul>
-        <li><b>Безлактозный зернёный творог</b> (180 г) с <b>огурцом</b>, <b>шнитт-луком и укропом</b> + 1 ст.л. <b>конопляного масла</b></li>
-        <li>+ 2–3 <b>рисовых хлебца</b> <span class="alt">или овсянка</span></li></ul></div>
-      <div class="dp-meal"><div class="dp-h">🥤 Смузи <span class="dp-kc">≈300 ккал · 20 г</span></div><ul>
-        <li><b>Безлактозный зернёный творог</b> (150 г) + дыня + 1 ч.л. <b>MCT-масла</b></li></ul></div>
-      <div class="dp-meal"><div class="dp-h">🍽️ Обед <span class="dp-kc">≈620 ккал · 36 г</span></div><ul>
-        <li><b>Кролик или курица</b> (150 г) + <b>киноа</b> (70 г) + тушёный <b>фенхель/цукини</b> + 1 ст.л. <b>оливкового масла</b></li></ul></div>
-      <div class="dp-meal"><div class="dp-h">🥜 Полдник <span class="dp-kc">≈260 ккал · 6 г</span></div><ul>
-        <li><b>Рисовые хлебцы</b> + подсолнечные семечки/макадамия</li></ul></div>
-      <div class="dp-meal"><div class="dp-h">🌙 Ужин <span class="dp-kc">≈520 ккал · 28 г</span></div><ul>
-        <li><b>Ультрасвежая форель или дорада</b> (150 г) на пару + <b>пшено или рис</b> (60 г) + цукини + <b>рапсовое масло</b></li>
-        <li class="alt">Без рыбы: киноа + семечки + тушёные овощи + оливковое масло</li></ul></div>
-      <div class="dp-meal"><div class="dp-h">🛏️ На ночь <span class="dp-kc">≈230 ккал · 13 г</span></div><ul>
-        <li><b>Безлактозный кварк</b> (110 г) + конопляное масло + черника</li></ul></div>
-      <div class="dp-total">Итого: ≈2450 ккал · ≈108 г белка</div>
+      <div class="dp-vtitle">Вариант 2 · с рыбой в обед 🐟</div>
+      <div class="dp-meal"><div class="dp-h">🌅 Завтрак <span class="dp-kc">≈820 ккал · 24 г</span></div><ul><li><b>Пшённая каша</b> (пшено 60 г) на <b>безлактозном молоке</b> + 1 ст.л. <b>гхи</b> + 2 ст.л. <b>конопляных семечек</b></li><li>+ <b>малина</b> и 1 ч.л. <b>кленового сиропа</b></li></ul></div>
+      <div class="dp-meal"><div class="dp-h">🍽️ Обед 🐟 <span class="dp-kc">≈880 ккал · 38 г</span></div><ul><li><b>Ультрасвежая треска или судак</b> (170 г) на <b>оливковом масле</b> + <b>рис</b> (75 г сухой)</li><li>+ тушёные <b>цукини и пак-чой</b>, ещё 1 ст.л. <b>оливкового масла</b></li></ul></div>
+      <div class="dp-meal"><div class="dp-h">🌙 Ужин <span class="dp-kc">≈810 ккал · 26 г</span></div><ul><li><b>Киноа</b> (75 г) + <b>безлактозный Hüttenkäse</b> (150 г)</li><li>+ салат (<b>фельдсалат/рукола, огурец</b>) с 1 ст.л. <b>конопляного масла</b></li></ul></div>
+      <div class="dp-total">Итого: ≈2510 ккал · ≈88 г белка</div>
     </div>
 
     <div id="dpv-3" style="display:none">
-      <div class="dp-meal"><div class="dp-h">🌅 Завтрак <span class="dp-kc">≈560 ккал · 26 г</span></div><ul>
-        <li>Тёплая <b>пшённая/рисовая каша</b> с обжаренными <b>цукини и пак-чой</b> + измельчённая отварная <b>курица</b> (90 г) + <b>петрушка</b> + оливковое масло</li></ul></div>
-      <div class="dp-meal"><div class="dp-h">🥤 Смузи <span class="dp-kc">≈320 ккал · 26 г</span></div><ul>
-        <li><b>Безлактозный кварк</b> (150 г) + дыня + 1 мерн. ложка <b>конопляного протеина</b> + 1 ч.л. <b>MCT</b></li></ul></div>
-      <div class="dp-meal"><div class="dp-h">🍽️ Обед <span class="dp-kc">≈620 ккал · 34 г</span></div><ul>
-        <li><b>Индейка</b> или ультрасвежая белая рыба (150 г) + <b>рис</b> (75 г) + <b>пак-чой</b> + 1 ст.л. <b>оливкового масла</b></li></ul></div>
-      <div class="dp-meal"><div class="dp-h">🥜 Полдник <span class="dp-kc">≈260 ккал · 6 г</span></div><ul>
-        <li><b>Рисовые хлебцы</b> + тыквенные семечки</li></ul></div>
-      <div class="dp-meal"><div class="dp-h">🌙 Ужин — без мяса <span class="dp-kc">≈520 ккал · 22 г</span></div><ul>
-        <li><b>Полента</b> (70 г) с безлактозной <b>моцареллой/зернёным творогом</b> + тушёные <b>цукини и фенхель</b> + <b>оливковое масло</b></li>
-        <li class="alt">Или: ультрасвежая белая рыба вместо сыра</li></ul></div>
-      <div class="dp-meal"><div class="dp-h">🛏️ На ночь <span class="dp-kc">≈240 ккал · 13 г</span></div><ul>
-        <li><b>Зернёный творог</b> (120 г) + MCT/конопляное масло + дыня</li></ul></div>
-      <div class="dp-total">Итого: ≈2520 ккал · ≈113 г белка</div>
+      <div class="dp-vtitle">Вариант 3 · маскарпоне-гречка (без рыбы)</div>
+      <div class="dp-meal"><div class="dp-h">🌅 Завтрак <span class="dp-kc">≈840 ккал · 26 г</span></div><ul><li><b>Гречневая каша</b> на <b>безлактозном молоке</b> + 1 ст.л. <b>маскарпоне</b> + 2 ст.л. <b>конопляных семечек</b></li><li>+ <b>черника</b></li></ul></div>
+      <div class="dp-meal"><div class="dp-h">🍽️ Обед <span class="dp-kc">≈850 ккал · 30 г</span></div><ul><li><b>Пшено</b> (70 г) с тушёными <b>цукини, кольраби и пак-чой</b> на 2 ст.л. <b>оливкового масла</b></li><li>+ <b>безлактозный творог</b> (180 г), зелень</li></ul></div>
+      <div class="dp-meal"><div class="dp-h">🌙 Ужин <span class="dp-kc">≈820 ккал · 24 г</span></div><ul><li><b>Рисовая лапша</b> (70 г) с обжаренными <b>паприкой, пак-чой и водяным орехом</b> на <b>конопляном масле</b></li><li>+ <b>безлактозный сливочный сыр</b> (50 г), <b>базилик</b></li></ul></div>
+      <div class="dp-total">Итого: ≈2510 ккал · ≈80 г белка</div>
     </div>
 
-    <div class="dp-rules"><b>Правила дня:</b> дробно 5–6 раз · мясо только днём, <b>вечером рыба или без мяса</b> · <b>Kreon</b> с каждым приёмом, включая масла/семечки/перекусы · готовь и ешь свежим, белок повторно не разогревай, остатки сразу морозь · взвешивайся раз в неделю в одинаковых условиях. Если вес продолжает падать или не стабилизируется за 2–4 недели — обратись к врачу раньше. Меню — ориентир из твоих данных, не предписание; потеря веса — к твоей медкоманде.</div>
+    <div id="dpv-4" style="display:none">
+      <div class="dp-vtitle">Вариант 4 · с рыбой на ужин 🐟</div>
+      <div class="dp-meal"><div class="dp-h">🌅 Завтрак <span class="dp-kc">≈830 ккал · 30 г</span></div><ul><li><b>Рисовые хлопья</b> на <b>безлактозном молоке</b> + 1 ст.л. <b>гхи</b> + <b>безлактозный творог</b> (150 г)</li><li>+ <b>конопляные семечки</b>, <b>черника</b>, 1 ч.л. <b>кленового сиропа</b></li></ul></div>
+      <div class="dp-meal"><div class="dp-h">🍽️ Обед <span class="dp-kc">≈840 ккал · 26 г</span></div><ul><li><b>Киноа</b> (80 г) с тушёными <b>цукини и кольраби</b> на 2 ст.л. <b>оливкового масла</b></li><li>+ <b>безлактозный Hüttenkäse</b> (120 г), <b>петрушка</b></li></ul></div>
+      <div class="dp-meal"><div class="dp-h">🌙 Ужин 🐟 <span class="dp-kc">≈840 ккал · 34 г</span></div><ul><li><b>Ультрасвежая радужная форель</b> (170 г) на <b>оливковом масле</b> + <b>рис</b> (70 г)</li><li>+ <b>пак-чой и кольраби</b>, <b>укроп</b></li></ul></div>
+      <div class="dp-total">Итого: ≈2510 ккал · ≈90 г белка</div>
+    </div>
+
+    <div id="dpv-5" style="display:none">
+      <div class="dp-vtitle">Вариант 5 · смузи-каша (без рыбы)</div>
+      <div class="dp-meal"><div class="dp-h">🌅 Завтрак <span class="dp-kc">≈850 ккал · 34 г</span></div><ul><li>Смузи: <b>безлактозный творог</b> (200 г) + <b>безлактозное молоко</b> (150 мл) + 2 ст.л. <b>конопляных семечек</b> + <b>черника/малина</b> + 1 ч.л. <b>кленового сиропа</b></li><li>+ 2–3 <b>рисовых хлебца</b> с <b>безлактозным сливочным сыром</b></li></ul></div>
+      <div class="dp-meal"><div class="dp-h">🍽️ Обед <span class="dp-kc">≈850 ккал · 28 г</span></div><ul><li><b>Рис</b> (80 г) с тушёными <b>цукини, пак-чой и паприкой</b> на 2 ст.л. <b>оливкового масла</b></li><li>+ <b>безлактозный Hüttenkäse</b> (150 г)</li></ul></div>
+      <div class="dp-meal"><div class="dp-h">🌙 Ужин <span class="dp-kc">≈810 ккал · 22 г</span></div><ul><li><b>Пшённая каша</b> на <b>безлактозном молоке</b> + 1 ст.л. <b>гхи</b> + 1 ст.л. <b>маскарпоне</b></li><li>+ 2 ст.л. <b>конопляных семечек</b></li></ul></div>
+      <div class="dp-total">Итого: ≈2510 ккал · ≈84 г белка</div>
+    </div>
+
+    <div class="dp-rules"><b>Правила:</b> 3 приёма, <b>без мяса</b>; рыба только ультрасвежая и не каждый день · только продукты с <b>гистамином и кишечником ≤1/5</b> · <b>Kreon</b> с каждым приёмом, где есть масло/семечки/жирная молочка · готовь и ешь свежим, белок повторно не разогревай, остатки сразу морозь · взвешивайся раз в неделю в одинаковых условиях. Если вес продолжает падать или не стабилизируется за 2–4 недели — обратись к врачу раньше. Меню — ориентир из твоих данных, не предписание; потеря веса — к твоей медкоманде.</div>
   </div>
 
   <div id="tab-reactions" class="panel" style="display:none">
@@ -1636,7 +1626,7 @@ $("pscoreBtn").addEventListener("click", () => { const det = $("pscoreDetail"), 
 document.querySelectorAll("#tab-dayplan [data-dpv]").forEach(b => b.addEventListener("click", () => {
   document.querySelectorAll("#tab-dayplan [data-dpv]").forEach(x => x.classList.remove("active"));
   b.classList.add("active");
-  ["1","2","3"].forEach(n => { const el = $("dpv-" + n); if (el) el.style.display = (n === b.dataset.dpv ? "block" : "none"); });
+  ["1","2","3","4","5"].forEach(n => { const el = $("dpv-" + n); if (el) el.style.display = (n === b.dataset.dpv ? "block" : "none"); });
 }));
 if ($("rx-add")) $("rx-add").addEventListener("click", async () => {
   if (!CURPW) return;
@@ -1659,7 +1649,7 @@ $("tab-dates").addEventListener("click", (e) => { const chip = e.target.closest(
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "9.9";
+const APP_VERSION = "10.0";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
