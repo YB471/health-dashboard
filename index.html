@@ -29,29 +29,6 @@ body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,Bli
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin:0 0 16px}
 .phead{display:flex;align-items:center;justify-content:space-between;gap:12px 16px;flex-wrap:wrap}
 .pinfo{flex:1 1 auto;min-width:0}
-.pscore{display:flex;align-items:center;gap:11px;background:none;border:0;cursor:pointer;padding:6px 8px;border-radius:10px;flex:0 0 auto;font:inherit;color:inherit;text-align:left}
-.pscore:hover{background:var(--tk)}
-.ps-ring{width:54px;height:54px;flex:0 0 auto}
-.ps-ring .sr-bg{fill:none;stroke:var(--tk);stroke-width:6}
-.ps-ring .sr-fg{fill:none;stroke-width:6;stroke-linecap:round;transform:rotate(-90deg);transform-origin:30px 30px;transition:stroke-dashoffset .7s ease}
-.ps-num{text-anchor:middle;dominant-baseline:middle;font-size:20px;font-weight:700;fill:var(--tx)}
-.ps-meta{display:flex;flex-direction:column;line-height:1.3}
-.ps-ttl{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--tx3)}
-.ps-band{font-size:13.5px;font-weight:600;margin-top:2px}
-.ps-chev{color:var(--tx3);font-size:13px;margin-left:2px;transition:transform .2s}
-.pscore.open .ps-chev{transform:rotate(180deg)}
-#pscoreDetail{display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--bd)}
-.score-note{font-size:12.5px;color:var(--tx2);line-height:1.5}
-.score-pillars{display:grid;grid-template-columns:1fr 1fr;gap:11px 24px;margin:16px 0 2px}
-@media(max-width:560px){.score-pillars{grid-template-columns:1fr}}
-.sp-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:12.5px}
-.sp-l{color:var(--tx)}
-.sp-n{font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
-.sp-n i{color:var(--tx3);font-style:normal;font-weight:400;font-size:11px}
-.sp-bar{height:6px;border-radius:999px;background:var(--tk);margin-top:5px;overflow:hidden}
-.sp-bar i{display:block;height:100%;border-radius:999px;transition:width .7s ease}
-.sp-w{font-size:10.5px;color:var(--tx3);margin-top:3px}
-.score-disc{font-size:11.5px;color:var(--tx3);line-height:1.55;margin-top:14px;padding-top:11px;border-top:1px solid var(--bd)}
 .kpi{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:13px 15px}
 .kn{font-size:23px;font-weight:500}
 .kl{font-size:12px;color:var(--tx2);margin-top:3px}
@@ -373,8 +350,6 @@ td.hcell .he{opacity:.3}
   .tabs{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
   .tabs::-webkit-scrollbar{display:none}
   .tab{flex:0 0 auto;white-space:nowrap;padding:11px 13px}
-  .ps-meta{min-width:0}
-  .ps-band,.ps-ttl{overflow-wrap:anywhere}
   .controls input{flex:1 1 100%;min-width:0}
   .controls select{flex:1 1 100%;min-width:0;max-width:100%}
   .modebtn{padding-top:11px;padding-bottom:11px;min-height:44px}
@@ -445,9 +420,7 @@ td.hcell .he{opacity:.3}
           <span>Blood type <b>B (III) Rh+</b></span>
         </div>
       </div>
-      <button class="pscore" id="pscoreBtn" type="button" aria-expanded="false"></button>
     </div>
-    <div id="pscoreDetail"></div>
   </div>
 
   <div class="tabs">
@@ -999,117 +972,6 @@ function kpiHTML(){
 }
 
 function renderKPIs(){ $("kpis").innerHTML = kpiHTML(); }
-
-// ===== Longevity health score — transparent, computed live from loaded data =====
-// Anthropometrics for the score. Update HS_W_KG as weight changes; HS_W_PREV_KG = pre-loss weight.
-const HS_H_CM = 175, HS_W_KG = 55, HS_W_PREV_KG = 63;
-const HS_DISCLAIMER = "Это личный трекинговый индекс здорового старения по управляемым текущим показателям — не прогноз продолжительности жизни и не диагноз. Он намеренно сильно учитывает массу тела и непреднамеренную потерю веса: сейчас это главный управляемый риск, поэтому при отличных анализах общий балл всё равно ограничен потолком. Низкие триглицериды и низкая глюкоза натощак не считаются риском; известный лабораторный артефакт (алюминий в стеклянной пробирке) исключён из подсчёта. Высокий общий белок/IgA и лёгкая лейкопения — повод для наблюдения у врача. Балл считается локально и прозрачно; любые решения по питанию, ферментам и обследованиям — только с твоей медицинской командой.";
-
-function hsBand(s){
-  if (s >= 93) return { short: "Отлично", label: "Отлично — профиль близок к оптимуму", c: "var(--ok)" };
-  if (s >= 85) return { short: "Очень хорошо", label: "Очень хорошо — показатели близки к оптимуму", c: "var(--ok)" };
-  if (s >= 75) return { short: "Хорошо", label: "Хорошо — большинство показателей в порядке", c: "var(--ok)" };
-  if (s >= 60) return { short: "Удовлетворительно", label: "Удовлетворительно — хорошая база, один риск тянет вниз", c: "var(--warn)" };
-  if (s >= 40) return { short: "Зона риска", label: "Зона риска — есть активная проблема", c: "var(--hi)" };
-  return { short: "Критично", label: "Критично — нужна срочная коррекция", c: "var(--hi)" };
-}
-
-function healthScore(){
-  const bn = {}; MK.forEach(m => { bn[m.name] = m; });
-  const last = (n) => bn[n] ? bn[n].last : null;
-  const numOf = (p) => { if (!p) return null; if (p.v != null) return p.v; if (p.vt){ const mm = String(p.vt).match(/-?\d+(?:\.\d+)?/); if (mm) return parseFloat(mm[0]); } return null; };
-  const val = (n) => numOf(last(n));
-  const clamp = (x,a,b) => Math.max(a, Math.min(b, x));
-
-  // 1) Body & nutrition (30%) — dominant pillar, his main controllable risk
-  const bmi = HS_W_KG / Math.pow(HS_H_CM/100, 2);
-  let bmiScore;
-  if (bmi >= 20 && bmi <= 25) bmiScore = 100;
-  else if (bmi > 25) bmiScore = Math.max(40, 100-(bmi-25)*6);
-  else if (bmi >= 18.5) bmiScore = 70+(bmi-18.5)/1.5*30;
-  else if (bmi >= 17) bmiScore = 35+(bmi-17)/1.5*35;
-  else if (bmi >= 15) bmiScore = (bmi-15)/2*35;
-  else bmiScore = 0;
-  const nutFlag = (n) => { const p = last(n); if (!p) return null; if (!flagged(p.f)) return 100; const v = numOf(p), lo = p.lo, hi = p.hi; if (v == null) return 80; const dev = (lo!=null && v<lo) ? (lo-v) : (hi!=null && v>hi) ? (v-hi) : 0; const span = (hi!=null && lo!=null) ? (hi-lo) : (hi||lo||1); return 100-Math.min(60, Math.abs(dev)/(span||1)*100*0.6); };
-  const nut = []; const elas = val("Pankreas-Elastase"); if (elas != null) nut.push(clamp(elas/200,0,1)*100);
-  ["Gesamteiweiß (S)","Albumin (Elpho)","Transferrin"].forEach(n => { const s = nutFlag(n); if (s != null) nut.push(s); });
-  const nutLab = nut.length ? nut.reduce((a,b)=>a+b,0)/nut.length : 70;
-  const base = 0.55*bmiScore + 0.45*nutLab;
-  const trendKnown = (HS_W_PREV_KG != null && HS_W_KG != null);
-  const lossPct = trendKnown ? (HS_W_PREV_KG-HS_W_KG)/HS_W_PREV_KG*100 : 0;
-  let lossFactor = 1;
-  if (trendKnown){ if (lossPct <= 2) lossFactor = 1; else if (lossPct <= 5) lossFactor = 1-(lossPct-2)/3*0.10; else if (lossPct <= 10) lossFactor = 0.90-(lossPct-5)/5*0.20; else lossFactor = Math.max(0.55, 0.70-(lossPct-10)*0.015); }
-  const pBody = base*lossFactor;
-
-  // 2) Cardiometabolic (24%)
-  const a = val("HbA1c");
-  const hba1cS = a==null?80 : a<=5.2?100 : a<=5.7?100-(a-5.2)/0.5*30 : a<=6.5?70-(a-5.7)/0.8*30 : a<=8?40-(a-6.5)/1.5*40 : 0;
-  const ldl = val("LDL-Cholesterin"); const ldlS = ldl==null?80 : ldl<=70?100 : ldl<=100?100-(ldl-70)/30*15 : ldl<=160?85-(ldl-100)/60*45 : 40;
-  const nh = val("Non-HDL-Cholesterin"); const nonhdlS = nh==null?85 : nh<=100?100 : nh<=130?100-(nh-100)/30*25 : Math.max(30, 75-(nh-130)/60*45);
-  const hdl = val("HDL-Cholesterin"); const hdlS = hdl==null?80 : hdl>=60?100 : hdl>=40?70+(hdl-40)/20*30 : hdl/40*70;
-  const hcy = val("Homocystein"); const hcyS = hcy==null?85 : hcy<=9?100 : hcy<=12?100-(hcy-9)/3*15 : hcy<=15?85-(hcy-12)/3*25 : 50;
-  const pCardio = 0.35*hba1cS + 0.25*ldlS + 0.15*nonhdlS + 0.10*hdlS + 0.15*hcyS;
-
-  // 3) Organs & inflammation (18%)
-  const gfr = val("GFR (CKD-EPI)"); const gfrS = gfr==null?85 : gfr>=90?100 : gfr>=60?60+(gfr-60)/30*40 : gfr>=45?40+(gfr-45)/15*20 : gfr/45*40;
-  let liverS = 100; ["GPT (ALT)","GOT (AST)","GGT"].forEach(n => { const p = last(n); if (p && p.f === "high"){ const v = numOf(p), hi = p.hi; liverS -= Math.min(25, 10+((v-hi)/(hi||1))*50); } }); liverS = clamp(liverS,0,100);
-  const crp = numOf(last("CRP sensitiv")); const crpMgL = crp==null ? null : crp*10;
-  const crpS = crpMgL==null?90 : crpMgL<1?100 : crpMgL<3?100-(crpMgL-1)/2*30 : crpMgL<10?70-(crpMgL-3)/7*40 : 30;
-  const pOrgan = 0.40*gfrS + 0.30*liverS + 0.30*crpS;
-
-  // 4) Blood & immunity (14%)
-  let heme = 100;
-  const wbc = val("Leukozyten"); if (wbc != null && wbc < 4) heme -= Math.min(20, (4-wbc)/4*100*0.5);
-  const lp = val("Lymphozyten"); if (lp != null && lp > 44) heme -= Math.min(12, (lp-44)/44*100*0.3);
-  const tp = val("Gesamteiweiß (S)"); if (tp != null && tp > 82) heme -= Math.min(10, tp-82);
-  const igaP = last("IgA (turb)"); if (igaP && igaP.f === "high") heme -= 5;
-  const pHeme = clamp(heme,0,100);
-
-  // 5) Stability & trend (14%)
-  const benignLow = (n,p) => p.f === "low" && (n === "Triglyceride" || n.indexOf("Blutzucker") === 0 || n.indexOf("Glukose") === 0);
-  let clin = 0, flag = 0;
-  MK.forEach(m => { if (m.cat && m.cat.indexOf("food_") === 0) return; if (m.name === "Aluminium (Pl)") return; clin++; if (flagged(m.last.f) && !benignLow(m.name, m.last)) flag++; });
-  const inRangeScore = clin ? (clin-flag)/clin*100 : 100;
-  let trendScore = 70;
-  ["Pankreas-Elastase","Vitamin D","CRP sensitiv","Leukozyten","Lymphozyten","HbA1c","Ferritin"].forEach(n => { const m = bn[n]; if (m && m.pts.length >= 2) trendScore += markerDir(m.pts[m.pts.length-1], m.pts[m.pts.length-2]) * 1.5; });
-  if (trendKnown && lossPct > 5) trendScore -= 12;
-  trendScore = clamp(trendScore,0,100);
-  const pTrend = 0.5*inRangeScore + 0.5*trendScore;
-
-  const pillars = [
-    { label: "Состав тела и питание", w: 30, s: pBody },
-    { label: "Метаболизм, гликемия, липиды", w: 24, s: pCardio },
-    { label: "Органы и воспаление", w: 18, s: pOrgan },
-    { label: "Кровь и иммунитет", w: 14, s: pHeme },
-    { label: "Стабильность и динамика", w: 14, s: pTrend },
-  ];
-  let total = pillars.reduce((acc,p)=>acc + p.s*p.w, 0)/100;
-  let cap = 100;
-  if (bmi < 18.5) cap = Math.min(cap, 78);
-  if (trendKnown && lossPct > 10) cap = Math.min(cap, 72);
-  if (trendKnown && lossPct > 10 && bmi < 17) cap = Math.min(cap, 65);
-  return { score: Math.round(Math.min(total, cap)), bmi: bmi, lossPct: lossPct, trendKnown: trendKnown, pillars: pillars };
-}
-
-function renderScore(){
-  const btn = $("pscoreBtn"), det = $("pscoreDetail");
-  if (!btn || !det) return;
-  if (!MK.length) { btn.innerHTML = ""; det.innerHTML = ""; return; }
-  const r = healthScore(), b = hsBand(r.score);
-  const C = 2*Math.PI*26, off = C*(1 - r.score/100);
-  const ring = `<svg viewBox="0 0 60 60" class="ps-ring" aria-hidden="true">`
-    + `<circle class="sr-bg" cx="30" cy="30" r="26"></circle>`
-    + `<circle class="sr-fg" cx="30" cy="30" r="26" style="stroke:${b.c};stroke-dasharray:${C.toFixed(1)};stroke-dashoffset:${off.toFixed(1)}"></circle>`
-    + `<text class="ps-num" x="30" y="31">${r.score}</text></svg>`;
-  btn.innerHTML = ring
-    + `<span class="ps-meta"><span class="ps-ttl">Индекс здоровья</span><span class="ps-band" style="color:${b.c}">${esc(b.short)}</span></span>`
-    + `<span class="ps-chev">⌄</span>`;
-  const barC = (s) => s>=75?"var(--ok)" : s>=50?"var(--warn)" : "var(--hi)";
-  const pills = r.pillars.map(p => { const s = Math.round(p.s); return `<div class="score-pill"><div class="sp-top"><span class="sp-l">${p.label}</span><span class="sp-n">${s}<i>/100</i></span></div><div class="sp-bar"><i style="width:${s}%;background:${barC(p.s)}"></i></div><div class="sp-w">вес в индексе ${p.w}%</div></div>`; }).join("");
-  const lossTxt = (r.trendKnown && r.lossPct > 2) ? `, непреднамеренная потеря ~${Math.round(r.lossPct)}% (${HS_W_PREV_KG}→${HS_W_KG} кг)` : "";
-  const note = `${esc(b.label)}. Главный рычаг — масса тела: ИМТ ${r.bmi.toFixed(1)}${lossTxt}. Анализы в большинстве отличные; при возврате веса к норме тот же профиль даёт ~88–90.`;
-  det.innerHTML = `<div class="score-note">${note}</div><div class="score-pillars">${pills}</div><div class="score-disc">${esc(HS_DISCLAIMER)}</div>`;
-}
 
 function fillCats(){
   const opts = ['<option value="">All categories</option>'].concat(CATS.filter(c => c.indexOf("food_") !== 0).map(c => `<option value="${esc(c)}">${esc(catName(c))}</option>`));
@@ -1808,7 +1670,6 @@ function renderAll(D){
   Object.keys(detailCache).forEach(k => delete detailCache[k]);
   Object.keys(dateCache).forEach(k => delete dateCache[k]);
   prep(D);
-  renderScore();
   renderKPIs();
   fillCats();
   renderMarkers();
@@ -1886,7 +1747,6 @@ $("fg-list").addEventListener("click", (e) => {
   const r = e.target.closest("tr.fgr"); if (r) toggleFgDet(r);
 });
 document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => { document.querySelectorAll(".tab").forEach(x => x.classList.remove("active")); t.classList.add("active"); const name = t.dataset.tab; ["markers","dates","food","foodguide","dayplan","shopping","plan","reactions","reports"].forEach(p => $("tab-" + p).style.display = (p === name ? "block" : "none")); }));
-$("pscoreBtn").addEventListener("click", () => { const det = $("pscoreDetail"), btn = $("pscoreBtn"); const open = det.style.display === "block"; det.style.display = open ? "none" : "block"; btn.classList.toggle("open", !open); btn.setAttribute("aria-expanded", String(!open)); });
 document.querySelectorAll("#tab-dayplan [data-dpv]").forEach(b => b.addEventListener("click", () => {
   document.querySelectorAll("#tab-dayplan [data-dpv]").forEach(x => x.classList.remove("active"));
   b.classList.add("active");
@@ -2078,7 +1938,7 @@ $("tab-dates").addEventListener("click", (e) => { const chip = e.target.closest(
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "10.3";
+const APP_VERSION = "10.4";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
