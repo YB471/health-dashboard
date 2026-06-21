@@ -675,6 +675,10 @@ td.hcell .he{opacity:.3}
     #tab-plan .rp-rules ul{margin:0;padding-left:18px}
     #tab-plan .rp-rules li{margin-top:8px}
     #tab-plan .rp-disc{font-size:11.5px;color:var(--tx3);margin-top:16px;text-align:center}
+    #tab-plan .rp-cyc{display:flex;flex-direction:column;align-items:center;gap:4px;margin:4px 0 2px}
+    #tab-plan .rp-cyc-s{width:100%;max-width:540px;text-align:center;background:var(--tk);border:1px solid var(--bd);border-radius:8px;padding:9px 12px;font-size:13px;color:var(--tx);line-height:1.4}
+    #tab-plan .rp-cyc-a{color:var(--tx3);font-size:14px;line-height:1}
+    #tab-plan .rp-cyc-loop{margin-top:6px;text-align:center;font-size:12px;color:var(--lo);font-weight:700}
     </style>
 
     <div class="rp-hero">
@@ -859,6 +863,56 @@ td.hcell .he{opacity:.3}
       </ul>
       <div class="rp-disc">Это ориентир из твоих данных, а не медицинское назначение. Все решения о лечении — с лечащим врачом.</div>
     </div>
+
+    <div class="rp-sh"><span class="n">7</span>Возможные причины (корень)</div>
+    <div class="rp-cap1">Скорее всего причина не одна: <b style="color:var(--tx2)">уязвимый фон (генетика) + триггеры + самоподдерживающийся круг</b>. Важно разделять <b style="color:var(--tx2)">давнее (хроническое)</b> и <b style="color:var(--tx2)">недавнее острое (май 2026)</b> — это разные вещи.</div>
+
+    <div class="rp-subh">🔁 Замкнутый круг — ядро хронической проблемы</div>
+    <div class="rp-cyc">
+      <div class="rp-cyc-s">Мало ферментов поджелудочной (EPI)</div>
+      <div class="rp-cyc-a">↓</div>
+      <div class="rp-cyc-s">Еда недопереваривается → кормит «не те» бактерии</div>
+      <div class="rp-cyc-a">↓</div>
+      <div class="rp-cyc-s">Дисбиоз: Klebsiella / Citrobacter / Enterobacter</div>
+      <div class="rp-cyc-a">↓</div>
+      <div class="rp-cyc-s">Повреждается слизистая → падают <b>DAO</b> и <b>sIgA</b></div>
+      <div class="rp-cyc-a">↓</div>
+      <div class="rp-cyc-s">Больше гистамина, слабее барьер → ещё хуже слизистой</div>
+      <div class="rp-cyc-loop">↺ круг замыкается и крутится сам</div>
+    </div>
+    <div class="rp-note">💡 <b>DAO вырабатывает сама стенка кишечника</b> — поэтому почти нулевой DAO может быть не только врождённым, но и <b>следствием</b> повреждённого кишечника. Хорошая новость: восстановишь кишку → DAO может частично вернуться. Поэтому план рвёт круг сразу в нескольких точках (ферменты + флора + слизистая + диета).</div>
+
+    <div class="rp-subh">🧬 Давний фон и старые триггеры <span style="font-weight:400;color:var(--tx3);font-size:12px">(хроническое)</span></div>
+    <div class="rp-two">
+      <div class="rp-box">
+        <h4>Генетический фон</h4>
+        <ul>
+          <li><b>Лактозная непереносимость</b> — C/C −13910 (пожизненно).</li>
+          <li><b>Склонность к дефициту DAO</b> — частично врождённая.</li>
+          <li><b>HLA-DQ8</b> — генетический риск целиакии (сама целиакия исключена).</li>
+          <li><b>Синдром Жильбера</b> — доброкачественная особенность (билирубин).</li>
+        </ul>
+      </div>
+      <div class="rp-box">
+        <h4>Старые триггеры <span style="font-weight:400;color:var(--tx3);font-size:12px">(проверить с врачом)</span></h4>
+        <ul>
+          <li><b>Хронический H. pylori</b> — серология+ с 2022.</li>
+          <li><b>Заброс желчи</b> → гастрит тип C (Урсофальк уже работает на это).</li>
+          <li><b>Стресс</b> — ось «мозг–кишечник»: меньше ферментов/желчи, слабее барьер.</li>
+          <li><b>Питание и лекарства в анамнезе</b> — НПВП, антибиотики, ИПП.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="rp-subh">⚡ Острое наложение — май 2026 <span style="font-weight:400;color:var(--tx3);font-size:12px">(недавнее)</span></div>
+    <div class="rp-box">
+      <ul style="margin:0;padding-left:17px;font-size:12.5px;color:var(--tx2);line-height:1.7">
+        <li><b>Пищевое отравление (вероятно сальмонеллёз):</b> недожаренная курица перед поездкой в Турцию → тяжёлое отравление. Совпадает с положительными антителами к сальмонелле (28.05.2026). Могло резко усилить дисбиоз и обострение. <span style="color:var(--tx3)">(записано в Reaction Log)</span></li>
+        <li><b>Скачок ртути:</b> годами норма — 1.3 (2022) → 1.1 (2023) → 1.8 (май 2025), и вдруг <b>36.9</b> (28.05.2026). Вероятный источник — много рыбы + местные БАДы (электролиты) в Турции.</li>
+      </ul>
+    </div>
+    <div class="rp-note">🎯 <b>Вывод:</b> хронические ЖКТ-проблемы <b>давнее</b> мая 2026 — поэтому ртуть, скорее всего, <b>не их корень</b>, она просто «подсветилась» сейчас (источник — рыба/БАДы в Турции). Сальмонелла и ртуть — недавнее <b>острое наложение</b>: лечим и его (по ртути — DMPS), но не путаем с корнем хронической картины.</div>
+
   </div>
 
   <div id="tab-reactions" class="panel" style="display:none">
