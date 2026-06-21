@@ -613,6 +613,7 @@ td.hcell .he{opacity:.3}
     #tab-plan .rp-sh{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--tx3);margin:28px 2px 6px;padding-bottom:8px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:8px}
     #tab-plan .rp-sh .n{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:var(--tk);color:var(--tx2);font-size:11px;letter-spacing:0}
     #tab-plan .rp-cap1{font-size:12px;color:var(--tx3);margin:0 2px 16px;line-height:1.5}
+    #tab-plan .rp-subh{font-size:13.5px;font-weight:600;color:var(--tx);margin:20px 2px 10px}
     #tab-plan .rp-dir{border-left:3px solid var(--tx3);padding:2px 0 4px 15px;margin-bottom:22px}
     #tab-plan .rp-dir.d1{border-color:var(--ok)}
     #tab-plan .rp-dir.d2{border-color:var(--lo)}
@@ -765,28 +766,49 @@ td.hcell .he{opacity:.3}
     </div>
 
     <div class="rp-sh"><span class="n">2</span>Антигистамины: роль и как сворачивать</div>
-    <div class="rp-cap1">Это слой <b style="color:var(--tx2)">симптом-контроля</b> — блокирует эффекты гистамина и стабилизирует тучные клетки, но не лечит причину (причина: диета + DAO + кишечник). Цель — выйти на стабильность и постепенно <b style="color:var(--tx2)">сократить до минимума</b>.</div>
-    <div class="rp-two">
-      <div class="rp-box">
-        <h4>🧱 Из чего состоит</h4>
-        <ul>
-          <li><b>H1 — Telfast 120</b> (фексофенадин), утром: зуд, приливы, кожа/нос. Не седативный. Держать отдельно от магния, сока и сорбентов.</li>
-          <li><b>H2 — Famotidin 40</b>, утром: желудочные H2-рецепторы (тошнота, секреция).</li>
-          <li><b>Стабилизатор (системный) — Ketotifen</b>: не даёт тучным клеткам выбрасывать гистамин. Седативный → можно на ночь; бонус — повышает аппетит.</li>
-          <li><b>Стабилизатор (кишечный) — Allergoval</b> (кромогликат) 2-2-2-2, за 15–20 мин до еды: работает локально в кишечнике, по твоим главным ЖКТ-симптомам. Эффект копится 2–4 недели.</li>
-        </ul>
-      </div>
-      <div class="rp-box">
-        <h4>📉 Как сворачивать <span style="font-weight:400;color:var(--tx3);font-size:12px">(когда стабильно, с врачом)</span></h4>
-        <ul>
-          <li><b>1-й на выход — Famotidin</b>: подавление кислоты может поддерживать рост Klebsiella/Citrobacter.</li>
-          <li><b>2-й — Telfast</b>, затем <b>3-й — Ketotifen</b>.</li>
-          <li><b>Дольше всех — база</b>: кишечный Allergoval + диета + DAO.</li>
-          <li>Убирать <b>по одному</b>, с паузой 1–2 недели, следя за возвратом симптомов. Не бросать всё разом.</li>
-        </ul>
-      </div>
+    <div class="rp-cap1">Это слой <b style="color:var(--tx2)">симптом-контроля</b>: одни блокируют <i>эффект</i> гистамина (H1, H2), другие не дают тучным клеткам его <i>выбрасывать</i> (стабилизаторы). Причину не лечат — причина это диета + DAO + кишечник. Идея схемы — накрыть гистамин с 4 сторон, выйти на стабильность и потом <b style="color:var(--tx2)">сократить до минимума</b>.</div>
+
+    <div class="rp-subh">💊 Из чего состоит и зачем</div>
+    <div class="rp-prh"><span>Препарат</span><span></span><span class="r">Что делает · почему тебе · нюанс</span></div>
+
+    <div class="rp-pr">
+      <div class="rp-prob"><div class="rp-pt">Telfast 120</div><div class="rp-pe">H1-блокатор · утром</div></div>
+      <div class="rp-arrow">→</div>
+      <div class="rp-sol"><div class="rp-st">Снимает «классику» гистамина: зуд, приливы, насморк, кожные реакции.</div><div class="rp-sw"><b>Почему тебе:</b> 2-е поколение — не вызывает сонливости, мало взаимодействий, выводится почками (у тебя в норме).</div><div class="rp-sw" style="margin-top:5px">⚠️ <b>Нюанс:</b> всасывание снижают фруктовые соки (яблоко/апельсин/грейпфрут) и магний/сорбенты — принимай отдельно (магний у тебя вечером — ок).</div></div>
     </div>
-    <div class="rp-note">⚠️ Антигистамины <b>приглушают реакции на еду</b> — учитывай это при пищевых пробах (вкладка Reaction Log); пробы лучше делать в стабильный период.</div>
+
+    <div class="rp-pr">
+      <div class="rp-prob"><div class="rp-pt">Famotidin 40</div><div class="rp-pe">H2-блокатор · утром</div></div>
+      <div class="rp-arrow">→</div>
+      <div class="rp-sol"><div class="rp-st">Закрывает H2-рецепторы гистамина в желудке: тошнота, избыток кислоты, часть ЖКТ-симптомов.</div><div class="rp-sw"><b>Почему тебе:</b> дополняет Telfast — H1 в одиночку желудочные эффекты не покрывает.</div><div class="rp-sw" style="margin-top:5px">⚠️ <b>Нюанс:</b> снижает кислотность, а у тебя разрослись Klebsiella/Citrobacter — долго нежелательно (кислота сдерживает рост флоры). Поэтому он <b>первый на отмену</b>. При гастрите тип C (желчном) польза частичная.</div></div>
+    </div>
+
+    <div class="rp-pr">
+      <div class="rp-prob"><div class="rp-pt">Ketotifen</div><div class="rp-pe">стабилизатор + H1 · утром/вечер</div></div>
+      <div class="rp-arrow">→</div>
+      <div class="rp-sol"><div class="rp-st">Не даёт тучным клеткам выбрасывать гистамин — работает «на входе», а не только глушит эффект.</div><div class="rp-sw"><b>Почему тебе:</b> при тяжёлой непереносимости/подозрении на MCAS — ключевой компонент. ✅ Бонус: повышает аппетит → помогает набрать вес.</div><div class="rp-sw" style="margin-top:5px">⚠️ <b>Нюанс:</b> седативный — утром может клонить в сон, многие переносят приём на ночь (спроси врача). Эффект нарастает 2–4 недели — оценивай не сразу.</div></div>
+    </div>
+
+    <div class="rp-pr">
+      <div class="rp-prob"><div class="rp-pt">Allergoval</div><div class="rp-pe">кромогликат, кишечный · 2-2-2-2 до еды</div></div>
+      <div class="rp-arrow">→</div>
+      <div class="rp-sol"><div class="rp-st">Стабилизирует тучные клетки прямо в стенке кишечника (почти не всасывается — действует локально).</div><div class="rp-sw"><b>Почему тебе:</b> твои главные симптомы — ЖКТ (вздутие, тошнота), а он бьёт именно там; очень безопасный.</div><div class="rp-sw" style="margin-top:5px">⚠️ <b>Нюанс:</b> принимать за 15–20 мин <b>до</b> еды (покрыть кишку до пищи); эффект копится 2–4 недели — мгновенного не жди.</div></div>
+    </div>
+
+    <div class="rp-subh">📉 Как сворачивать <span style="font-weight:400;color:var(--tx3);font-size:12px">(когда станет стабильно, с врачом)</span></div>
+    <div class="rp-box">
+      <div class="rp-sw" style="margin-bottom:8px">Логика: сначала убираем то, что менее нужно или может вредить долгосрочно; «базу» держим дольше всех. По одному — чтобы видеть, что именно держит тебя в норме.</div>
+      <ul style="margin:0;padding-left:17px;font-size:12.5px;color:var(--tx2);line-height:1.7">
+        <li><b>1-й — Famotidin:</b> подавление кислоты может поддерживать рост Klebsiella/Citrobacter, а гастрит у тебя желчный.</li>
+        <li><b>2-й — Telfast:</b> когда кожа/нос/приливы спокойны.</li>
+        <li><b>3-й — Ketotifen:</b> постепенно, возможен временный «откат» — снижать медленно.</li>
+        <li><b>Дольше всех — «база»:</b> кишечный Allergoval + диета + DAO (это причинный слой).</li>
+        <li><b>Правило:</b> убирать по одному, с паузой 1–2 недели, следя за возвратом симптомов. Не бросать всё разом.</li>
+      </ul>
+    </div>
+
+    <div class="rp-note">⚠️ Антигистамины <b>приглушают реакции на еду</b> — учитывай при пищевых пробах (вкладка Reaction Log); пробы лучше делать в стабильный период.</div>
+    <div class="rp-note">💡 Если схема <b>явно помогает</b> — это косвенно в пользу MCAS, но не доказывает его. Чтобы подтвердить — триптаза <b>в обострении</b> + N-метилгистамин/простагландины в моче (см. секцию «Фон»).</div>
 
     <div class="rp-sh"><span class="n">3</span>Фон: динамика, дефициты, наблюдение</div>
     <div class="rp-two">
