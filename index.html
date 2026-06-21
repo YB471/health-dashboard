@@ -634,7 +634,8 @@ td.hcell .he{opacity:.3}
     #tab-plan .rp-pill.add{background:rgba(47,125,212,.15);color:var(--lo)}
     #tab-plan .rp-pill.care{background:var(--hibg);color:var(--hi)}
     #tab-plan .rp-labm{display:none}
-    #tab-plan .rp-note{font-size:12px;color:var(--tx3);margin-top:11px}
+    #tab-plan .rp-note{font-size:12px;color:var(--tx2);background:var(--tk);border-radius:8px;padding:9px 11px;margin-top:12px;line-height:1.55}
+    #tab-plan .rp-note b{color:var(--tx)}
     @media(max-width:600px){
       #tab-plan .rp-prh{display:none}
       #tab-plan .rp-pr{grid-template-columns:1fr}
@@ -645,6 +646,8 @@ td.hcell .he{opacity:.3}
       #tab-plan .rp-prob .rp-labm{color:var(--hi)}
       #tab-plan .rp-sol .rp-labm{color:var(--ok)}
     }
+    #tab-plan .rp-good{background:var(--okbg);border:1px solid var(--bd);border-radius:10px;padding:11px 14px;font-size:12.5px;color:var(--tx2);line-height:1.55;margin-bottom:14px}
+    #tab-plan .rp-good b{color:var(--tx)}
     #tab-plan .rp-two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
     @media(max-width:600px){#tab-plan .rp-two{grid-template-columns:1fr}}
     #tab-plan .rp-box{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:13px 15px}
@@ -662,7 +665,7 @@ td.hcell .he{opacity:.3}
     @media(max-width:600px){#tab-plan .rp-lvl.l4{width:80%}#tab-plan .rp-lvl.l3{width:90%}}
     #tab-plan .rp-capc{text-align:center;font-size:11.5px;color:var(--tx3);margin-top:9px}
     #tab-plan .rp-tl{display:flex;flex-direction:column;margin-top:14px}
-    #tab-plan .rp-ti{display:grid;grid-template-columns:150px 1fr;gap:14px;padding:11px 0;border-top:1px solid var(--bd)}
+    #tab-plan .rp-ti{display:grid;grid-template-columns:160px 1fr;gap:14px;padding:11px 0;border-top:1px solid var(--bd)}
     #tab-plan .rp-ti:first-child{border-top:0}
     @media(max-width:560px){#tab-plan .rp-ti{grid-template-columns:1fr;gap:3px}}
     #tab-plan .rp-when{font-size:13px;font-weight:700;color:var(--tx)}
@@ -685,42 +688,39 @@ td.hcell .he{opacity:.3}
     </div>
 
     <div class="rp-sh"><span class="n">1</span>Проблема → решение, по трём блокам</div>
-    <div class="rp-cap1">Слева — <b style="color:var(--tx2)">проблема/диагноз</b> и доказательство в анализах. Справа напротив — <b style="color:var(--tx2)">решение</b> и почему оно помогает. Метка показывает статус: <span class="rp-pill ok">назначено</span> <span class="rp-pill add">добавить</span> <span class="rp-pill care">с врачом</span></div>
+    <div class="rp-cap1">Слева — <b style="color:var(--tx2)">проблема/диагноз</b> и доказательство в анализах. Справа напротив — <b style="color:var(--tx2)">решение</b>, доза и почему оно помогает. Метка статуса: <span class="rp-pill ok">назначено</span> <span class="rp-pill add">добавить</span> <span class="rp-pill care">с врачом</span></div>
 
     <div class="rp-dir d1">
       <div class="rp-dt">🍽️ Пищеварение и ЖКТ</div>
-      <div class="rp-dp">Поджелудочная даёт мало ферментов, желчь вялая, не хватает DAO и лактазы → еда плохо усваивается, отсюда вздутие и потеря веса.</div>
+      <div class="rp-dp">Поджелудочная даёт мало ферментов, желчь забрасывается в желудок, не хватает DAO и лактазы → еда плохо усваивается, отсюда вздутие и потеря веса.</div>
       <div class="rp-prh"><span>Проблема / диагноз</span><span></span><span class="r">Решение + почему</span></div>
 
       <div class="rp-pr">
         <div class="rp-prob"><div class="rp-labm">Проблема</div><div class="rp-pt">Недостаточность поджелудочной (EPI)</div><div class="rp-pe">эластаза 49.6 → 142 · норма &gt;200</div></div>
         <div class="rp-arrow">→</div>
-        <div class="rp-sol"><div class="rp-labm">Решение</div><div class="rp-st">Kreon во время еды<span class="rp-pill ok">назначено</span></div><div class="rp-sw">Замещает недостающие ферменты → еда усваивается, останавливается потеря веса.</div></div>
+        <div class="rp-sol"><div class="rp-labm">Решение</div><div class="rp-st">Kreon 35 000 — в середине еды<span class="rp-pill ok">назначено</span></div><div class="rp-sw">Замещает недостающие ферменты → еда (особенно жир/белок) усваивается, останавливается потеря веса.</div></div>
       </div>
 
       <div class="rp-pr">
-        <div class="rp-prob"><div class="rp-labm">Проблема</div><div class="rp-pt">Вялая желчь, перегиб жёлчного + ↑ билирубин</div><div class="rp-pe">МРТ: ЖП перегнут; билирубин до 1.8</div></div>
+        <div class="rp-prob"><div class="rp-labm">Проблема</div><div class="rp-pt">Заброс желчи в желудок → реактивный гастрит тип C</div><div class="rp-pe">гистология: «тип C, химический»; изжогу не отмечаешь</div></div>
         <div class="rp-arrow">→</div>
-        <div class="rp-sol"><div class="rp-labm">Решение</div><div class="rp-st">Урсофальк (УДХК), на ночь<span class="rp-pill ok">назначено</span></div><div class="rp-sw">Разжижает желчь, улучшает усвоение жиров, снижает билирубин, бережёт печень.</div></div>
+        <div class="rp-sol"><div class="rp-labm">Решение</div><div class="rp-st">Урсофальк (УДХК), на ночь + щадящая еда<span class="rp-pill ok">назначено</span></div><div class="rp-sw">УДХК делает заброшенную желчь менее агрессивной → меньше повреждает слизистую желудка (и бонусом улучшает переваривание жиров, снижает билирубин).</div></div>
       </div>
 
       <div class="rp-pr">
-        <div class="rp-prob"><div class="rp-labm">Проблема</div><div class="rp-pt">Гистаминовая непереносимость</div><div class="rp-pe">DAO 2.2 · норма &gt;10; расщепление ~0%</div></div>
+        <div class="rp-prob"><div class="rp-labm">Проблема</div><div class="rp-pt">Гистаминовая непереносимость</div><div class="rp-pe">DAO 2.2 · норма &gt;10; расщепление гистамина ~0% · норма &gt;40%</div></div>
         <div class="rp-arrow">→</div>
-        <div class="rp-sol"><div class="rp-labm">Решение</div><div class="rp-st">DAOSIN до еды + низкогистаминовая диета<span class="rp-pill ok">назначено</span></div><div class="rp-sw">Даёт недостающий фермент DAO → меньше гистамина → меньше приливов и ЖКТ-реакций. B6 (P5P) + витамин C — кофакторы DAO.</div></div>
+        <div class="rp-sol"><div class="rp-labm">Решение</div><div class="rp-st">DAOSIN за 15 мин до еды + низкогистаминовая диета<span class="rp-pill ok">назначено</span></div><div class="rp-sw">Даёт недостающий фермент DAO → меньше гистамина → меньше приливов и ЖКТ-реакций. Кофакторы DAO: B6 (P5P) + витамин C.</div></div>
       </div>
 
       <div class="rp-pr">
-        <div class="rp-prob"><div class="rp-labm">Проблема</div><div class="rp-pt">Лактозная непереносимость</div><div class="rp-pe">генетика C/C −13910 (первичная)</div></div>
+        <div class="rp-prob"><div class="rp-labm">Проблема</div><div class="rp-pt">Лактозная непереносимость</div><div class="rp-pe">генетика C/C −13910 (первичная, пожизненная)</div></div>
         <div class="rp-arrow">→</div>
-        <div class="rp-sol"><div class="rp-labm">Решение</div><div class="rp-st">Лактаза / безлактозное<span class="rp-pill ok">назначено</span></div><div class="rp-sw">Расщепляет или убирает лактозу → нет вздутия и диареи от молочного.</div></div>
+        <div class="rp-sol"><div class="rp-labm">Решение</div><div class="rp-st">LactoStop 14 000 (1-1-1) / безлактозное<span class="rp-pill ok">назначено</span></div><div class="rp-sw">Фермент лактаза расщепляет лактозу → нет вздутия и диареи от молочного.</div></div>
       </div>
 
-      <div class="rp-pr">
-        <div class="rp-prob"><div class="rp-labm">Проблема</div><div class="rp-pt">Гастрит тип C + лёгкая ГЭРБ</div><div class="rp-pe">гистология биопсии</div></div>
-        <div class="rp-arrow">→</div>
-        <div class="rp-sol"><div class="rp-labm">Решение</div><div class="rp-st">Щадящая еда, без раздражающего</div><div class="rp-sw">Снижает раздражение слизистой; острого лечения не требует.</div></div>
-      </div>
+      <div class="rp-note">💡 <b>Щадящая еда</b> = дробно, малыми порциями; варёное / тушёное / на пару, тёплое (не горячее и не холодное); без алкоголя, кофе натощак, жареного и очень жирного, острого, кислого (цитрус, томат), газировки; не ложиться 2–3 ч после еды. <b>Избегать НПВП (ибупрофен и т.п.)</b> — они усиливают гастрит тип C.
+        <br>💊 <b>Схема антигистаминов от врача</b> (по самочувствию): Telfast 120 — утром, Famotidin 40 — утром, Ketotifen — утром, Allergoval 2-2-2-2 (перед едой).</div>
     </div>
 
     <div class="rp-dir d2">
@@ -729,21 +729,21 @@ td.hcell .he{opacity:.3}
       <div class="rp-prh"><span>Проблема / диагноз</span><span></span><span class="r">Решение + почему</span></div>
 
       <div class="rp-pr">
-        <div class="rp-prob"><div class="rp-labm">Проблема</div><div class="rp-pt">Дисбиоз: разрослись Klebsiella, Citrobacter, Enterobacter</div><div class="rp-pe">экограмма кала; лакто/бифидо не выявляются</div></div>
+        <div class="rp-prob"><div class="rp-labm">Проблема</div><div class="rp-pt">Дисбиоз: разрослись Klebsiella, Citrobacter, Enterobacter</div><div class="rp-pe">экограмма кала; Lactobacillus и физиол. E. coli не выявляются</div></div>
         <div class="rp-arrow">→</div>
-        <div class="rp-sol"><div class="rp-labm">Решение</div><div class="rp-st">Пробиотик (узкий, низкогистаминный) + пребиотик<span class="rp-pill add">добавить</span></div><div class="rp-sw">Заселяем полезные бактерии и кормим их → вытесняем условно-патогенов. Узкий состав — чтобы не подкинуть гистамин.</div></div>
+        <div class="rp-sol"><div class="rp-labm">Решение</div><div class="rp-st">Пробиотик (узкий, низкогистаминный) + пребиотик<span class="rp-pill add">добавить</span></div><div class="rp-sw">Заселяем полезные бактерии и кормим их → вытесняем условно-патогенов. Узкий состав (Bifido + L. rhamnosus/plantarum) — чтобы не подкинуть гистамин.</div></div>
       </div>
 
       <div class="rp-pr">
-        <div class="rp-prob"><div class="rp-labm">Проблема</div><div class="rp-pt">Ослаблен барьер слизистой</div><div class="rp-pe">sIgA ↓ (169) · β-дефензин ↑</div></div>
+        <div class="rp-prob"><div class="rp-labm">Проблема</div><div class="rp-pt">Ослаблен барьер слизистой</div><div class="rp-pe">sIgA 169 · норма 510–2040; β-дефензин 70 · норма 8–60</div></div>
         <div class="rp-arrow">→</div>
-        <div class="rp-sol"><div class="rp-labm">Решение</div><div class="rp-st">Цинк-карнозин / L-глутамин<span class="rp-pill add">добавить</span></div><div class="rp-sw">Питание и восстановление клеток слизистой → крепче барьер; помогает и при гастрите C.</div></div>
+        <div class="rp-sol"><div class="rp-labm">Решение</div><div class="rp-st">Цинк-карнозин / L-глутамин<span class="rp-pill add">добавить</span></div><div class="rp-sw">Питание и восстановление клеток слизистой → крепче барьер; помогает и при гастрите C. Короткими курсами.</div></div>
       </div>
 
       <div class="rp-pr">
         <div class="rp-prob"><div class="rp-labm">Проблема</div><div class="rp-pt">Копростаз (застой стула)</div><div class="rp-pe">МРТ: выраженный застой по толстой кишке</div></div>
         <div class="rp-arrow">→</div>
-        <div class="rp-sol"><div class="rp-labm">Решение</div><div class="rp-st">Магний цитрат вечером + вода + клетчатка<span class="rp-pill add">добавить</span></div><div class="rp-sw">Мягко налаживает стул; застой иначе ухудшает дисбиоз и обратное всасывание металлов.</div></div>
+        <div class="rp-sol"><div class="rp-labm">Решение</div><div class="rp-st">Магний цитрат вечером + вода + клетчатка<span class="rp-pill add">добавить</span></div><div class="rp-sw">Мягко налаживает стул; застой иначе ухудшает дисбиоз и обратное всасывание металлов. Магний в крови у тебя в норме — безопасно.</div></div>
       </div>
     </div>
 
@@ -753,9 +753,9 @@ td.hcell .he{opacity:.3}
       <div class="rp-prh"><span>Проблема / диагноз</span><span></span><span class="r">Решение + почему</span></div>
 
       <div class="rp-pr">
-        <div class="rp-prob"><div class="rp-labm">Проблема</div><div class="rp-pt">Ртуть резко повышена</div><div class="rp-pe">36.9 · норма &lt;2.0 · подтверждена (было 1.8)</div></div>
+        <div class="rp-prob"><div class="rp-labm">Проблема</div><div class="rp-pt">Ртуть резко повышена</div><div class="rp-pe">36.9 · норма &lt;2.0 · подтверждена (раньше 1.1–1.8)</div></div>
         <div class="rp-arrow">→</div>
-        <div class="rp-sol"><div class="rp-labm">Решение</div><div class="rp-st">Убрать источник + DMPS капельницы<span class="rp-pill care">с врачом</span></div><div class="rp-sw">Источник = причина роста; DMPS связывает и выводит ртуть. Курс под контролем почек.</div></div>
+        <div class="rp-sol"><div class="rp-labm">Решение</div><div class="rp-st">Убрать источник + DMPS (Dimaval), в/в<span class="rp-pill care">с врачом</span></div><div class="rp-sw">Источник (рыба, пломбы, БАДы) — причина роста; DMPS связывает и выводит ртуть, курсом под контролем почек.</div></div>
       </div>
 
       <div class="rp-pr">
@@ -763,27 +763,27 @@ td.hcell .he{opacity:.3}
         <div class="rp-arrow">→</div>
         <div class="rp-sol"><div class="rp-labm">Решение</div><div class="rp-st">Найти источник, пересдать · НЕ цеолит/бентонит<span class="rp-pill care">с врачом</span></div><div class="rp-sw">Цеолит/бентонит — сами алюмосиликаты и могут поднять алюминий.</div></div>
       </div>
-      <div class="rp-note">✓ Сорбенты не нужны — выбран DMPS.</div>
+      <div class="rp-note">✓ Сорбенты не нужны — выбран DMPS (твоё решение с врачом).</div>
     </div>
 
-    <div class="rp-sh"><span class="n">2</span>Фон: дефициты и наблюдение</div>
+    <div class="rp-sh"><span class="n">2</span>Фон: динамика, дефициты, наблюдение</div>
+    <div class="rp-good">✅ <b>Уже улучшилось (план работает):</b> биотин нормализовался — <b>306</b> (был 167, норма &gt;250); ЛПНП вернулся в норму — <b>83</b> (был 171); фолат в норме — <b>11.1</b> (разовое «&gt;24» не подтвердилось).</div>
     <div class="rp-two">
       <div class="rp-box">
-        <h4>🧩 Закрыть дефициты <span style="font-weight:400;color:var(--tx3);font-size:12px">(по анализам)</span></h4>
+        <h4>🧩 Скорректировать / проверить</h4>
         <ul>
-          <li><b>Биотин</b> — низкий, восполнить.</li>
-          <li><b>Витамин D</b> — поднять к 40–60 (+ контроль кальция и ПТГ).</li>
-          <li><b>A / E / K</b> — проверить: из-за EPI жирорастворимые усваиваются хуже.</li>
-          <li><b>Фолат</b> — сперва уточнить (в лаборатории выше нормы, а в заключении «дефицит»).</li>
+          <li><b>Витамин D</b> — 37.5, поднять к 40–60 (+ контроль кальция и ПТГ).</li>
+          <li><b>A / E / K</b> — проверить уровень: из-за EPI жирорастворимые усваиваются хуже.</li>
+          <li><b>Биотин</b> — уже в норме (306), просто поддерживать.</li>
         </ul>
       </div>
       <div class="rp-box">
         <h4>👁 Наблюдать <span style="font-weight:400;color:var(--tx3);font-size:12px">(контроль, не лечить)</span></h4>
         <ul>
           <li><b>Билирубин</b> — вероятно синдром Жильбера (Урсофальк его снижает).</li>
-          <li><b>Лейкоциты</b> — лёгкая лейкопения, следить в динамике.</li>
+          <li><b>Лейкоциты</b> — 3.3 (норма &gt;3.5), лёгкая лейкопения — следить.</li>
           <li><b>H. pylori</b> — серология +, кал/биопсия −; спросить про эрадикацию.</li>
-          <li><b>Сальмонелла</b> — доследовать; <b>ЛПНП</b> до 171 — диета.</li>
+          <li><b>Сальмонелла</b> — антитела +, доследовать.</li>
         </ul>
       </div>
     </div>
@@ -791,17 +791,17 @@ td.hcell .he{opacity:.3}
     <div class="rp-sh"><span class="n">3</span>Приоритет — что важнее</div>
     <div class="rp-pyr">
       <div class="rp-lvl l4"><div class="a">⚠️ С врачом / отдельно</div><div class="b">DMPS · антигистамины по схеме</div></div>
-      <div class="rp-lvl l3"><div class="a">По анализам</div><div class="b">Биотин · витамин D · A/E/K</div></div>
+      <div class="rp-lvl l3"><div class="a">По анализам</div><div class="b">Витамин D · A/E/K (проверить)</div></div>
       <div class="rp-lvl l2"><div class="a">Поддержка — ежедневно</div><div class="b">B6+C · магний · цинк-карнозин / L-глутамин</div></div>
-      <div class="rp-lvl l1"><div class="a">🟢 Фундамент — каждый день, обязательно</div><div class="b">Kreon · Урсофальк · DAOSIN + диета · лактаза · про- + пребиотик</div></div>
+      <div class="rp-lvl l1"><div class="a">🟢 Фундамент — каждый день, обязательно</div><div class="b">Kreon 35 000 · Урсофальк · DAOSIN + диета · LactoStop · про- + пребиотик</div></div>
     </div>
     <div class="rp-capc">Снизу вверх: сначала держим фундамент, потом добавляем слои поверх.</div>
 
     <div class="rp-sh"><span class="n">4</span>Распорядок дня — когда что принимать</div>
     <div class="rp-tl">
-      <div class="rp-ti"><div class="rp-when">🌅 Утро, натощак</div><div class="rp-act">Стакан тёплой воды.</div></div>
-      <div class="rp-ti"><div class="rp-when">⏱️ За 15 мин до еды</div><div class="rp-act"><b>DAOSIN</b> перед каждым приёмом · антигистамин — если назначен врачом.</div></div>
-      <div class="rp-ti"><div class="rp-when">🍽️ Во время еды</div><div class="rp-act"><b>Kreon</b> в середине приёма · <b>лактаза</b> при молочном · с жирной едой — <b>A/D/E/K, биотин, B6, C</b>.</div></div>
+      <div class="rp-ti"><div class="rp-when">🌅 Утро, натощак</div><div class="rp-act">Вода. По схеме врача (1-0-0): <b>Telfast 120</b>, <b>Famotidin 40</b>, <b>Ketotifen</b>.</div></div>
+      <div class="rp-ti"><div class="rp-when">⏱️ За 15 мин до еды</div><div class="rp-act"><b>DAOSIN</b> перед каждым приёмом · <b>Allergoval</b> (по схеме 2-2-2-2).</div></div>
+      <div class="rp-ti"><div class="rp-when">🍽️ Во время еды</div><div class="rp-act"><b>Kreon 35 000</b> в середине · <b>LactoStop 14 000</b> при молочном · с жирной едой — <b>A/D/E/K, B6, C</b>.</div></div>
       <div class="rp-ti"><div class="rp-when">🌿 Между приёмами</div><div class="rp-act"><b>Пробиотик + пребиотик</b> — отдельно, через ≥2–3 ч от лекарств. Пребиотик наращивать медленно.</div></div>
       <div class="rp-ti"><div class="rp-when">🌙 Вечер / на ночь</div><div class="rp-act"><b>Урсофальк</b> (как назначил врач) · <b>магний цитрат</b> от запора.</div></div>
       <div class="rp-ti"><div class="rp-when">💉 По плану врача</div><div class="rp-act"><b>DMPS</b> — капельницы курсом, отдельно.</div></div>
@@ -811,8 +811,8 @@ td.hcell .he{opacity:.3}
     <div class="rp-rules">
       <ul>
         <li>⚠️ <b>Вводи по одному новому средству раз в 1–2 недели</b> и записывай реакцию во вкладке <b>Reaction Log</b> — при DAO почти на нуле иначе не понять, что помогает, а что триггерит.</li>
-        <li>💊 <b>Назначенное врачом (Kreon, Урсофальк, DAOSIN) не отменяй сам.</b> Дозы добавок согласуй с врачом; A/E/K — сначала анализ.</li>
-        <li>🔁 <b>Контроль через ~3 месяца:</b> эластаза кала, экограмма (лакто/бифидо), железо/ферритин, витамин D, металлы, билирубин и печень (на фоне Урсофалька), липиды.</li>
+        <li>💊 <b>Назначенное врачом (Kreon, Урсофальк, DAOSIN, LactoStop) не отменяй сам.</b> Дозы добавок согласуй с врачом; A/E/K — сначала анализ.</li>
+        <li>🔁 <b>Контроль через ~3 месяца:</b> эластаза кала, экограмма (лакто/бифидо), железо/ферритин, витамин D, металлы, билирубин и печень (на фоне Урсофалька).</li>
         <li>☣️ <b>Ртуть/алюминий</b> — линия с врачом: источник + DMPS. Сорбенты не нужны.</li>
       </ul>
       <div class="rp-disc">Это ориентир из твоих данных, а не медицинское назначение. Все решения о лечении — с лечащим врачом.</div>
