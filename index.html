@@ -621,6 +621,12 @@ td.hcell .he{opacity:.3}
     #tab-plan .rp-dir.d3{border-color:var(--hi)}
     #tab-plan .rp-dt{font-size:15.5px;font-weight:600;margin-bottom:4px}
     #tab-plan .rp-dp{font-size:12.5px;color:var(--tx2);line-height:1.5;margin-bottom:10px}
+    #tab-plan .rp-prob2{padding:12px 0;border-top:1px solid var(--bd)}
+    #tab-plan .rp-p2-t{font-size:14.5px;font-weight:600;color:var(--tx)}
+    #tab-plan .rp-p2-e{font-size:11.5px;color:var(--tx3);margin:2px 0 8px}
+    #tab-plan ol.rp-sol2{margin:0;padding-left:20px;font-size:13px;color:var(--tx2);line-height:1.55}
+    #tab-plan ol.rp-sol2 li{margin-top:5px}
+    #tab-plan ol.rp-sol2 li b{color:var(--tx);font-weight:600}
     #tab-plan .rp-prh{display:grid;grid-template-columns:1fr 22px 1.3fr;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--tx3);padding-bottom:5px}
     #tab-plan .rp-prh .r{grid-column:3}
     #tab-plan .rp-pr{display:grid;grid-template-columns:1fr 22px 1.3fr;border-top:1px solid var(--bd)}
@@ -677,30 +683,80 @@ td.hcell .he{opacity:.3}
 
     <div class="rp-dir d1">
       <div class="rp-dt">🍽️ Пищеварение и ЖКТ</div>
-      <div class="rp-dp">Мало ферментов поджелудочной, желчь забрасывается в желудок, не хватает DAO и лактазы → еда плохо усваивается → вздутие и потеря веса.</div>
-      <div class="rp-prh"><span>Проблема / диагноз</span><span></span><span class="r">Решение + почему</span></div>
-      <div class="rp-pr"><div class="rp-prob"><div class="rp-labm">Проблема</div><div class="rp-pt">Недостаточность поджелудочной (EPI)</div><div class="rp-pe">эластаза 49.6 → 142 · норма &gt;200</div></div><div class="rp-arrow">→</div><div class="rp-sol"><div class="rp-labm">Решение</div><div class="rp-st">Kreon (ферменты)<span class="rp-pill ok">назначено</span></div><div class="rp-sw">Замещает недостающие ферменты → еда усваивается, останавливается потеря веса.</div></div></div>
-      <div class="rp-pr"><div class="rp-prob"><div class="rp-labm">Проблема</div><div class="rp-pt">Заброс желчи → гастрит тип C</div><div class="rp-pe">гистология «тип C, химический»; изжоги нет</div></div><div class="rp-arrow">→</div><div class="rp-sol"><div class="rp-labm">Решение</div><div class="rp-st">Урсофальк (на ночь) + щадящая еда<span class="rp-pill ok">назначено</span></div><div class="rp-sw">УДХК делает заброшенную желчь менее агрессивной → бережёт слизистую (бонус: жиры, билирубин).</div></div></div>
-      <div class="rp-pr"><div class="rp-prob"><div class="rp-labm">Проблема</div><div class="rp-pt">Гистаминовая непереносимость</div><div class="rp-pe">DAO 2.2 · норма &gt;10; расщепление ~0% · норма &gt;40%</div></div><div class="rp-arrow">→</div><div class="rp-sol"><div class="rp-labm">Решение</div><div class="rp-st">DAOSIN (до еды) + низкогистаминовая диета<span class="rp-pill ok">назначено</span></div><div class="rp-sw">Даёт недостающий фермент → меньше гистамина. Кофакторы B6+C — в HISTAPREVENT. Антигистамины — только при обострении (раздел 2).</div></div></div>
-      <div class="rp-pr"><div class="rp-prob"><div class="rp-labm">Проблема</div><div class="rp-pt">Лактозная непереносимость</div><div class="rp-pe">генетика C/C −13910 (пожизненно)</div></div><div class="rp-arrow">→</div><div class="rp-sol"><div class="rp-labm">Решение</div><div class="rp-st">LactoStop / безлактозное<span class="rp-pill ok">назначено</span></div><div class="rp-sw">Фермент лактаза расщепляет лактозу → нет вздутия от молочного.</div></div></div>
-      <div class="rp-note">💡 <b>Щадящая еда</b> = дробно, малыми порциями; варёное/тушёное/на пару, тёплое; без алкоголя, кофе натощак, жареного/жирного, острого, кислого (цитрус, томат), газировки; не ложиться 2–3 ч после еды. Избегать НПВП (ибупрофен) — усиливают гастрит тип C.</div>
+      <div class="rp-dp">Мало ферментов, желчь забрасывается в желудок, не хватает DAO и лактазы → еда плохо усваивается → вздутие и потеря веса.</div>
+      <div class="rp-prob2">
+        <div class="rp-p2-t">Недостаточность поджелудочной (EPI)</div>
+        <div class="rp-p2-e">эластаза 49.6 → 142 · норма &gt;200</div>
+        <ol class="rp-sol2"><li><b>Kreon</b> <span class="rp-pill ok">назначено</span> — замещает недостающие ферменты → еда усваивается, останавливается потеря веса.</li></ol>
+      </div>
+      <div class="rp-prob2">
+        <div class="rp-p2-t">Заброс желчи → реактивный гастрит тип C</div>
+        <div class="rp-p2-e">гистология «тип C, химический»; изжоги нет</div>
+        <ol class="rp-sol2">
+          <li><b>Урсофальк</b> (на ночь) <span class="rp-pill ok">назначено</span> — делает желчь менее агрессивной, бережёт слизистую (бонус: жиры, билирубин).</li>
+          <li><b>Щадящая еда</b> — дробно, тёплое, без раздражающего и НПВП.</li>
+        </ol>
+      </div>
+      <div class="rp-prob2">
+        <div class="rp-p2-t">Гистаминовая непереносимость</div>
+        <div class="rp-p2-e">DAO 2.2 · норма &gt;10; расщепление ~0% · норма &gt;40%</div>
+        <ol class="rp-sol2">
+          <li><b>DAOSIN</b> (до еды) <span class="rp-pill ok">назначено</span> — даёт недостающий фермент → меньше гистамина.</li>
+          <li><b>Низкогистаминовая диета</b> <span class="rp-pill ok">назначено</span> — меньше поступления гистамина.</li>
+          <li><b>HISTAPREVENT</b> <span class="rp-pill add">добавить</span> — кофакторы DAO (B6 + C).</li>
+          <li><b>Антигистамины</b> <span class="rp-pill care">при обострении</span> — подробно в разделе 2.</li>
+        </ol>
+      </div>
+      <div class="rp-prob2">
+        <div class="rp-p2-t">Лактозная непереносимость</div>
+        <div class="rp-p2-e">генетика C/C −13910 (пожизненно)</div>
+        <ol class="rp-sol2"><li><b>LactoStop / безлактозное</b> <span class="rp-pill ok">назначено</span> — лактаза расщепляет лактозу.</li></ol>
+      </div>
+      <div class="rp-note">💡 <b>Щадящая еда</b> = дробно, малыми порциями; варёное/тушёное/на пару, тёплое; без алкоголя, кофе натощак, жареного/жирного, острого, кислого (цитрус, томат), газировки; не ложиться 2–3 ч после еды; без НПВП.</div>
     </div>
 
     <div class="rp-dir d2">
       <div class="rp-dt">🦠 Кишечник и слизистая</div>
       <div class="rp-dp">Лакто/бифидо нет, разрослись условно-патогенные; барьер ослаблен; на МРТ застой стула.</div>
-      <div class="rp-prh"><span>Проблема / диагноз</span><span></span><span class="r">Решение + почему</span></div>
-      <div class="rp-pr"><div class="rp-prob"><div class="rp-labm">Проблема</div><div class="rp-pt">Дисбиоз: Klebsiella, Citrobacter, Enterobacter</div><div class="rp-pe">экограмма кала; лакто/E. coli не выявляются</div></div><div class="rp-arrow">→</div><div class="rp-sol"><div class="rp-labm">Решение</div><div class="rp-st">Пробиотик (узкий) + пребиотик<span class="rp-pill add">добавить</span></div><div class="rp-sw">Заселяем и кормим полезных → вытесняем условно-патогенов. Узкий состав — чтобы не подкинуть гистамин.</div></div></div>
-      <div class="rp-pr"><div class="rp-prob"><div class="rp-labm">Проблема</div><div class="rp-pt">Ослаблен барьер слизистой</div><div class="rp-pe">sIgA 169 · норма 510–2040; β-дефензин 70 · норма 8–60</div></div><div class="rp-arrow">→</div><div class="rp-sol"><div class="rp-labm">Решение</div><div class="rp-st">Цинк-карнозин / L-глутамин<span class="rp-pill add">добавить</span></div><div class="rp-sw">Восстановление клеток слизистой → крепче барьер; помогает и при гастрите C.</div></div></div>
-      <div class="rp-pr"><div class="rp-prob"><div class="rp-labm">Проблема</div><div class="rp-pt">Копростаз (застой стула)</div><div class="rp-pe">МРТ: выраженный застой по толстой кишке</div></div><div class="rp-arrow">→</div><div class="rp-sol"><div class="rp-labm">Решение</div><div class="rp-st">Магний цитрат + вода + клетчатка<span class="rp-pill add">добавить</span></div><div class="rp-sw">Мягко налаживает стул; застой иначе ухудшает дисбиоз и обратное всасывание металлов.</div></div></div>
+      <div class="rp-prob2">
+        <div class="rp-p2-t">Дисбиоз: Klebsiella, Citrobacter, Enterobacter</div>
+        <div class="rp-p2-e">экограмма кала; лакто/E. coli не выявляются</div>
+        <ol class="rp-sol2">
+          <li><b>Пробиотик</b> (узкий, низкогистаминный) <span class="rp-pill add">добавить</span> — заселяем полезных.</li>
+          <li><b>Пребиотик</b> (easyPHGG) <span class="rp-pill add">добавить</span> — кормим их → вытесняем условно-патогенов.</li>
+        </ol>
+      </div>
+      <div class="rp-prob2">
+        <div class="rp-p2-t">Ослаблен барьер слизистой</div>
+        <div class="rp-p2-e">sIgA 169 · норма 510–2040; β-дефензин 70 · норма 8–60</div>
+        <ol class="rp-sol2"><li><b>Цинк-карнозин / L-глутамин</b> <span class="rp-pill add">добавить</span> — восстановление слизистой, крепче барьер.</li></ol>
+      </div>
+      <div class="rp-prob2">
+        <div class="rp-p2-t">Копростаз (застой стула)</div>
+        <div class="rp-p2-e">МРТ: выраженный застой по толстой кишке</div>
+        <ol class="rp-sol2"><li><b>Магний цитрат</b> (вечер) + вода + клетчатка <span class="rp-pill add">добавить</span> — мягко налаживает стул.</li></ol>
+      </div>
     </div>
 
     <div class="rp-dir d3">
       <div class="rp-dt">☣️ Тяжёлые металлы</div>
       <div class="rp-dp">Острые находки этого года — отдельная линия с врачом.</div>
-      <div class="rp-prh"><span>Проблема / диагноз</span><span></span><span class="r">Решение + почему</span></div>
-      <div class="rp-pr"><div class="rp-prob"><div class="rp-labm">Проблема</div><div class="rp-pt">Ртуть резко повышена</div><div class="rp-pe">36.9 · норма &lt;2.0 · подтверждена</div></div><div class="rp-arrow">→</div><div class="rp-sol"><div class="rp-labm">Решение</div><div class="rp-st">Убрать источник + DMPS (в/в)<span class="rp-pill care">с врачом</span></div><div class="rp-sw">Источник (рыба, пломбы, БАДы) — причина роста; DMPS выводит ртуть, под контролем почек.</div></div></div>
-      <div class="rp-pr"><div class="rp-prob"><div class="rp-labm">Проблема</div><div class="rp-pt">Алюминий повышен</div><div class="rp-pe">72.4 · норма &lt;5</div></div><div class="rp-arrow">→</div><div class="rp-sol"><div class="rp-labm">Решение</div><div class="rp-st">Убрать источник + вода; пересдать<span class="rp-pill care">с врачом</span></div><div class="rp-sw">Выводится почками → после устранения источника снижается. Если высоко — дефероксамин. DMPS на алюминий не действует.</div></div></div>
+      <div class="rp-prob2">
+        <div class="rp-p2-t">Ртуть резко повышена</div>
+        <div class="rp-p2-e">36.9 · норма &lt;2.0 · подтверждена</div>
+        <ol class="rp-sol2">
+          <li><b>Убрать источник</b> (рыба, пломбы, БАДы) <span class="rp-pill care">с врачом</span> — причина роста.</li>
+          <li><b>DMPS</b> (в/в, курсом) <span class="rp-pill care">с врачом</span> — выводит ртуть, под контролем почек.</li>
+        </ol>
+      </div>
+      <div class="rp-prob2">
+        <div class="rp-p2-t">Алюминий повышен</div>
+        <div class="rp-p2-e">72.4 · норма &lt;5</div>
+        <ol class="rp-sol2">
+          <li><b>Убрать источник</b> + вода <span class="rp-pill care">с врачом</span> — выводится почками → снижается.</li>
+          <li><b>Пересдать</b>; если высоко — дефероксамин. <span style="color:var(--tx3)">DMPS на алюминий не действует.</span></li>
+        </ol>
+      </div>
     </div>
 
     <div class="rp-sh"><span class="n">2</span>Антигистамины — только при обострении</div>
