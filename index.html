@@ -854,7 +854,7 @@ const FOODLB = {
 "Hanfsamen (geschält)":"Конопляные семена (очищенные)","Hanfprotein":"Конопляный протеин","Hanföl":"Конопляное масло","Natives Olivenöl extra":"Оливковое масло extra virgin","Rapsöl":"Рапсовое масло","Reiswaffeln":"Рисовые хлебцы","Reisdrink":"Рисовый напиток","Haferdrink":"Овсяный напиток","Mairübe (Weiße Rübe)":"Репа белая","Petersilienwurzel":"Корень петрушки","Frischkäse (laktosefrei)":"Сливочный сыр (без лактозы)","Speisequark (laktosefrei)":"Творог/кварк (без лактозы)","Sago":"Саго","Maisstärke (Speisestärke)":"Кукурузный крахмал","Wasserkastanie":"Водяной орех",
 "Alkohol (bes. Rotwein, Sekt, Bier)":"Алкоголь (особенно красное вино, игристое, пиво)","Gereifter Käse (Parmesan, Gouda, Cheddar)":"Выдержанные сыры (пармезан, гауда, чеддер)","Geräucherte/gepökelte Wurst (Salami, Schinken, Speck)":"Копчёности и колбасы (салями, ветчина, бекон)","Essig & eingelegte/marinierte Speisen":"Уксус, маринады и соленья","Fermentiertes (Sauerkraut, Sojasauce, Miso)":"Ферментированное (квашеная капуста, соевый соус, мисо)","Aufgewärmte/länger gelagerte Eiweißspeisen":"Разогретые/долго хранившиеся белковые блюда","Schwarzer/grüner Tee, Energydrinks":"Чёрный/зелёный чай, энергетики","Kaffee":"Кофе","Frisch gekochtes mageres Fleisch/Geflügel":"Свежее нежирное мясо/птица","Frisch zubereitete, nicht aufgewärmte Speisen":"Свежеприготовленные, не разогретые блюда",
 "MCT-Öl (C8/C10)":"MCT-масло (C8/C10)","Reiskleieöl (raffiniert)":"Рисовое масло (рафинир.)","Avocadoöl (raffiniert)":"Масло авокадо (рафинир.)","Mascarpone (laktosefrei)":"Маскарпоне (безлактозный)","Schlagsahne 30% (laktosefrei)":"Сливки 30% (безлактозные)","Vollmilch 3,8% (laktosefrei)":"Цельное молоко 3,8% (безлактозное)","Kaffeesahne 10-15% (laktosefrei)":"Кофейные сливки 10–15% (безлактозные)","Molkenprotein-Isolat (neutral)":"Изолят сыворотки (нейтральный)","Ghee / Butterschmalz":"Гхи / топлёное масло","Kürbiskernmus (100%)":"Тыквенная паста (100%)","Hanfmus (100%)":"Конопляная паста (100%)","Kürbiskernprotein":"Тыквенный протеин","Reisgrieß (Reiscreme)":"Рисовая манка","Reisflocken (glutenfrei)":"Рисовые хлопья","Hirseflocken":"Пшённые хлопья","Reisprotein-Isolat (neutral)":"Рисовый протеин (нейтральный)","Erbsenprotein":"Гороховый протеин","Maltodextrin 19":"Мальтодекстрин 19","Regenbogenforelle (frisch)":"Радужная форель (свежая)","Kabeljau/Zander (ultrafrisch)":"Треска/судак (ультрасвежие)","Entenbrust (frisch, ohne Haut)":"Утиная грудка (свежая, без кожи)",
-"Schwarze Johannisbeere":"Чёрная смородина","Rote Johannisbeere":"Красная смородина"};
+"Schwarze Johannisbeere":"Чёрная смородина","Rote Johannisbeere":"Красная смородина","Magerquark (laktosefrei)":"Творог обезжиренный (безлактозный)","Speisequark 20% (laktosefrei)":"Творог 20% (безлактозный)","Sahnequark 40% (laktosefrei)":"Творог сливочный 40% (безлактозный)","Schmand / Saure Sahne (laktosefrei)":"Сметана (безлактозная)"};
 
 let DATA = null, MK = [], DATES = [], CATS = [], FOODS = [], FOODCATS = [], FOODGUIDE = [], FG_ITEMS = [];
 let F = { q: "", cat: "", mode: "all" };
@@ -1908,7 +1908,7 @@ $("tab-dates").addEventListener("click", (e) => { const chip = e.target.closest(
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "10.5";
+const APP_VERSION = "10.6";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
