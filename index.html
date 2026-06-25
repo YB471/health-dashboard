@@ -1406,7 +1406,7 @@ function fgStars(rp){ if (rp == null || rp === "") return '<span class="dna">—
 function fgCard(x, i){
   const v = x.verdict;
   const ru = foodName(x.food_de);
-  const de = (x.tested && ru !== x.food_de) ? ('<span class="fgc-de">' + esc(x.food_de) + '</span>') : "";
+  const de = (ru !== x.food_de) ? ('<span class="fgc-de">' + esc(x.food_de) + '</span>') : "";
   const star = ((v === "recommended" || v === "allowed") && (x.r_rec === "avoid" || x.r_rec === "caution")) ? '<span class="ovstar">*</span>' : "";
   const sc = [];
   if (x.hist_score != null && x.hist_score !== "") sc.push('<span class="fgc-s"><i>Гист</i>' + fgDots(x.hist_score) + '</span>');
@@ -1471,7 +1471,7 @@ function renderFoodGuide(){
     items.forEach(x => {
       const v = x.verdict;
       const ru = foodName(x.food_de);
-      const de = (x.tested && ru !== x.food_de) ? ('<div class="de">' + esc(x.food_de) + '</div>') : "";
+      const de = (ru !== x.food_de) ? ('<div class="de">' + esc(x.food_de) + '</div>') : "";
       const star = ((v === "recommended" || v === "allowed") && (x.r_rec === "avoid" || x.r_rec === "caution")) ? '<span class="ovstar">*</span>' : "";
       body += '<tr class="fgr ' + (v === "recommended" ? "rec" : "") + '" data-i="' + i + '"><td class="fnm"><div class="nm">' + esc(ru) + '</div>' + de + '</td>'
         + histDots(x.hist_score) + gutDots(x.gut_score) + recStars(x.recovery_priority)
@@ -1910,7 +1910,7 @@ $("tab-dates").addEventListener("click", (e) => { const chip = e.target.closest(
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "10.9";
+const APP_VERSION = "10.10";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
