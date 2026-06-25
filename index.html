@@ -1912,7 +1912,7 @@ $("tab-dates").addEventListener("click", (e) => { const chip = e.target.closest(
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "10.11";
+const APP_VERSION = "10.12";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
@@ -1932,7 +1932,7 @@ async function enter(pw, remember){
   renderAll(data);
   CURPW = pw;
   $("foot").textContent = "Health Dashboard v" + APP_VERSION + " · data from Supabase · loaded " + new Date().toLocaleString("en-GB");
-  if (remember) { try { sessionStorage.setItem("hd_pw", pw); } catch(_e){} }
+  if (remember) { try { localStorage.setItem("hd_pw", pw); } catch(_e){} }
   $login.style.display = "none";
   $app.style.display = "block";
 }
@@ -1949,7 +1949,7 @@ async function refresh(){
 
 function logout(){
   CURPW = null;
-  try { sessionStorage.removeItem("hd_pw"); } catch(_e){}
+  try { localStorage.removeItem("hd_pw"); } catch(_e){}
   $app.style.display = "none";
   $login.style.display = "flex";
   $pw.value = ""; $pw.focus();
@@ -1976,10 +1976,10 @@ $form.addEventListener("submit", async (e) => {
 
 (function autologin(){
   let saved = null;
-  try { saved = sessionStorage.getItem("hd_pw"); } catch(_e){}
+  try { saved = localStorage.getItem("hd_pw"); } catch(_e){}
   if (saved) {
-    enter(saved, false).catch((err) => {
-      try { sessionStorage.removeItem("hd_pw"); } catch(_e){}
+    enter(saved, true).catch((err) => {
+      try { localStorage.removeItem("hd_pw"); } catch(_e){}
     });
   }
 })();
