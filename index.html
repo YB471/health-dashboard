@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Health Dashboard</title>
+<script>/* pre-paint: if a login is saved, hide the form from the very first frame and show a loader instead — avoids the login-form flash before auto-login */try{if(localStorage.getItem("hd_pw"))document.documentElement.className+=" authed";}catch(e){}</script>
 <style>
 :root{--bg:#faf9f7;--card:#fff;--bd:rgba(0,0,0,.1);--bd2:rgba(0,0,0,.2);--tx:#1a1a18;--tx2:#5f5e5a;--tx3:#8a8983;--tk:rgba(0,0,0,.05);--ok:#1d9e75;--okbg:rgba(29,158,117,.16);--okbg2:rgba(29,158,117,.30);--hi:#d4453f;--lo:#2f7dd4;--warn:#ba7517;--hibg:rgba(212,69,63,.11);--warnbg:rgba(186,117,23,.13)}
 @media(prefers-color-scheme:dark){:root{--bg:#1c1c1a;--card:#262624;--bd:rgba(255,255,255,.12);--bd2:rgba(255,255,255,.22);--tx:#ededeb;--tx2:#b4b2a9;--tx3:#88877f;--tk:rgba(255,255,255,.06);--okbg:rgba(29,158,117,.28);--okbg2:rgba(29,158,117,.44);--hi:#e8635d;--warn:#d39233;--hibg:rgba(232,99,93,.2);--warnbg:rgba(211,146,51,.22)}}
@@ -11,6 +12,11 @@
 html{scrollbar-gutter:stable}
 body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,BlinkMacSystemFont,system-ui,Roboto,Helvetica,Arial,sans-serif;line-height:1.5}
 .login{display:flex;min-height:100vh;align-items:center;justify-content:center}
+html.authed #login{display:none}
+.boot{display:none;min-height:100vh;align-items:center;justify-content:center;background:var(--bg)}
+html.authed #boot{display:flex}
+.bootspin{width:34px;height:34px;border:3px solid var(--bd2);border-top-color:#1d9e75;border-radius:50%;animation:bootspin .8s linear infinite}
+@keyframes bootspin{to{transform:rotate(360deg)}}
 .login form{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:28px 26px;width:280px;text-align:center}
 .login h1{font-size:18px;font-weight:500;margin:0 0 16px}
 .login input{width:100%;box-sizing:border-box;padding:10px 12px;font-size:15px;border:1px solid var(--bd2);border-radius:8px;background:transparent;color:inherit;margin-bottom:12px}
@@ -401,6 +407,7 @@ td.hcell .he{opacity:.3}
     <p id="loginStoreWarn" class="err" style="display:none;font-size:11px;margin:8px 0 0;line-height:1.4"></p>
   </form>
 </div>
+<div id="boot" class="boot"><div class="bootspin"></div></div>
 
 <div id="app" class="wrap" style="display:none">
   <div class="topbar">
@@ -1914,7 +1921,7 @@ $("tab-dates").addEventListener("click", (e) => { const chip = e.target.closest(
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "10.13";
+const APP_VERSION = "10.14";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
@@ -1986,13 +1993,18 @@ $form.addEventListener("submit", async (e) => {
     const w = document.getElementById("loginStoreWarn");
     if (w) { w.textContent = "⚠ Браузер блокирует сохранение данных сайта — вход не запомнится. Разрешите cookies/данные сайта для этого адреса (и не используйте режим инкогнито), чтобы оставаться в системе."; w.style.display = "block"; }
   }
-  // auto-login if a password was saved
+  // auto-login if a password was saved (login form is already hidden by the pre-paint "authed" class; #boot loader is shown)
+  const boot = document.getElementById("boot");
+  const hideBoot = () => { try { document.documentElement.classList.remove("authed"); if (boot) boot.style.display = "none"; } catch(_e){} };
   let saved = null;
   try { saved = localStorage.getItem("hd_pw"); } catch(_e){}
   if (saved) {
-    enter(saved, true).catch((err) => {
+    enter(saved, true).then(hideBoot).catch((err) => {
       try { localStorage.removeItem("hd_pw"); } catch(_e){}
+      hideBoot();  // reveal the login form
     });
+  } else {
+    hideBoot();
   }
 })();
 
