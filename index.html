@@ -335,6 +335,8 @@ td.hcell .he{opacity:.3}
 .fgc-nums i{font-style:normal;color:var(--tx3)}
 .fgc-nums b{font-variant-numeric:tabular-nums}
 .fgc-nums b.ok{color:var(--ok)}.fgc-nums b.caution{color:var(--warn)}.fgc-nums b.avoid{color:var(--hi)}.fgc-nums b.na{color:var(--tx3);font-weight:400}
+.fgc-nums b.kcal{color:var(--tx);font-weight:700}
+.num.kc{color:var(--tx);font-weight:700}
 .fgc-layers{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}
 .lchip{font-size:10px;font-weight:700;padding:3px 7px;border-radius:6px;white-space:nowrap}
 .lchip.ok{background:rgba(29,158,117,.16);color:var(--ok)}
@@ -1412,7 +1414,7 @@ function fgCard(x, i){
   if (x.recovery_priority != null && x.recovery_priority !== "" && +x.recovery_priority > 0) sc.push('<span class="fgc-s"><i>★Восст</i>' + fgStars(x.recovery_priority) + '</span>');
   const nums = [];
   const nf = (lbl, val, fn) => { if (val != null && val !== "") { const n = +val; nums.push('<span><i>' + lbl + '</i> <b class="' + fn(val) + '">' + (Number.isInteger(n) ? n : n.toFixed(1)) + '</b></span>'); } };
-  nf('GI', x.gi, giColor); nf('Белок', x.protein_100g, proColor); nf('Клетч', x.fiber_100g, fibColor); nf('Жир', x.fat_100g, fatColor);
+  nf('Ккал', x.kcal_100g, function(){return 'kcal';}); nf('GI', x.gi, giColor); nf('Белок', x.protein_100g, proColor); nf('Клетч', x.fiber_100g, fibColor); nf('Жир', x.fat_100g, fatColor);
   const layers = LAYERS.map(([k, s]) => { const r = x[k]; return r ? ('<span class="lchip ' + (RCLS[r] || "na") + '">' + s + (RSYM[r] ? (' ' + RSYM[r]) : '') + '</span>') : ""; }).join("")
     + (x.r_rec ? ('<span class="lchip ' + (RECCLS[x.r_rec] || "na") + '">Dr' + ((x.r_rec === "avoid" || x.r_rec === "caution") ? (' ' + RECSYM[x.r_rec]) : "") + '</span>') : "");
   return '<div class="fgcard ' + (v === "recommended" ? "rec" : "") + '" data-ci="' + i + '">'
@@ -1450,7 +1452,7 @@ function renderFoodGuide(){
   $("fg-count").textContent = "Showing " + arr.length + " of " + all.length;
   if (!all.length){ $("fg-list").innerHTML = '<div class="empty">No diet data.</div>'; return; }
   if (!arr.length){ $("fg-list").innerHTML = '<div class="empty">Nothing found.</div>'; return; }
-  const span = LAYERS.length + 10;
+  const span = LAYERS.length + 11;
   let body = "", cardsBody = "";
   FG_ITEMS = [];
   let i = 0;
@@ -1473,7 +1475,7 @@ function renderFoodGuide(){
       const star = ((v === "recommended" || v === "allowed") && (x.r_rec === "avoid" || x.r_rec === "caution")) ? '<span class="ovstar">*</span>' : "";
       body += '<tr class="fgr ' + (v === "recommended" ? "rec" : "") + '" data-i="' + i + '"><td class="fnm"><div class="nm">' + esc(ru) + '</div>' + de + '</td>'
         + histDots(x.hist_score) + gutDots(x.gut_score) + recStars(x.recovery_priority)
-        + numCell(x.gi, giColor(x.gi)) + numCell(x.protein_100g, proColor(x.protein_100g)) + numCell(x.fiber_100g, fibColor(x.fiber_100g)) + numCell(x.fat_100g, fatColor(x.fat_100g))
+        + numCell(x.kcal_100g, 'kc') + numCell(x.gi, giColor(x.gi)) + numCell(x.protein_100g, proColor(x.protein_100g)) + numCell(x.fiber_100g, fibColor(x.fiber_100g)) + numCell(x.fat_100g, fatColor(x.fat_100g))
         + LAYERS.map(([k]) => fgCell(x[k])).join("")
         + fgRec(x.r_rec)
         + '<td class="fov"><span class="ov ' + (VCLS[v] || "allow") + '">' + (VSHORT[v] || v) + '</span>' + star + '</td>'
@@ -1484,8 +1486,8 @@ function renderFoodGuide(){
       i++;
     });
   });
-  const head = '<thead><tr><th class="fnm">Food</th><th class="hcol">Hist</th><th class="hcol">Gut</th><th class="hcol">★Rec</th><th class="numh">GI</th><th class="numh">Protein</th><th class="numh">Fiber</th><th class="numh">Fat</th>' + LAYERS.map(([,s]) => '<th class="lyr">' + s + '</th>').join("") + '<th class="lyr">Dr</th><th class="fov">Verdict</th></tr></thead>';
-  const colg = '<colgroup><col style="width:27%"><col style="width:8%"><col style="width:8%"><col style="width:8%"><col style="width:5%"><col style="width:7%"><col style="width:6.5%"><col style="width:6%"><col style="width:2.7%"><col style="width:2.7%"><col style="width:2.7%"><col style="width:2.7%"><col style="width:2.7%"><col style="width:2.7%"><col style="width:8.3%"></colgroup>';
+  const head = '<thead><tr><th class="fnm">Food</th><th class="hcol">Hist</th><th class="hcol">Gut</th><th class="hcol">★Rec</th><th class="numh">Ккал</th><th class="numh">GI</th><th class="numh">Protein</th><th class="numh">Fiber</th><th class="numh">Fat</th>' + LAYERS.map(([,s]) => '<th class="lyr">' + s + '</th>').join("") + '<th class="lyr">Dr</th><th class="fov">Verdict</th></tr></thead>';
+  const colg = '<colgroup><col style="width:25%"><col style="width:7.5%"><col style="width:7.5%"><col style="width:7.5%"><col style="width:6%"><col style="width:4.5%"><col style="width:6.5%"><col style="width:6%"><col style="width:5.5%"><col style="width:2.6%"><col style="width:2.6%"><col style="width:2.6%"><col style="width:2.6%"><col style="width:2.6%"><col style="width:2.6%"><col style="width:8%"></colgroup>';
   $("fg-list").innerHTML = '<div class="fg-cards">' + cardsBody + '</div><table class="fgtab">' + colg + head + '<tbody>' + body + '</tbody></table>';
 }
 function toggleFgDet(r){ const d = r.nextElementSibling; if (d && d.classList.contains("det")){ d.style.display = d.style.display === "none" ? "" : "none"; r.classList.toggle("open"); } }
@@ -1908,7 +1910,7 @@ $("tab-dates").addEventListener("click", (e) => { const chip = e.target.closest(
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "10.7";
+const APP_VERSION = "10.8";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
