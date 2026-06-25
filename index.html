@@ -397,6 +397,8 @@ td.hcell .he{opacity:.3}
     <p id="loginErr" class="err" style="display:none"></p>
     <input id="pw" type="password" placeholder="Password" autocomplete="current-password" autofocus>
     <button type="submit">Sign in</button>
+    <p id="loginVer" style="font-size:11px;color:var(--tx2);margin:14px 0 0"></p>
+    <p id="loginStoreWarn" class="err" style="display:none;font-size:11px;margin:8px 0 0;line-height:1.4"></p>
   </form>
 </div>
 
@@ -1912,7 +1914,7 @@ $("tab-dates").addEventListener("click", (e) => { const chip = e.target.closest(
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "10.12";
+const APP_VERSION = "10.13";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
@@ -1974,7 +1976,17 @@ $form.addEventListener("submit", async (e) => {
   }
 });
 
-(function autologin(){
+(function initLogin(){
+  // show the running version on the login screen so a stale (cached) build is obvious
+  try { const lv = document.getElementById("loginVer"); if (lv) lv.textContent = "v" + APP_VERSION; } catch(_e){}
+  // probe whether this browser actually persists site data (private mode / blocked cookies break "stay signed in")
+  let storageOK = false;
+  try { localStorage.setItem("hd_test", "1"); storageOK = localStorage.getItem("hd_test") === "1"; localStorage.removeItem("hd_test"); } catch(_e){ storageOK = false; }
+  if (!storageOK) {
+    const w = document.getElementById("loginStoreWarn");
+    if (w) { w.textContent = "⚠ Браузер блокирует сохранение данных сайта — вход не запомнится. Разрешите cookies/данные сайта для этого адреса (и не используйте режим инкогнито), чтобы оставаться в системе."; w.style.display = "block"; }
+  }
+  // auto-login if a password was saved
   let saved = null;
   try { saved = localStorage.getItem("hd_pw"); } catch(_e){}
   if (saved) {
