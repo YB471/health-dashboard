@@ -1,12 +1,12 @@
 <!doctype html>
-<html lang="en">
+<html lang="ru">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Health Dashboard</title>
 <script>/* pre-paint: if a login is saved, hide the form from the very first frame and show a loader instead — avoids the login-form flash before auto-login */try{if(localStorage.getItem("hd_pw"))document.documentElement.className+=" authed";}catch(e){}</script>
 <style>
-:root{--bg:#faf9f7;--card:#fff;--bd:rgba(0,0,0,.1);--bd2:rgba(0,0,0,.2);--tx:#1a1a18;--tx2:#5f5e5a;--tx3:#8a8983;--tk:rgba(0,0,0,.05);--ok:#1d9e75;--okbg:rgba(29,158,117,.16);--okbg2:rgba(29,158,117,.30);--hi:#d4453f;--lo:#2f7dd4;--warn:#ba7517;--hibg:rgba(212,69,63,.11);--warnbg:rgba(186,117,23,.13)}
+:root{--bg:#faf9f7;--card:#fff;--bd:rgba(0,0,0,.1);--bd2:rgba(0,0,0,.2);--tx:#1a1a18;--tx2:#5f5e5a;--tx3:#6f6e69;--tk:rgba(0,0,0,.05);--ok:#1d9e75;--okbg:rgba(29,158,117,.16);--okbg2:rgba(29,158,117,.30);--hi:#d4453f;--lo:#2f7dd4;--warn:#ba7517;--hibg:rgba(212,69,63,.11);--warnbg:rgba(186,117,23,.13)}
 @media(prefers-color-scheme:dark){:root{--bg:#1c1c1a;--card:#262624;--bd:rgba(255,255,255,.12);--bd2:rgba(255,255,255,.22);--tx:#ededeb;--tx2:#b4b2a9;--tx3:#88877f;--tk:rgba(255,255,255,.06);--okbg:rgba(29,158,117,.28);--okbg2:rgba(29,158,117,.44);--hi:#e8635d;--warn:#d39233;--hibg:rgba(232,99,93,.2);--warnbg:rgba(211,146,51,.22)}}
 *{box-sizing:border-box}
 html{scrollbar-gutter:stable}
@@ -821,6 +821,7 @@ td.hcell .he{opacity:.3}
 <script>
 
 const $ = (id) => document.getElementById(id);
+const debounce = (fn, ms = 180) => { let t; return function(...a){ clearTimeout(t); t = setTimeout(() => fn.apply(this, a), ms); }; };
 const num = (x) => x == null ? null : Number(x);
 const r1 = (x) => Math.round(x * 10) / 10;
 const fd = (s) => { const p = String(s).split("-"); return p.length === 3 ? p[2] + "." + p[1] + "." + p[0] : s; };
@@ -966,15 +967,6 @@ function sortMK(arr){
   });
 }
 
-function markerRow(m){
-  const c = m.flagged ? col(m.last.f) : "var(--tx)";
-  const mid = m.numPts.length >= 2 ? spark(m.numPts) : `<div class="single">${m.numPts.length === 1 ? "one measurement" : "qualitative"}</div>`;
-  let delta = "";
-  if (m.numPts.length >= 2){ const a = m.numPts[m.numPts.length-2].v, b = m.numPts[m.numPts.length-1].v; const d = Math.round((b-a)*100)/100; const ar = d > 0 ? "▲" : (d < 0 ? "▼" : "•"); delta = ` <span class="delta">${ar} ${Math.abs(d)}</span>`; }
-  const rt = refTxt(m.last.lo, m.last.hi, m.last.u);
-  return `<div class="mrow" data-mk="${m.id}"><div><div class="m">${esc(m.name)}</div><div class="ref">${esc(catName(m.cat))}${rt ? (" · " + esc(rt)) : ""}</div></div><div class="mid">${mid}</div><div class="mval" style="color:${c}">${esc(disp(m.last))}<div class="mdate">${fd(m.last.date)}${delta}</div></div><div class="chev">⌄</div></div><div class="detail" data-detail="${m.id}"></div>`;
-}
-
 function detailHTML(m){
   let chart;
   if (m.numPts.length >= 2) chart = `<div class="dchart">${bigChart(m.numPts)}</div>`;
@@ -997,15 +989,6 @@ function renderMarkers(){
   if (!arr.length){ $("mk-list").innerHTML = '<div class="empty">Nothing found.</div>'; return; }
   const entries = arr.map(m => ({ r: m.last, prev: (m.pts.length >= 2 ? m.pts[m.pts.length - 2] : null), m: m }));
   $("mk-list").innerHTML = renderMarkerTable(entries, true);
-}
-
-function toggleDetail(row){
-  const panel = row.nextElementSibling;
-  if (!panel || !panel.classList.contains("detail")) return;
-  const willOpen = !row.classList.contains("open");
-  if (willOpen && !panel.dataset.filled){ const id = +row.dataset.mk; panel.innerHTML = detailCache[id] || (detailCache[id] = detailHTML(MK[id])); panel.dataset.filled = "1"; }
-  row.classList.toggle("open", willOpen);
-  panel.style.display = willOpen ? "block" : "none";
 }
 
 function dateBody(d){
@@ -1135,7 +1118,7 @@ function renderMarkerTable(entries, showDate){
       const rt = refTxt(r.lo, r.hi, r.u);
       const nrm = flg ? "out" : "in";
       const dyc = !prev ? "new" : (x.dir === 1 ? "up" : x.dir === -1 ? "down" : "flat");
-      body += `<tr class="bsum-r${flg ? " flg" : ""}" data-mk="${mkid}" data-n="${nrm}" data-d="${dyc}"><td class="si1">${normIcon}</td><td class="si2">${dynIcon}</td>`
+      body += `<tr class="bsum-r${flg ? " flg" : ""}" data-mk="${mkid}" data-n="${nrm}" data-d="${dyc}" role="button" tabindex="0" aria-expanded="false"><td class="si1">${normIcon}</td><td class="si2">${dynIcon}</td>`
         + `<td class="mk">${esc(r.marker)}${rt ? `<div class="mk-ref">${esc(rt)}</div>` : ""}</td>`
         + `<td class="dy">${val}${showDate ? `<span class="dy-date">${fd(r.date)}</span>` : ""}</td>`
         + `<td class="sp">${spk}</td>`
@@ -1192,7 +1175,7 @@ function renderDates(){
     const sub = `· ${typ}`;
     const dy = dateDyn(d, byName);
     const dyn = (dy.up || dy.down) ? ` · <span class="dmeta-dyn">${dy.up ? `<span class="dyn-up" title="Положительная динамика">↗ ${dy.up}</span>` : ""}${dy.down ? `<span class="dyn-dn" title="Отрицательная динамика">↘ ${dy.down}</span>` : ""}</span>` : "";
-    return `<div class="dcard" data-d="${d}"><div class="dhead"><div><div class="dttl">${fd(d)}<span class="dage">${sub}</span></div></div><div class="dmeta">${arr.length} markers · <span style="color:${fl ? "var(--hi)" : "var(--tx2)"}">${fl} out of range${fl ? ` (${Math.round(fl/arr.length*100)}%)` : ""}</span>${dyn}</div><div class="chev">⌄</div></div><div class="dbody"></div></div>`;
+    return `<div class="dcard" data-d="${d}"><div class="dhead" role="button" tabindex="0" aria-expanded="false"><div><div class="dttl">${fd(d)}<span class="dage">${sub}</span></div></div><div class="dmeta">${arr.length} markers · <span style="color:${fl ? "var(--hi)" : "var(--tx2)"}">${fl} out of range${fl ? ` (${Math.round(fl/arr.length*100)}%)` : ""}</span>${dyn}</div><div class="chev">⌄</div></div><div class="dbody"></div></div>`;
   }).join("") : '<div class="empty">No data.</div>';
   $("tab-dates").innerHTML = `<div class="kpis">${kpiHTML()}</div>` + cards;
 }
@@ -1203,6 +1186,7 @@ function toggleDate(head){
   const willOpen = !card.classList.contains("open");
   if (willOpen && !body.dataset.filled){ const d = card.dataset.d; body.innerHTML = dateCache[d] || (dateCache[d] = dateBody(d)); body.dataset.filled = "1"; }
   card.classList.toggle("open", willOpen);
+  head.setAttribute("aria-expanded", willOpen ? "true" : "false");
   body.style.display = willOpen ? "block" : "none";
   const ch = head.querySelector(".chev"); if (ch) ch.style.transform = willOpen ? "rotate(180deg)" : "";
 }
@@ -1237,6 +1221,7 @@ function toggleMkDetail(row){
   const willOpen = !row.classList.contains("open");
   if (willOpen && !box.dataset.filled){ const id = +row.dataset.mk; box.innerHTML = detailCache[id] || (detailCache[id] = detailHTML(MK[id])); box.dataset.filled = "1"; }
   row.classList.toggle("open", willOpen);
+  row.setAttribute("aria-expanded", willOpen ? "true" : "false");
   det.style.display = willOpen ? "table-row" : "none";
   const ch = row.querySelector(".chev"); if (ch) ch.style.transform = willOpen ? "rotate(180deg)" : "";
 }
@@ -1246,6 +1231,7 @@ function toggleRep(head){
   const body = card.querySelector(".dbody");
   const willOpen = !card.classList.contains("open");
   card.classList.toggle("open", willOpen);
+  head.setAttribute("aria-expanded", willOpen ? "true" : "false");
   body.style.display = willOpen ? "block" : "none";
   const ch = head.querySelector(".chev"); if (ch) ch.style.transform = willOpen ? "rotate(180deg)" : "";
 }
@@ -1270,7 +1256,7 @@ function renderReports(){
       return '<a class="dlbtn" href="' + esc(signed[doc.storage_path]) + '" target="_blank" rel="noopener">↗ Open original — ' + label + '</a>';
     }).join("");
     const docHtml = docBtns ? ('<div class="docdl">' + docBtns + '</div>') : "";
-    return '<div class="dcard" data-rep="' + i + '"><div class="dhead"><div><div class="dttl">' + esc(r.report_type || "Report") + '</div><div class="dmeta">' + esc(meta) + '</div></div><div></div><div class="chev">⌄</div></div><div class="dbody">' + content + src + docHtml + '</div></div>';
+    return '<div class="dcard" data-rep="' + i + '"><div class="dhead" role="button" tabindex="0" aria-expanded="false"><div><div class="dttl">' + esc(r.report_type || "Report") + '</div><div class="dmeta">' + esc(meta) + '</div></div><div></div><div class="chev">⌄</div></div><div class="dbody">' + content + src + docHtml + '</div></div>';
   }).join("") : '<div class="empty">No reports.</div>';
   $("tab-reports").innerHTML = cards;
 }
@@ -1283,7 +1269,7 @@ function fillFoodCats(){
 function renderFood(){
   const ab = FOODS.filter(m => m.last.f === "abnormal").length;
   const hi = FOODS.filter(m => m.last.f === "high").length;
-  const fdate = FOODS.length ? fd(FOODS[0].last.date) : "—";
+  const fdate = FOODS.length ? fd(FOODS.reduce((mx, m) => (m.last.date > mx ? m.last.date : mx), FOODS[0].last.date)) : "—";
   $("food-sum").innerHTML = '<span class="chip">Tested: <b>' + fdate + '</b></span>'
     + '<span class="chip">Total foods: <b>' + FOODS.length + '</b></span>'
     + '<span class="chip warn">Elevated: <b>' + ab + '</b></span>'
@@ -1424,7 +1410,7 @@ function fgCard(x, i){
   nf('Ккал', x.kcal_100g, function(){return 'kcal';}); nf('GI', x.gi, giColor); nf('Белок', x.protein_100g, proColor); nf('Клетч', x.fiber_100g, fibColor); nf('Жир', x.fat_100g, fatColor);
   const layers = LAYERS.map(([k, s]) => { const r = x[k]; return r ? ('<span class="lchip ' + (RCLS[r] || "na") + '">' + s + (RSYM[r] ? (' ' + RSYM[r]) : '') + '</span>') : ""; }).join("")
     + (x.r_rec ? ('<span class="lchip ' + (RECCLS[x.r_rec] || "na") + '">Dr' + ((x.r_rec === "avoid" || x.r_rec === "caution") ? (' ' + RECSYM[x.r_rec]) : "") + '</span>') : "");
-  return '<div class="fgcard ' + (v === "recommended" ? "rec" : "") + '" data-ci="' + i + '">'
+  return '<div class="fgcard ' + (v === "recommended" ? "rec" : "") + '" data-ci="' + i + '" role="button" tabindex="0" aria-expanded="false">'
     + '<div class="fgc-top"><div class="fgc-name">' + esc(ru) + de + '</div><span class="ov ' + (VCLS[v] || "allow") + '">' + (VSHORT[v] || v) + '</span>' + star + '</div>'
     + (sc.length ? '<div class="fgc-scores">' + sc.join("") + '</div>' : "")
     + (nums.length ? '<div class="fgc-nums">' + nums.join("") + '</div>' : "")
@@ -1460,6 +1446,7 @@ function renderFoodGuide(){
   if (!all.length){ $("fg-list").innerHTML = '<div class="empty">No diet data.</div>'; return; }
   if (!arr.length){ $("fg-list").innerHTML = '<div class="empty">Nothing found.</div>'; return; }
   const span = LAYERS.length + 11;
+  const mob = window.matchMedia("(max-width:600px)").matches; // build only the layout the viewport shows
   let body = "", cardsBody = "";
   FG_ITEMS = [];
   let i = 0;
@@ -1473,31 +1460,43 @@ function renderFoodGuide(){
   ord.forEach(g => {
     const items = cats[g];
     items.sort((a,b) => { const va = VORDER.indexOf(a.verdict), vb = VORDER.indexOf(b.verdict); return va !== vb ? va - vb : foodName(a.food_de).localeCompare(foodName(b.food_de), "ru"); });
-    body += '<tr class="grp"><td colspan="' + span + '">' + esc(catName(g)) + ' · ' + items.length + '</td></tr>';
-    cardsBody += '<div class="fgc-group">' + esc(catName(g)) + ' · ' + items.length + '</div>';
+    if (mob) cardsBody += '<div class="fgc-group">' + esc(catName(g)) + ' · ' + items.length + '</div>';
+    else body += '<tr class="grp"><td colspan="' + span + '">' + esc(catName(g)) + ' · ' + items.length + '</td></tr>';
     items.forEach(x => {
-      const v = x.verdict;
-      const ru = foodName(x.food_de);
-      const de = (ru !== x.food_de) ? ('<div class="de">' + esc(x.food_de) + '</div>') : "";
-      const star = ((v === "recommended" || v === "allowed") && (x.r_rec === "avoid" || x.r_rec === "caution")) ? '<span class="ovstar">*</span>' : "";
-      body += '<tr class="fgr ' + (v === "recommended" ? "rec" : "") + '" data-i="' + i + '"><td class="fnm"><div class="nm">' + esc(ru) + '</div>' + de + '</td>'
-        + histDots(x.hist_score) + gutDots(x.gut_score) + recStars(x.recovery_priority)
-        + numCell(x.kcal_100g, 'kc') + numCell(x.gi, giColor(x.gi)) + numCell(x.protein_100g, proColor(x.protein_100g)) + numCell(x.fiber_100g, fibColor(x.fiber_100g)) + numCell(x.fat_100g, fatColor(x.fat_100g))
-        + LAYERS.map(([k]) => fgCell(x[k])).join("")
-        + fgRec(x.r_rec)
-        + '<td class="fov"><span class="ov ' + (VCLS[v] || "allow") + '">' + (VSHORT[v] || v) + '</span>' + star + '</td>'
-        + '</tr>';
-      body += '<tr class="det" data-for="' + i + '" style="display:none"><td colspan="' + span + '">' + fgDetail(x) + '</td></tr>';
-      cardsBody += fgCard(x, i);
+      if (mob){
+        cardsBody += fgCard(x, i);
+      } else {
+        const v = x.verdict;
+        const ru = foodName(x.food_de);
+        const de = (ru !== x.food_de) ? ('<div class="de">' + esc(x.food_de) + '</div>') : "";
+        const star = ((v === "recommended" || v === "allowed") && (x.r_rec === "avoid" || x.r_rec === "caution")) ? '<span class="ovstar">*</span>' : "";
+        body += '<tr class="fgr ' + (v === "recommended" ? "rec" : "") + '" data-i="' + i + '" role="button" tabindex="0" aria-expanded="false"><td class="fnm"><div class="nm">' + esc(ru) + '</div>' + de + '</td>'
+          + histDots(x.hist_score) + gutDots(x.gut_score) + recStars(x.recovery_priority)
+          + numCell(x.kcal_100g, 'kc') + numCell(x.gi, giColor(x.gi)) + numCell(x.protein_100g, proColor(x.protein_100g)) + numCell(x.fiber_100g, fibColor(x.fiber_100g)) + numCell(x.fat_100g, fatColor(x.fat_100g))
+          + LAYERS.map(([k]) => fgCell(x[k])).join("")
+          + fgRec(x.r_rec)
+          + '<td class="fov"><span class="ov ' + (VCLS[v] || "allow") + '">' + (VSHORT[v] || v) + '</span>' + star + '</td>'
+          + '</tr>';
+        // detail row filled lazily on expand (toggleFgDet), not eagerly for all ~345 foods
+        body += '<tr class="det" data-for="' + i + '" style="display:none"><td colspan="' + span + '"></td></tr>';
+      }
       FG_ITEMS[i] = x;
       i++;
     });
   });
   const head = '<thead><tr><th class="fnm">Food</th><th class="hcol">Hist</th><th class="hcol">Gut</th><th class="hcol">★Rec</th><th class="numh">Ккал</th><th class="numh">GI</th><th class="numh">Protein</th><th class="numh">Fiber</th><th class="numh">Fat</th>' + LAYERS.map(([,s]) => '<th class="lyr">' + s + '</th>').join("") + '<th class="lyr">Dr</th><th class="fov">Verdict</th></tr></thead>';
   const colg = '<colgroup><col style="width:25%"><col style="width:7.5%"><col style="width:7.5%"><col style="width:7.5%"><col style="width:6%"><col style="width:4.5%"><col style="width:6.5%"><col style="width:6%"><col style="width:5.5%"><col style="width:2.6%"><col style="width:2.6%"><col style="width:2.6%"><col style="width:2.6%"><col style="width:2.6%"><col style="width:2.6%"><col style="width:8%"></colgroup>';
-  $("fg-list").innerHTML = '<div class="fg-cards">' + cardsBody + '</div><table class="fgtab">' + colg + head + '<tbody>' + body + '</tbody></table>';
+  $("fg-list").innerHTML = mob
+    ? ('<div class="fg-cards">' + cardsBody + '</div>')
+    : ('<table class="fgtab">' + colg + head + '<tbody>' + body + '</tbody></table>');
 }
-function toggleFgDet(r){ const d = r.nextElementSibling; if (d && d.classList.contains("det")){ d.style.display = d.style.display === "none" ? "" : "none"; r.classList.toggle("open"); } }
+function toggleFgDet(r){
+  const d = r.nextElementSibling; if (!d || !d.classList.contains("det")) return;
+  const willOpen = d.style.display === "none";
+  if (willOpen && !d.dataset.filled){ const cell = d.firstElementChild, x = FG_ITEMS[+r.dataset.i]; if (cell && x) cell.innerHTML = fgDetail(x); d.dataset.filled = "1"; }
+  d.style.display = willOpen ? "" : "none"; r.classList.toggle("open", willOpen);
+  r.setAttribute("aria-expanded", willOpen ? "true" : "false");
+}
 
 const PAN = { igg4: { q: "", grp: "", mode: "all" }, ige: { q: "", grp: "", mode: "all" } };
 const PANDOC = { igg: "2026-05-28_lebensmittelintoleranz-igg.pdf", igg4: "2025-02-04_food-reaction-test.pdf", ige: "2026-02-16_allergie-ige.pdf" };
@@ -1573,26 +1572,30 @@ function renderPanel(kind){
 }
 
 const CMP = { q: "", grp: "", mode: "all" };
+let CMP_ALL = null; // merged cross-panel rows, built once per dataset (reset in renderAll)
 function renderCompare(){
   const norm = (s) => String(s || "").trim().toLowerCase();
-  const ALIAS = { "цельное яйцо": ["яйца","Яйца"], "яичный белок": ["яйца","Яйца"], "гусиное яйцо": ["яйца","Яйца"], "перепелиное яйцо": ["яйца","Яйца"] };
-  const map = {};
-  const get = (ru, de) => {
-    const n = norm(ru); const a = ALIAS[n]; const k = a ? a[0] : n; const disp = a ? a[1] : ru;
-    if (!map[k]) map[k] = { ru: disp, de: "", igg: null, igg4: null, ige: null };
-    const e = map[k];
-    if (de && !a && norm(de) !== norm(e.ru) && !e.de) e.de = de;
-    return e;
-  };
-  // Merge keeps the MOST severe IgG among aliased foods (e.g. the three egg markers) instead of the first seen.
-  const iggRank = (r) => r ? (r.f === "high" ? 3 : r.f === "abnormal" ? 2 : 1) : 0;
-  FOODS.forEach(m => { const e = get(foodName(m.name), m.name); if (iggRank(m.last) > iggRank(e.igg)) e.igg = m.last; });
-  (DATA.panels || []).forEach(r => { const e = get(panelRu(r), r.food); if (r.panel === "igg4") e.igg4 = r; else if (r.panel === "ige") e.ige = r; });
-  const all = Object.values(map);
-  all.forEach(e => {
-    e.grp = grpName((e.igg4 && e.igg4.grp) || (e.ige && e.ige.grp) || (e.igg ? catName(e.igg.cat) : "") || "Прочее");
-    e.hit = (e.igg && (e.igg.f === "high" || e.igg.f === "abnormal")) || (e.igg4 && (e.igg4.level === "strong" || e.igg4.level === "moderate")) || (e.ige && +e.ige.value_num >= 1);
-  });
+  if (!CMP_ALL){
+    const ALIAS = { "цельное яйцо": ["яйца","Яйца"], "яичный белок": ["яйца","Яйца"], "гусиное яйцо": ["яйца","Яйца"], "перепелиное яйцо": ["яйца","Яйца"] };
+    const map = {};
+    const get = (ru, de) => {
+      const n = norm(ru); const a = ALIAS[n]; const k = a ? a[0] : n; const disp = a ? a[1] : ru;
+      if (!map[k]) map[k] = { ru: disp, de: "", igg: null, igg4: null, ige: null };
+      const e = map[k];
+      if (de && !a && norm(de) !== norm(e.ru) && !e.de) e.de = de;
+      return e;
+    };
+    // Merge keeps the MOST severe IgG among aliased foods (e.g. the three egg markers) instead of the first seen.
+    const iggRank = (r) => r ? (r.f === "high" ? 3 : r.f === "abnormal" ? 2 : 1) : 0;
+    FOODS.forEach(m => { const e = get(foodName(m.name), m.name); if (iggRank(m.last) > iggRank(e.igg)) e.igg = m.last; });
+    (DATA.panels || []).forEach(r => { const e = get(panelRu(r), r.food); if (r.panel === "igg4") e.igg4 = r; else if (r.panel === "ige") e.ige = r; });
+    CMP_ALL = Object.values(map);
+    CMP_ALL.forEach(e => {
+      e.grp = grpName((e.igg4 && e.igg4.grp) || (e.ige && e.ige.grp) || (e.igg ? catName(e.igg.cat) : "") || "Прочее");
+      e.hit = (e.igg && (e.igg.f === "high" || e.igg.f === "abnormal")) || (e.igg4 && (e.igg4.level === "strong" || e.igg4.level === "moderate")) || (e.ige && +e.ige.value_num >= 1);
+    });
+  }
+  const all = CMP_ALL;
   if (!all.length){ $("cmp-list").innerHTML = '<div class="empty">No data.</div>'; return; }
   const sel = $("cmp-grp");
   if (sel && !sel.dataset.filled){
@@ -1650,6 +1653,9 @@ function renderAll(D){
   setBirth();
   Object.keys(detailCache).forEach(k => delete detailCache[k]);
   Object.keys(dateCache).forEach(k => delete dateCache[k]);
+  CMP_ALL = null;
+  // Option lists are guarded by dataset.filled; clear the flag so Refresh rebuilds them from fresh data.
+  ["fggroup","igg4-grp","ige-grp","cmp-grp","rx-foodlist"].forEach(id => { const el = $(id); if (el) delete el.dataset.filled; });
   prep(D);
   renderKPIs();
   fillCats();
@@ -1680,34 +1686,32 @@ function renderReactions(){
   }).join("") : '<div class="empty">Записей пока нет.</div>';
 }
 
-function showApp(){ $("app").style.display = "block"; }
-
-$("q").addEventListener("input", (e) => { F.q = e.target.value.trim(); renderMarkers(); });
+$("q").addEventListener("input", debounce((e) => { F.q = e.target.value.trim(); renderMarkers(); }));
 $("cat").addEventListener("change", (e) => { F.cat = e.target.value; renderMarkers(); });
 document.querySelectorAll("#fp-igg .modebtn").forEach(b => b.addEventListener("click", () => { document.querySelectorAll("#fp-igg .modebtn").forEach(x => x.classList.remove("active")); b.classList.add("active"); FF.mode = b.dataset.fmode; renderFood(); }));
 document.querySelectorAll("#tab-food .fpbtn").forEach(b => b.addEventListener("click", () => { document.querySelectorAll("#tab-food .fpbtn").forEach(x => x.classList.remove("active")); b.classList.add("active"); const k = b.dataset.fp; ["igg","igg4","ige","compare"].forEach(p => $("fp-" + p).style.display = (p === k ? "block" : "none")); }));
 document.querySelectorAll("#tab-food [data-pm]").forEach(b => b.addEventListener("click", () => { const kind = b.dataset.pm; b.parentElement.querySelectorAll("[data-pm]").forEach(x => x.classList.remove("active")); b.classList.add("active"); PAN[kind].mode = b.dataset.m; renderPanel(kind); }));
 ["igg4","ige"].forEach(kind => {
   const q = $(kind + "-q"), s = $(kind + "-grp");
-  if (q) q.addEventListener("input", (e) => { PAN[kind].q = e.target.value.trim(); renderPanel(kind); });
+  if (q) q.addEventListener("input", debounce((e) => { PAN[kind].q = e.target.value.trim(); renderPanel(kind); }));
   if (s) s.addEventListener("change", (e) => { PAN[kind].grp = e.target.value; renderPanel(kind); });
 });
-if ($("cmp-q")) $("cmp-q").addEventListener("input", (e) => { CMP.q = e.target.value.trim(); renderCompare(); });
+if ($("cmp-q")) $("cmp-q").addEventListener("input", debounce((e) => { CMP.q = e.target.value.trim(); renderCompare(); }));
 if ($("cmp-grp")) $("cmp-grp").addEventListener("change", (e) => { CMP.grp = e.target.value; renderCompare(); });
 document.querySelectorAll("#fp-compare [data-cm]").forEach(b => b.addEventListener("click", () => {
   b.parentElement.querySelectorAll("[data-cm]").forEach(x => x.classList.remove("active"));
   b.classList.add("active"); CMP.mode = b.dataset.cm; renderCompare();
 }));
-$("fq").addEventListener("input", (e) => { FF.q = e.target.value.trim(); renderFood(); });
+$("fq").addEventListener("input", debounce((e) => { FF.q = e.target.value.trim(); renderFood(); }));
 $("fcat").addEventListener("change", (e) => { FF.cat = e.target.value; renderFood(); });
-$("fgq").addEventListener("input", (e) => { FG.q = e.target.value.trim(); renderFoodGuide(); });
+$("fgq").addEventListener("input", debounce((e) => { FG.q = e.target.value.trim(); renderFoodGuide(); }));
 $("fggroup").addEventListener("change", (e) => { FG.group = e.target.value; renderFoodGuide(); });
 $("fg-hist").addEventListener("change", (e) => { FG.histMax = e.target.value; renderFoodGuide(); });
 $("fg-gut").addEventListener("change", (e) => { FG.gutMax = e.target.value; renderFoodGuide(); });
-$("fg-gi").addEventListener("input", (e) => { FG.giMax = e.target.value.trim(); renderFoodGuide(); });
-$("fg-pro").addEventListener("input", (e) => { FG.proMin = e.target.value.trim(); renderFoodGuide(); });
-$("fg-fib").addEventListener("input", (e) => { FG.fibMin = e.target.value.trim(); renderFoodGuide(); });
-$("fg-fat").addEventListener("input", (e) => { FG.fatMax = e.target.value.trim(); renderFoodGuide(); });
+$("fg-gi").addEventListener("input", debounce((e) => { FG.giMax = e.target.value.trim(); renderFoodGuide(); }));
+$("fg-pro").addEventListener("input", debounce((e) => { FG.proMin = e.target.value.trim(); renderFoodGuide(); }));
+$("fg-fib").addEventListener("input", debounce((e) => { FG.fibMin = e.target.value.trim(); renderFoodGuide(); }));
+$("fg-fat").addEventListener("input", debounce((e) => { FG.fatMax = e.target.value.trim(); renderFoodGuide(); }));
 $("fg-rec").addEventListener("change", (e) => { FG.recMin = e.target.value; renderFoodGuide(); });
 $("fg-reset").addEventListener("click", () => {
   FG = { q: "", group: "", histMax: "", gutMax: "", giMax: "", proMin: "", fibMin: "", fatMax: "", recMin: "" };
@@ -1722,12 +1726,58 @@ $("fg-list").addEventListener("click", (e) => {
       const open = det.style.display === "block";
       if (!open && !det.dataset.filled){ const x = FG_ITEMS[+card.dataset.ci]; if (x) det.innerHTML = fgDetail(x); det.dataset.filled = "1"; }
       det.style.display = open ? "none" : "block"; card.classList.toggle("open");
+      card.setAttribute("aria-expanded", open ? "false" : "true");
     }
     return;
   }
   const r = e.target.closest("tr.fgr"); if (r) toggleFgDet(r);
 });
-document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => { document.querySelectorAll(".tab").forEach(x => x.classList.remove("active")); t.classList.add("active"); const name = t.dataset.tab; ["markers","dates","food","foodguide","dayplan","shopping","plan","reactions","reports"].forEach(p => $("tab-" + p).style.display = (p === name ? "block" : "none")); }));
+const TAB_NAMES = ["markers","dates","food","foodguide","dayplan","shopping","plan","reactions","reports"];
+function activateTab(t){
+  document.querySelectorAll(".tab").forEach(x => { const on = x === t; x.classList.toggle("active", on); x.setAttribute("aria-selected", on ? "true" : "false"); x.tabIndex = on ? 0 : -1; });
+  const name = t.dataset.tab;
+  TAB_NAMES.forEach(p => { const el = $("tab-" + p); if (el) el.style.display = (p === name ? "block" : "none"); });
+}
+document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => activateTab(t)));
+(function(){
+  const tl = document.querySelector(".tabs"); if (!tl) return;
+  tl.addEventListener("keydown", (e) => {
+    const tabs = Array.from(tl.querySelectorAll(".tab")); const i = tabs.indexOf(document.activeElement); if (i < 0) return;
+    let j = -1;
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") j = (i + 1) % tabs.length;
+    else if (e.key === "ArrowLeft" || e.key === "ArrowUp") j = (i - 1 + tabs.length) % tabs.length;
+    else if (e.key === "Home") j = 0;
+    else if (e.key === "End") j = tabs.length - 1;
+    else return;
+    e.preventDefault(); tabs[j].focus(); activateTab(tabs[j]);
+  });
+})();
+// ===== Accessibility wiring: labels, tab/tablist roles, segmented-button state, keyboard row activation =====
+function syncPressed(root){ root.querySelectorAll(".modebtn,.fpbtn,[data-dpv]").forEach(b => b.setAttribute("aria-pressed", b.classList.contains("active") ? "true" : "false")); }
+function a11yInit(){
+  const L = { q:"Поиск маркера", cat:"Фильтр по категории", fq:"Поиск еды", fcat:"Фильтр по категории",
+    "igg4-q":"Поиск еды", "igg4-grp":"Группа", "ige-q":"Поиск аллергена", "ige-grp":"Группа",
+    "cmp-q":"Поиск еды", "cmp-grp":"Группа", fgq:"Поиск еды", fggroup:"Тип еды",
+    "rx-food":"Продукт", "rx-date":"Дата реакции", "rx-portion":"Порция", "rx-prep":"Приготовление",
+    "rx-symptoms":"Симптомы", "rx-onset":"Через сколько минут", "rx-sev":"Тяжесть", "rx-mech":"Механизм", "rx-notes":"Заметки" };
+  Object.keys(L).forEach(id => { const el = $(id); if (el && !el.getAttribute("aria-label")) el.setAttribute("aria-label", L[id]); });
+  const tl = document.querySelector(".tabs"); if (tl) tl.setAttribute("role", "tablist");
+  document.querySelectorAll(".tab").forEach(t => {
+    const n = t.dataset.tab; if (!t.id) t.id = "tabbtn-" + n;
+    t.setAttribute("role", "tab"); t.setAttribute("aria-controls", "tab-" + n);
+    const on = t.classList.contains("active"); t.setAttribute("aria-selected", on ? "true" : "false"); t.tabIndex = on ? 0 : -1;
+  });
+  TAB_NAMES.forEach(n => { const p = $("tab-" + n); if (p){ p.setAttribute("role", "tabpanel"); p.setAttribute("aria-labelledby", "tabbtn-" + n); if (!p.hasAttribute("tabindex")) p.tabIndex = 0; } });
+  syncPressed(document);
+}
+// Keep segmented-button aria-pressed in sync after any click that toggles .active
+document.addEventListener("click", (e) => { const b = e.target.closest(".modebtn,.fpbtn,[data-dpv]"); if (b && b.parentElement) syncPressed(b.parentElement); });
+// Keyboard activation (Enter/Space) for the expandable rows/cards (role="button")
+function rowKeydown(e){ if (e.key !== "Enter" && e.key !== " ") return; const t = e.target.closest("[role=button]"); if (!t || !e.currentTarget.contains(t)) return; e.preventDefault(); t.click(); }
+["mk-list","tab-dates","tab-reports","fg-list"].forEach(id => { const el = $(id); if (el) el.addEventListener("keydown", rowKeydown); });
+// Rebuild the diet layout when crossing the mobile/desktop breakpoint (only one layout is built per viewport)
+window.matchMedia("(max-width:600px)").addEventListener("change", () => { if (DATA) renderFoodGuide(); });
+a11yInit();
 document.querySelectorAll("#tab-dayplan [data-dpv]").forEach(b => b.addEventListener("click", () => {
   document.querySelectorAll("#tab-dayplan [data-dpv]").forEach(x => x.classList.remove("active"));
   b.classList.add("active");
@@ -1866,13 +1916,15 @@ function shLoad(){ try { return JSON.parse(localStorage.getItem("sh_done") || "{
 function shSave(o){ try { localStorage.setItem("sh_done", JSON.stringify(o)); } catch(_e){} }
 function shProg(t, c){ const el = $("sh-prog"); if (el) el.innerHTML = "Отмечено <b>" + c + "</b> из " + t; }
 const shBadge = (c) => c === "ok" ? '<span class="sh-badge ok">✓ Knuspr</span>' : c === "med" ? '<span class="sh-badge med">≈ проверь</span>' : '<span class="sh-badge no">✕ заказать отдельно</span>';
+// Progress counts DISTINCT products (some SKUs appear in several sections), not DOM checkboxes.
+function shCounts(){ const done = shLoad(); const keys = new Set(); SHOP.forEach(s => s.items.forEach(it => keys.add(it.de))); let c = 0; keys.forEach(k => { if (done[k]) c++; }); return { t: keys.size, c: c }; }
 function renderShopping(){
   const list = $("sh-list"); if (!list) return;
-  const done = shLoad(); let total = 0, checked = 0, h = "";
+  const done = shLoad(); let h = "";
   for (const sec of SHOP){
     h += '<div class="sh-grp">' + esc(sec.g) + (sec.note ? '<span class="sh-gnote">' + esc(sec.note) + '</span>' : "") + '</div>';
     for (const it of sec.items){
-      total++; const k = it.de; const on = !!done[k]; if (on) checked++;
+      const k = it.de; const on = !!done[k];
       h += '<div class="sh-i' + (on ? " done" : "") + '">'
         + '<input type="checkbox" class="sh-ck"' + (on ? " checked" : "") + ' data-k="' + esc(k) + '">'
         + '<div class="sh-body"><div class="sh-top">'
@@ -1883,7 +1935,7 @@ function renderShopping(){
         + '</div></div>';
     }
   }
-  list.innerHTML = h; shProg(total, checked);
+  const cnt = shCounts(); list.innerHTML = h; shProg(cnt.t, cnt.c);
 }
 if ($("sh-list")){
   $("sh-list").addEventListener("change", (e) => {
@@ -1893,7 +1945,7 @@ if ($("sh-list")){
     shSave(done);
     const sel = '.sh-ck[data-k="' + k.replace(/["\\]/g, "\\$&") + '"]';
     document.querySelectorAll(sel).forEach(o => { o.checked = cb.checked; const row = o.closest(".sh-i"); if (row) row.classList.toggle("done", cb.checked); });
-    let t = 0, c = 0; document.querySelectorAll("#sh-list .sh-ck").forEach(o => { t++; if (o.checked) c++; }); shProg(t, c);
+    const cnt = shCounts(); shProg(cnt.t, cnt.c);
   });
   $("sh-reset").addEventListener("click", () => { shSave({}); renderShopping(); });
   renderShopping();
