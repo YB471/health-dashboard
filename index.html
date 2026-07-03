@@ -827,7 +827,7 @@ const fd = (s) => { const p = String(s).split("-"); return p.length === 3 ? p[2]
 const fds = (s) => { const p = String(s).split("-"); return p.length === 3 ? p[2] + "." + p[1] + "." + p[0].slice(2) : s; };
 const esc = (s) => String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 const fst = (v, lo, hi) => (hi != null && v > hi) ? "high" : (lo != null && v < lo) ? "low" : "ok";
-const col = (f) => (f === "high" || f === "low") ? "var(--hi)" : "var(--warn)";
+const col = (f) => f === "low" ? "var(--lo)" : f === "high" ? "var(--hi)" : "var(--warn)";
 const refTxt = (lo, hi, u) => (lo != null && hi != null) ? lo + "–" + hi + " " + (u || "") : (hi != null) ? "<" + hi + " " + (u || "") : (lo != null) ? ">" + lo + " " + (u || "") : "";
 const disp = (p) => (p.vt && /[<>]/.test(p.vt)) ? (p.vt + (p.u ? (" " + p.u) : "")) : (p.v != null ? (p.v + (p.u ? (" " + p.u) : "")) : (p.vt || ""));
 const flagged = (f) => f === "high" || f === "low" || f === "abnormal";
@@ -1581,10 +1581,12 @@ function renderCompare(){
     const n = norm(ru); const a = ALIAS[n]; const k = a ? a[0] : n; const disp = a ? a[1] : ru;
     if (!map[k]) map[k] = { ru: disp, de: "", igg: null, igg4: null, ige: null };
     const e = map[k];
-    if (de && norm(de) !== norm(e.ru) && !e.de) e.de = de;
+    if (de && !a && norm(de) !== norm(e.ru) && !e.de) e.de = de;
     return e;
   };
-  FOODS.forEach(m => { const e = get(foodName(m.name), m.name); if (!e.igg) e.igg = m.last; });
+  // Merge keeps the MOST severe IgG among aliased foods (e.g. the three egg markers) instead of the first seen.
+  const iggRank = (r) => r ? (r.f === "high" ? 3 : r.f === "abnormal" ? 2 : 1) : 0;
+  FOODS.forEach(m => { const e = get(foodName(m.name), m.name); if (iggRank(m.last) > iggRank(e.igg)) e.igg = m.last; });
   (DATA.panels || []).forEach(r => { const e = get(panelRu(r), r.food); if (r.panel === "igg4") e.igg4 = r; else if (r.panel === "ige") e.ige = r; });
   const all = Object.values(map);
   all.forEach(e => {
@@ -1917,7 +1919,7 @@ $("tab-dates").addEventListener("click", (e) => { const chip = e.target.closest(
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "10.20";
+const APP_VERSION = "10.21";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
