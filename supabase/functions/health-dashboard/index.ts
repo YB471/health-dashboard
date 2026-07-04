@@ -194,24 +194,15 @@ async function logReaction(body: any, cors: Record<string, string>): Promise<Res
   return json({ ok: true }, cors);
 }
 
-// Batch-sign all document URLs in one Storage round-trip instead of ~31 sequential calls.
-// Falls back to per-doc signing if the batch call is unavailable, so links never regress.
+// Sign each document URL keyed by its exact storage_path — the client looks up signed[storage_path],
+// so the key MUST be the original path. (An earlier batch createSignedUrls attempt keyed by the
+// endpoint's echoed `path` field, which did not match storage_path and hid every download button.)
 async function signDocs(client: ReturnType<typeof sb>, docs: { storage_path?: string }[]) {
   const out: Record<string, string> = {};
-  const paths = docs.map((d) => d.storage_path).filter((p): p is string => !!p);
-  if (!paths.length) return out;
-  try {
-    const { data, error } = await client.storage.from("lab-documents").createSignedUrls(paths, 3600);
-    if (!error && data) {
-      for (const item of data) {
-        if (item && item.path && item.signedUrl) out[item.path] = item.signedUrl;
-      }
-      if (Object.keys(out).length) return out;
-    }
-  } catch (_e) { /* fall through to per-doc signing */ }
-  for (const p of paths) {
-    const { data } = await client.storage.from("lab-documents").createSignedUrl(p, 3600);
-    if (data && data.signedUrl) out[p] = data.signedUrl;
+  for (const d of docs) {
+    if (!d.storage_path) continue;
+    const { data } = await client.storage.from("lab-documents").createSignedUrl(d.storage_path, 3600);
+    if (data && data.signedUrl) out[d.storage_path] = data.signedUrl;
   }
   return out;
 }
