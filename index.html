@@ -683,6 +683,84 @@ td.hcell .he{opacity:.3}
       <div class="rp-fronts"><span class="rp-front f1">🍽️ Пищеварение</span><span class="rp-front f2">🦠 Кишечник</span><span class="rp-front f3">☣️ Металлы</span></div>
     </div>
 
+    <style>
+    #tab-plan .dc{margin:2px 0 6px}
+    #tab-plan .dc-node{border:1px solid var(--bd);border-radius:12px;background:var(--card);padding:12px 15px;text-align:center;font-size:13px;color:var(--tx)}
+    #tab-plan .dc-in{border-left:3px solid var(--ok)}
+    #tab-plan .dc-in small{color:var(--tx2);font-size:12px}
+    #tab-plan .dc-arrow{text-align:center;color:var(--tx3);font-size:12px;font-weight:600;padding:7px 0;line-height:1.35}
+    #tab-plan .dc-hub{border:2px solid var(--bd2);border-radius:14px;background:var(--tk);padding:14px 16px;text-align:center}
+    #tab-plan .dc-hub-t{font-size:17px;font-weight:700;color:var(--tx);letter-spacing:.02em}
+    #tab-plan .dc-hub-bad{color:var(--hi);font-size:12.5px;font-weight:600;margin-top:8px;line-height:1.5}
+    #tab-plan .dc-hub-good{color:var(--lo);font-size:12.5px;font-weight:600;margin-top:3px;line-height:1.5}
+    #tab-plan .dc-hub-bar{color:var(--warn);font-size:11.5px;margin-top:7px;line-height:1.45}
+    #tab-plan .dc-hub-bar b{color:var(--warn)}
+    #tab-plan .dc-branches{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    #tab-plan .dc-branch{border:1px solid var(--bd);border-top-width:3px;border-radius:11px;background:var(--card);padding:11px 13px}
+    #tab-plan .dc-branch.b1{border-top-color:var(--hi)}
+    #tab-plan .dc-branch.b2{border-top-color:var(--lo)}
+    #tab-plan .dc-branch.b3{border-top-color:var(--warn)}
+    #tab-plan .dc-bt{font-size:13.5px;font-weight:700;margin-bottom:5px}
+    #tab-plan .dc-branch.b1 .dc-bt{color:var(--hi)}
+    #tab-plan .dc-branch.b2 .dc-bt{color:var(--lo)}
+    #tab-plan .dc-branch.b3 .dc-bt{color:var(--warn)}
+    #tab-plan .dc-branch ul{margin:0;padding-left:16px}
+    #tab-plan .dc-branch li{font-size:12px;color:var(--tx2);line-height:1.5;margin:3px 0}
+    #tab-plan .dc-branch li b{color:var(--tx);font-weight:600}
+    #tab-plan .dc-fix{margin-top:8px;font-size:11px;color:var(--ok);background:var(--okbg);border-radius:7px;padding:5px 8px;line-height:1.4}
+    #tab-plan .dc-loop{margin-top:10px;text-align:center;font-size:12.5px;font-weight:600;color:var(--warn);background:var(--warnbg);border-radius:10px;padding:9px 12px;line-height:1.4}
+    #tab-plan .dc-tools{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0 2px;justify-content:center}
+    #tab-plan .dc-tool{font-size:11.5px;font-weight:600;color:var(--tx);background:var(--okbg);border:1px solid var(--ok);border-radius:999px;padding:4px 11px}
+    @media(max-width:640px){#tab-plan .dc-branches{grid-template-columns:1fr}}
+    </style>
+    <div class="rp-sh"><span class="n">🔄</span>Как всё связано — дисбиоз в центре</div>
+    <div class="rp-cap1">Один узел тянет три фронта. Стрелки — направление влияния; цифры — твои последние анализы; зелёным — чем разрываем круг.</div>
+    <div class="dc">
+      <div class="dc-node dc-in">🍽️ <b>Плохое переваривание сверху</b><br><small>EPI: панкреатическая эластаза <b>142 ↓</b> (норма &gt;200) · заброс желчи (гастрит C) · мало DAO и лактазы</small></div>
+      <div class="dc-arrow">↓&nbsp; недопереваренная еда кормит «не ту» флору</div>
+      <div class="dc-node dc-hub">
+        <div class="dc-hub-t">🦠 ДИСБИОЗ</div>
+        <div class="dc-hub-bad">↑ разрослись: Klebsiella 2×10⁶ · Citrobacter 6×10⁵ · Enterobacter 1×10⁶ КОЕ/г</div>
+        <div class="dc-hub-good">↓ мало защитных: Lactobacillus &lt;10⁴ · Bifidobacterium 7×10⁸ · Bacteroides 8×10⁸ · физиол. E. coli &lt;10⁴</div>
+        <div class="dc-hub-bar">барьер ослаблен: sIgA <b>169 ↓</b> (норма 510–2040) · β-дефензин <b>70 ↑</b> · pH кала 6.5</div>
+      </div>
+      <div class="dc-arrow">↓&nbsp; бьёт по трём фронтам &nbsp;↓</div>
+      <div class="dc-branches">
+        <div class="dc-branch b1">
+          <div class="dc-bt">🔴 DAO / гистамин ↑</div>
+          <ul>
+            <li>DAO вырабатывает <b>сама стенка кишки</b> → повреждена → <b>DAO 2.2 ↓</b></li>
+            <li>Klebsiella/Citrobacter/Enterobacter <b>сами производят гистамин</b> в кишке</li>
+            <li>нет лакто/бифидо, что нейтрализуют гистамин</li>
+          </ul>
+          <div class="dc-fix">разрываем: диета low-histamine · DAOSIN · пробиотик</div>
+        </div>
+        <div class="dc-branch b2">
+          <div class="dc-bt">🔵 Жиры / вес</div>
+          <ul>
+            <li>бактерии <b>ломают желчные кислоты</b> → жир хуже эмульгируется</li>
+            <li>+ мало липазы (EPI) + заброс желчи → <b>мальабсорбция жира и A/E/K</b></li>
+            <li>микробы «съедают» калории → <b>вес стоит</b></li>
+          </ul>
+          <div class="dc-fix">разрываем: Kreon под жир · Ursofalk · калорийный профицит</div>
+        </div>
+        <div class="dc-branch b3">
+          <div class="dc-bt">🟠 Реакции на еду</div>
+          <ul>
+            <li>слабый барьер (<b>sIgA 169 ↓</b>) → больше антигена → <b>шире IgG-реакции</b></li>
+            <li>нет бифидо/бактероидов → теряется <b>иммунная толерантность</b></li>
+            <li>брожение углеводов → вздутие «как реакция на продукт»</li>
+          </ul>
+          <div class="dc-fix">разрываем: заселить + покормить флору · чинить переваривание</div>
+        </div>
+      </div>
+      <div class="dc-loop">↺ круг замыкается: хуже гистамин / жиры / реакции → ещё больше «корма» для плохих бактерий → дисбиоз крепнет</div>
+    </div>
+    <div class="dc-tools">
+      <span class="dc-tool">Kreon</span><span class="dc-tool">Диета low-histamine + DAOSIN</span><span class="dc-tool">SIBO-тест → пробиотик + пребиотик</span><span class="dc-tool">Ursofalk</span><span class="dc-tool">Магний / моторика</span><span class="dc-tool">DMPS (ртуть)</span>
+    </div>
+    <div class="rp-note">💡 <b>Хорошая новость:</b> многое здесь — <b>следствие</b> дисбиоза, а не жёсткая генетика → восстановление кишки может частично вернуть DAO, усвоение жира и переносимость еды (продукты фазы «вернуть позже» — перепроверить). <b>Не обратимы:</b> лактоза (генотип C/C) и часть склонности к дефициту DAO. <b>Контроль через ~3 мес:</b> экограмма + эластаза + DAO + A/E/K — при восстановлении флоры должны сдвинуться в связке.</div>
+
     <div class="rp-sh"><span class="n">1</span>Проблемы → решения</div>
 
     <div class="rp-dir d1">
@@ -1971,7 +2049,7 @@ $("tab-dates").addEventListener("click", (e) => { const chip = e.target.closest(
 $("tab-reports").addEventListener("click", (e) => { const head = e.target.closest(".dhead"); if (head) toggleRep(head); });
 
 const API = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/health-dashboard";
-const APP_VERSION = "10.21";
+const APP_VERSION = "10.22";
 const $login = $("login"), $app = $("app"), $pw = $("pw"), $err = $("loginErr"), $form = $("loginForm");
 let CURPW = null;
 
