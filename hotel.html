@@ -50,6 +50,12 @@
   .tab{padding:9px 14px;font-size:14px;border:0;background:transparent;color:var(--tx2);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
   .tab.on{color:var(--tx);border-bottom-color:var(--ok);font-weight:600}
 
+  /* segmented control */
+  .seg{display:inline-flex;border:1px solid var(--bd2);border-radius:8px;overflow:hidden}
+  .seg button{padding:6px 12px;font-size:12.5px;background:transparent;border:0;color:var(--tx2);cursor:pointer;white-space:nowrap}
+  .seg button+button{border-left:1px solid var(--bd)}
+  .seg button.on{background:var(--okbg);color:var(--ok);font-weight:600}
+
   /* tile config */
   #tileCfgWrap{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
   .tchip{padding:6px 11px;font-size:12.5px;border:1px solid var(--bd2);border-radius:999px;background:transparent;color:var(--tx2);cursor:pointer}
@@ -175,6 +181,28 @@
       <button class="btn2" id="tilesCfgBtn" style="margin-left:auto">Настроить</button></div>
     <div id="tileCfgWrap" style="display:none"></div>
     <div class="tiles" id="tiles"></div>
+  </div>
+
+  <div class="card">
+    <div class="crow"><h2>Арендная доходность</h2></div>
+    <div class="crow" style="gap:8px;margin-bottom:8px">
+      <span class="seg" id="ryMetric">
+        <button data-v="income" class="on">Доход</button>
+        <button data-v="yield">Доходность %</button>
+        <button data-v="cum">Нарастающим итогом</button>
+      </span>
+      <span class="seg" id="ryPeriod">
+        <button data-v="month" class="on">По месяцам</button>
+        <button data-v="year">По годам</button>
+      </span>
+      <span class="seg" id="ryTax">
+        <button data-v="gross" class="on">До налога</button>
+        <button data-v="net">После налога</button>
+      </span>
+    </div>
+    <div class="chart-host" id="rentChart"></div>
+    <div class="tiles" id="rentStats" style="margin-top:12px"></div>
+    <div class="note">Доход — только транзакции типа «Доход от аренды»; «после налога» — за вычетом всех налогов периода. Доходность по месяцам — в годовом выражении (доход месяца × 12 ÷ вложено на конец месяца); по годам — доход года ÷ вложено на конец года. Наведите курсор на точку или столбец — во всплывающей подсказке полный разрез: аренда, налоги, чистыми, вложено, доходность.</div>
   </div>
 
   <div class="card">
@@ -318,6 +346,7 @@ function compute(){
   const yearAgo = new Date(today); yearAgo.setDate(yearAgo.getDate()-365);
   const inc12 = rows.filter(r=>r.flow>0 && pd(r.tx_date)>=yearAgo).reduce((s,r)=>s+r.flow,0);
   const rent12 = rows.filter(r=>r.tx_type==="Доход от аренды" && pd(r.tx_date)>=yearAgo).reduce((s,r)=>s+r.flow,0);
+  const rentTotal = rows.filter(r=>r.tx_type==="Доход от аренды").reduce((s,r)=>s+r.flow,0);
   const taxes12 = -rows.filter(r=>r.tx_type==="Налоги" && pd(r.tx_date)>=yearAgo).reduce((s,r)=>s+r.flow,0);
 
   const t0 = rows.length ? pd(rows[0].tx_date) : today;
@@ -349,10 +378,11 @@ function compute(){
   for(const r of rows){
     const y = pd(r.tx_date).getFullYear();
     const mKey = r.tx_date.slice(0,7);
-    if(!byYear.has(y)) byYear.set(y, {inc:0, out:0, tax:0, incNoSale:0});
-    if(!byMonth.has(mKey)) byMonth.set(mKey, {inc:0, out:0, tax:0, incNoSale:0});
+    if(!byYear.has(y)) byYear.set(y, {inc:0, out:0, tax:0, incNoSale:0, rent:0});
+    if(!byMonth.has(mKey)) byMonth.set(mKey, {inc:0, out:0, tax:0, incNoSale:0, rent:0});
     const b = byYear.get(y), m = byMonth.get(mKey);
-    if(r.flow>0){ b.inc += r.flow; m.inc += r.flow; if(r.tx_type!=="Продажа актива"){ b.incNoSale += r.flow; m.incNoSale += r.flow; } }
+    if(r.flow>0){ b.inc += r.flow; m.inc += r.flow; if(r.tx_type!=="Продажа актива"){ b.incNoSale += r.flow; m.incNoSale += r.flow; }
+      if(r.tx_type==="Доход от аренды"){ b.rent += r.flow; m.rent += r.flow; } }
     else if(r.tx_type==="Налоги"){ b.tax += -r.flow; m.tax += -r.flow; }
     else { b.out += -r.flow; m.out += -r.flow; }
   }
@@ -361,9 +391,9 @@ function compute(){
   const years = [];
   let investedRun = 0;
   for(let y=y0; y<=y1; y++){
-    const b = byYear.get(y) || {inc:0,out:0,tax:0,incNoSale:0};
+    const b = byYear.get(y) || {inc:0,out:0,tax:0,incNoSale:0,rent:0};
     investedRun += b.out;
-    years.push({y, inc:b.inc, out:b.out, tax:b.tax, net:b.inc-b.out-b.tax,
+    years.push({y, inc:b.inc, out:b.out, tax:b.tax, rent:b.rent||0, invEndYear:investedRun, net:b.inc-b.out-b.tax,
       yieldPct: investedRun>0 && b.incNoSale>0 ? b.incNoSale/investedRun*100 : null,
       yieldNet: investedRun>0 && b.incNoSale>0 ? (b.incNoSale-b.tax)/investedRun*100 : null});
   }
@@ -378,7 +408,7 @@ function compute(){
     invEnd.set(key, runOut);
   }
 
-  return {rows, invested, taxesTotal, received, net: received-invested-taxesTotal, inc12, rent12, taxes12,
+  return {rows, invested, taxesTotal, received, net: received-invested-taxesTotal, inc12, rent12, taxes12, rentTotal,
           irr, irrVal, val, valManual, paybackDate, remaining, forecastM, forecastD, years, byMonth, invEnd, y0, y1};
 }
 
@@ -399,6 +429,7 @@ function render(){
   renderPassport();
 
   renderTiles(m);
+  renderRent(m);
   renderJournal(m);
   renderChart(m);
   renderYearBlock(m);
@@ -587,6 +618,149 @@ function renderMonthBlock(m){
   t.innerHTML = h;
 }
 
+/* ── блок арендной доходности ── */
+const RY = {metric:"income", period:"month", tax:"gross"};
+[["ryMetric","metric"],["ryPeriod","period"],["ryTax","tax"]].forEach(([id,prop])=>{
+  $(id).addEventListener("click", e=>{
+    const b = e.target.closest("button"); if(!b) return;
+    [...$(id).querySelectorAll("button")].forEach(x=>x.classList.toggle("on", x===b));
+    RY[prop] = b.dataset.v;
+    if(M) renderRent(M);
+  });
+});
+
+function rentSeries(m){
+  const pts = [];
+  const today = new Date();
+  if(RY.period === "month"){
+    let first = null;
+    for(const [k,v] of m.byMonth) if((v.rent||0)>0.5 && (!first || k<first)) first = k;
+    for(let y=m.y0; y<=m.y1; y++) for(let mo=1; mo<=12; mo++){
+      if(y===today.getFullYear() && mo>today.getMonth()+1) break;
+      const key = y+"-"+String(mo).padStart(2,"0");
+      const b = m.byMonth.get(key) || {rent:0,tax:0};
+      pts.push({lbl: MONTHS_S[mo-1]+(mo===1?" "+String(y).slice(2):""), full: MONTHS_S[mo-1]+" "+y,
+        rent: b.rent||0, tax: b.tax||0, ie: m.invEnd.get(key)||0, ann: 12,
+        started: first!==null && key>=first});
+    }
+  } else {
+    let started = false;
+    for(const x of m.years){
+      if((x.rent||0)>0.5) started = true;
+      pts.push({lbl:String(x.y), full:String(x.y), rent:x.rent||0, tax:x.tax||0, ie:x.invEndYear||0, ann:1, started});
+    }
+  }
+  return pts;
+}
+function rentTip(p){
+  const net = p.rent - p.tax;
+  let t = p.full + "\nАренда: " + money(p.rent) + "\nНалоги: " + (p.tax>0.5?money(-p.tax):"—") + "\nПосле налога: " + money(net);
+  if(p.ie>0){
+    t += "\nВложено на конец периода: " + money(p.ie);
+    t += "\nДоходность (годовая): " + pct(p.rent*p.ann/p.ie*100) + " · после налога: " + pct(net*p.ann/p.ie*100);
+  }
+  return t;
+}
+function renderRent(m){
+  const host = $("rentChart"); host.innerHTML = "";
+  const pts = rentSeries(m);
+  const net = RY.tax === "net";
+  const base = p => net ? p.rent - p.tax : p.rent;
+  let series;
+  if(RY.metric === "income") series = pts.map(p => ({...p, v: base(p)}));
+  else if(RY.metric === "yield") series = pts.map(p => ({...p, v: (p.ie>0 && p.started) ? base(p)*p.ann/p.ie*100 : null}));
+  else { let c=0; series = pts.map(p => { c += base(p); return {...p, v: p.started ? c : null}; }); }
+
+  if(!pts.some(p=>p.rent>0.5)){
+    host.innerHTML = `<div class="empty">Пока нет транзакций типа «Доход от аренды» — блок оживёт с первым поступлением.</div>`;
+  } else {
+    drawRentChart(host, series, RY.metric);
+  }
+
+  const totR = net ? m.rentTotal - m.taxesTotal : m.rentTotal;
+  const r12 = net ? m.rent12 - m.taxes12 : m.rent12;
+  const sfx = net ? " (после налога)" : "";
+  $("rentStats").innerHTML =
+    tile("Аренда всего"+sfx, m.rentTotal>0.5?money(totR):"—", "за всё время") +
+    tile("За 12 месяцев"+sfx, m.rentTotal>0.5?money(r12):"—", "скользящее окно 365 дней") +
+    tile("В среднем в месяц", m.rentTotal>0.5?money(r12/12):"—", "по последним 12 мес.") +
+    tile("Доходность (12 мес.)"+sfx, (m.invested>0 && m.rentTotal>0.5)?pct(r12/m.invested*100):"—", "годовая, на вложенный капитал");
+}
+function drawRentChart(host, series, metric){
+  const W = Math.max(420, host.clientWidth||600), H = 250;
+  const mL=64, mR=16, mT=14, mB=26, pw=W-mL-mR, ph=H-mT-mB;
+  const NS = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(NS,"svg");
+  svg.setAttribute("viewBox",`0 0 ${W} ${H}`);
+  const el=(t,a,parent)=>{ const e=document.createElementNS(NS,t); for(const k in a) e.setAttribute(k,a[k]); (parent||svg).appendChild(e); return e; };
+  const vals = series.map(p=>p.v).filter(v=>v!==null && isFinite(v));
+  let lo = Math.min(0, ...vals), hi = Math.max(0, ...vals);
+  if(hi===lo){ hi = lo+1; }
+  const pad=(hi-lo)*.1||1; hi+=pad; if(lo<0) lo-=pad;
+  const Y = v => mT + ph*(1-(v-lo)/(hi-lo));
+  const isPct = metric === "yield";
+  const fmtAx = v => isPct ? (Math.abs(v)<0.05?"0":nf1.format(v))+" %" : moneyC(v);
+  const span=hi-lo, step0=span/4, mag=Math.pow(10,Math.floor(Math.log10(step0)));
+  let step=mag; for(const k of [1,2,2.5,5,10]) if(mag*k>=step0){step=mag*k;break;}
+  for(let t=Math.ceil(lo/step)*step; t<=hi; t+=step){
+    el("line",{x1:mL,x2:W-mR,y1:Y(t),y2:Y(t),stroke:Math.abs(t)<step*1e-6?"var(--bd2)":"var(--bd)","stroke-width":1});
+    const tx=el("text",{x:mL-8,y:Y(t)+4,"text-anchor":"end","font-size":10.5,fill:"var(--tx3)"});
+    tx.textContent = fmtAx(t);
+  }
+  const n = series.length, band = pw/Math.max(1,n);
+  const Xc = i => mL + band*i + band/2;
+  const y0 = Y(0);
+  // подписи оси X с прореживанием по ширине
+  let lastX = -1e9;
+  series.forEach((p,i)=>{
+    const x = Xc(i);
+    if(x - lastX >= 46 || i===n-1){
+      const tx=el("text",{x, y:H-8, "text-anchor":"middle","font-size":10,fill:"var(--tx3)"});
+      tx.textContent = p.lbl; lastX = x;
+    }
+  });
+  const addTip = (node,p)=>{ const t=document.createElementNS(NS,"title"); t.textContent = rentTip(p); node.appendChild(t); };
+  if(metric === "income"){
+    const barW = Math.min(24, band*0.62);
+    const rr = (x,y,w,h,side)=>{
+      const r=Math.max(0,Math.min(4,w/2,h)); if(h<=0||w<=0) return "";
+      return side==="top"
+        ? `M${x},${y+h} L${x},${y+r} Q${x},${y} ${x+r},${y} L${x+w-r},${y} Q${x+w},${y} ${x+w},${y+r} L${x+w},${y+h} Z`
+        : `M${x},${y} L${x+w},${y} L${x+w},${y+h-r} Q${x+w},${y+h} ${x+w-r},${y+h} L${x+r},${y+h} Q${x},${y+h} ${x},${y+h-r} Z`;
+    };
+    series.forEach((p,i)=>{
+      if(p.v===null || Math.abs(p.v)<0.5) return;
+      const x = Xc(i)-barW/2;
+      const h = Math.abs(Y(p.v)-y0);
+      if(h<0.5) return;
+      const d = p.v>=0 ? rr(x, y0-h, barW, h, "top") : rr(x, y0, barW, h, "bottom");
+      const bar = el("path",{d, fill: p.v>=0 ? "var(--lo)" : "var(--hi)"});
+      addTip(bar, p);
+    });
+  } else {
+    let dPath="", started=false;
+    series.forEach((p,i)=>{
+      if(p.v===null){ return; }
+      dPath += (started?"L":"M") + Xc(i).toFixed(1) + "," + Y(p.v).toFixed(1);
+      started = true;
+    });
+    if(dPath) el("path",{d:dPath, fill:"none", stroke:"var(--lo)","stroke-width":2,"stroke-linejoin":"round","stroke-linecap":"round"});
+    series.forEach((p,i)=>{
+      if(p.v===null) return;
+      const c = el("circle",{cx:Xc(i), cy:Y(p.v), r:4, fill:"var(--lo)", stroke:"var(--card)","stroke-width":2});
+      addTip(c, p);
+    });
+    const lastIdx = series.map((p,i)=>p.v!==null?i:-1).filter(i=>i>=0).pop();
+    if(lastIdx!==undefined && lastIdx>=0){
+      const p = series[lastIdx];
+      const tx = el("text",{x:Xc(lastIdx)-8, y:Y(p.v)-10, "text-anchor":"end","font-size":11.5,"font-weight":600, fill:"var(--tx)"});
+      tx.textContent = isPct ? pct(p.v) : moneyC(p.v);
+    }
+  }
+  el("line",{x1:mL,x2:W-mR,y1:y0,y2:y0,stroke:"var(--bd2)","stroke-width":1});
+  host.appendChild(svg);
+}
+
 /* ── настраиваемые плитки показателей ── */
 const TILE_DEFS = [
   {id:"xirr", name:"XIRR фактическая", hero:true, b:m=>[
@@ -654,7 +828,7 @@ document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click", ()=>{
   document.querySelectorAll(".tabsec").forEach(sec=>{
     sec.style.display = sec.id === "tab-"+b.dataset.tab ? "" : "none";
   });
-  if(b.dataset.tab === "metrics" && M){ renderChart(M); renderYearBlock(M); renderMonthBlock(M); }
+  if(b.dataset.tab === "metrics" && M){ renderRent(M); renderChart(M); renderYearBlock(M); renderMonthBlock(M); }
 }));
 
 /* ── паспорт инвестиции ── */
