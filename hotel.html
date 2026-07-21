@@ -791,9 +791,17 @@ const TILE_DEFS = [
     (m.rent12>0 && m.taxes12>0) ? ("после налога: "+pct((m.rent12-m.taxes12)/m.invested*100)) : "аренда за 12 мес. ÷ вложено", ""]},
   {id:"remaining", name:"Осталось вернуть", b:m=>["Осталось вернуть", money(m.remaining), "до окупаемости номинально", ""]},
   {id:"payback", name:"Окупаемость", b:m=>{
+    const yearsRu = mo => {
+      const r = Math.round(mo/12*10)/10;
+      if(Number.isInteger(r)){
+        const w = r%10, h = r%100;
+        return nf0.format(r)+" "+((w===1&&h!==11)?"год":(w>=2&&w<=4&&(h<10||h>=20))?"года":"лет");
+      }
+      return nf1.format(r)+" года";
+    };
     const okup = m.invested<=0 ? "нет данных"
       : m.received>=m.invested+m.taxesTotal ? "достигнута" + (m.paybackDate? " · "+fd(m.paybackDate):"")
-      : m.forecastM!==null ? `через ~${m.forecastM} мес.` : "нет данных о доходе";
+      : m.forecastM!==null ? `через ~${yearsRu(m.forecastM)}` : "нет данных о доходе";
     return ["Окупаемость", okup,
       m.forecastD? "прогноз: "+m.forecastD.toLocaleDateString("ru-RU",{month:"long",year:"numeric"}) : "", ""];
   }},
