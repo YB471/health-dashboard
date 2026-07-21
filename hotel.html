@@ -161,8 +161,13 @@
   <div id="tab-metrics" class="tabsec">
   <div class="card">
     <div class="params">
-      <div class="field"><label for="valInp">Оценка актива</label>
-        <input id="valInp" type="number" min="0" step="1000" placeholder="авто"></div>
+      <div class="field"><label for="valMode">Оценка актива</label>
+        <select id="valMode">
+          <option value="auto">= внесённые деньги (авто)</option>
+          <option value="manual">вручную</option>
+        </select></div>
+      <div class="field"><label for="valInp">Сумма оценки</label>
+        <input id="valInp" type="number" min="0" step="1000"></div>
       <div class="field"><label for="curSel">Валюта</label>
         <select id="curSel">
           <option value="$">USD — $</option><option value="€">EUR — €</option>
@@ -170,7 +175,7 @@
           <option value="₴">UAH — ₴</option><option value="₽">RUB — ₽</option>
         </select></div>
       <div class="field" style="justify-content:center">
-        <div class="note" style="margin:0">Оценка: пусто или 0 — равна внесённым деньгам; введённая сумма используется в «XIRR — с учётом оценки».</div>
+        <div class="note" style="margin:0">В режиме «авто» поле показывает текущую сумму вложений и обновляется с каждым взносом; «вручную» — введите свою оценку (рынок / цена застройщика).</div>
       </div>
       <div id="saveNote"></div>
     </div>
@@ -353,9 +358,9 @@ function compute(){
   const yrs = d => (d - t0) / 31536000000;
   const cfs = rows.map(r => ({t: yrs(pd(r.tx_date)), v: r.flow}));
   const irr = xirr(cfs);
-  /* оценка: введённая вручную, иначе = внесённые деньги */
+  /* оценка: режим авто = внесённые деньги, вручную = сохранённая сумма */
+  const valManual = S.settings.val_mode === "manual";
   const manualVal = Number(S.settings.valuation) || 0;
-  const valManual = manualVal > 0;
   const val = valManual ? manualVal : invested;
   const irrVal = val > 0 ? xirr(cfs.concat([{t: yrs(today), v: val}])) : null;
 
@@ -425,7 +430,10 @@ function render(){
   $("chipN").textContent = m.rows.length;
   $("chipUpd").textContent = new Date().toLocaleDateString("ru-RU");
   $("curSel").value = S.settings.currency || "$";
-  if(document.activeElement !== $("valInp")) $("valInp").value = m.valManual ? (Number(S.settings.valuation)||"") : "";
+  $("valMode").value = m.valManual ? "manual" : "auto";
+  $("valInp").disabled = !m.valManual;
+  if(document.activeElement !== $("valInp"))
+    $("valInp").value = m.valManual ? (Number(S.settings.valuation)||"") : Math.round(m.invested);
   renderPassport();
 
   renderTiles(m);
@@ -769,7 +777,7 @@ const TILE_DEFS = [
     m.irr===null?"":(m.irr>0.0005?"pos":m.irr<-0.0005?"neg":"")]},
   {id:"xirrVal", name:"XIRR с оценкой", hero:true, b:m=>[
     "XIRR — с учётом оценки", m.irrVal===null?"н/д":pct(m.irrVal*100),
-    m.val>0?((m.valManual?"оценка актива (вручную): ":"оценка = внесённые деньги, ")+money(m.val)):"появится после первого взноса",
+    m.val>0?((m.valManual?"оценка актива (вручную): ":"оценка = внесённые деньги, ")+money(m.val)):(m.valManual?"введите сумму оценки":"появится после первого взноса"),
     m.irrVal===null?"":(m.irrVal>0.0005?"pos":m.irrVal<-0.0005?"neg":"")]},
   {id:"invested", name:"Вложено всего", b:m=>["Вложено всего", money(m.invested), "все расходы и взносы", ""]},
   {id:"received", name:"Получено всего", b:m=>["Получено всего", money(m.received), "аренда, прочее, продажа", ""]},
@@ -897,8 +905,15 @@ $("jr").addEventListener("click", async e=>{
   catch(err){ toast("Ошибка удаления"); }
 });
 
+$("valMode").addEventListener("change", async ()=>{
+  const v = $("valMode").value;
+  try{ await api("set",{key:"val_mode",value:v}); S.settings.val_mode=v; render();
+    toast(v==="auto"?"Оценка = внесённые деньги":"Режим ручной оценки"); }
+  catch(e){ toast("Ошибка сохранения режима"); }
+});
 let vT=null;
 $("valInp").addEventListener("input", ()=>{
+  if($("valInp").disabled) return;
   clearTimeout(vT);
   vT=setTimeout(async ()=>{
     const v = Math.max(0, parseFloat($("valInp").value)||0);
