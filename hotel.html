@@ -394,12 +394,12 @@ function render(){
   $("tiles").innerHTML =
     tile("XIRR — фактическая", m.irr===null?"н/д":pct(m.irr*100),
       m.irr===null?(m.received>0?"поступления пока слишком малы для годовой ставки":"появится после первого поступления"):"по реальным денежным потокам",
-      m.irr===null?"":(m.irr>=0?"pos":"neg"), true) +
+      m.irr===null?"":(m.irr>0.0005?"pos":m.irr<-0.0005?"neg":""), true) +
     tile("XIRR — с учётом оценки", m.irrVal===null?"н/д":pct(m.irrVal*100),
       m.valMode==="auto"
         ? (m.val>0?("оценка = внесённые деньги, "+money(m.val)):"появится после первого взноса")
         : (m.val>0?("оценка актива "+money(m.val)):"укажите сумму оценки"),
-      m.irrVal===null?"":(m.irrVal>=0?"pos":"neg"), true) +
+      m.irrVal===null?"":(m.irrVal>0.0005?"pos":m.irrVal<-0.0005?"neg":""), true) +
     tile("Вложено всего", money(m.invested), "все расходы и взносы") +
     tile("Получено всего", money(m.received), "аренда, прочее, продажа") +
     tile("Чистая позиция", money(m.net), "получено − вложено", m.net>=0?"pos":"neg") +
