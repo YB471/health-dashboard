@@ -43,6 +43,16 @@
   .chip b{color:var(--tx)}
   .btn2{padding:7px 12px;font-size:13px;border:1px solid var(--bd2);border-radius:8px;background:transparent;color:inherit;cursor:pointer;margin-left:auto}
 
+  /* tabs */
+  .tabs{display:flex;gap:2px;border-bottom:1px solid var(--bd);margin-bottom:16px;overflow-x:auto}
+  .tab{padding:9px 14px;font-size:14px;border:0;background:transparent;color:var(--tx2);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
+  .tab.on{color:var(--tx);border-bottom-color:var(--ok);font-weight:600}
+
+  /* tile config */
+  #tileCfgWrap{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+  .tchip{padding:6px 11px;font-size:12.5px;border:1px solid var(--bd2);border-radius:999px;background:transparent;color:var(--tx2);cursor:pointer}
+  .tchip.on{border-color:var(--ok);color:var(--ok);background:var(--okbg)}
+
   /* passport */
   .pp{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px 18px}
   .pp .pi .k{font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--tx3)}
@@ -134,6 +144,13 @@
     </div>
   </header>
 
+  <div class="tabs">
+    <button class="tab" data-tab="passport">Паспорт</button>
+    <button class="tab on" data-tab="metrics">Показатели</button>
+    <button class="tab" data-tab="tx">Транзакции</button>
+  </div>
+
+  <div id="tab-passport" class="tabsec" style="display:none">
   <div class="card">
     <div class="crow"><h2>Паспорт инвестиции</h2>
       <button class="btn2" id="ppEdit" style="margin-left:auto">Редактировать</button></div>
@@ -160,8 +177,13 @@
     </div>
   </div>
 
+  </div><!-- /tab-passport -->
+
+  <div id="tab-metrics" class="tabsec">
   <div class="card">
-    <h2>Показатели</h2>
+    <div class="crow"><h2>Показатели</h2>
+      <button class="btn2" id="tilesCfgBtn" style="margin-left:auto">Настроить</button></div>
+    <div id="tileCfgWrap" style="display:none"></div>
     <div class="tiles" id="tiles"></div>
   </div>
 
@@ -196,6 +218,9 @@
     <div class="tbl-wrap" style="margin-top:14px"><table id="monthTbl"></table></div>
   </div>
 
+  </div><!-- /tab-metrics -->
+
+  <div id="tab-tx" class="tabsec" style="display:none">
   <div class="card">
     <h2>Новая транзакция</h2>
     <div class="addrow">
@@ -220,6 +245,7 @@
     <div class="note">Знак определяется типом: взносы, сборы, мебель, налоги и прочие расходы — отток; аренда, прочий доход и продажа — приток. Налоги не входят во «вложено» и в оценку актива — это операционный расход.
     «Нарастающим итогом» — совокупная денежная позиция на дату. XIRR — годовая ставка, при которой приведённая сумма всех потоков равна нулю; «с учётом оценки» — как если бы актив был продан сегодня по текущей оценке (оценка равна внесённым деньгам). Прогноз окупаемости — по среднему доходу за последние 12 месяцев. Данные хранятся в отдельном проекте Supabase «Hotel-Invest», доступ только по паролю.</div>
   </div>
+  </div><!-- /tab-tx -->
 </div>
 
 <div id="toast"></div>
@@ -379,27 +405,7 @@ function render(){
   $("curSel").value = S.settings.currency || "$";
   renderPassport();
 
-  const okup = m.invested<=0 ? "нет данных"
-    : m.received>=m.invested+m.taxesTotal ? "достигнута" + (m.paybackDate? " · "+fd(m.paybackDate):"")
-    : m.forecastM!==null ? `через ~${m.forecastM} мес.` : "нет данных о доходе";
-  $("tiles").innerHTML =
-    tile("XIRR — фактическая", m.irr===null?"н/д":pct(m.irr*100),
-      m.irr===null?(m.received>0?"поступления пока слишком малы для годовой ставки":"появится после первого поступления"):"по реальным денежным потокам",
-      m.irr===null?"":(m.irr>0.0005?"pos":m.irr<-0.0005?"neg":""), true) +
-    tile("XIRR — с учётом оценки", m.irrVal===null?"н/д":pct(m.irrVal*100),
-      m.val>0?("оценка = внесённые деньги, "+money(m.val)):"появится после первого взноса",
-      m.irrVal===null?"":(m.irrVal>0.0005?"pos":m.irrVal<-0.0005?"neg":""), true) +
-    tile("Вложено всего", money(m.invested), "все расходы и взносы") +
-    tile("Получено всего", money(m.received), "аренда, прочее, продажа") +
-    tile("Чистая позиция", money(m.net), "получено − вложено − налоги", m.net>=0?"pos":"neg") +
-    tile("Налоги уплачено", m.taxesTotal>0.5?money(-m.taxesTotal):"—", m.taxes12>0.5?("за 12 мес.: "+money(-m.taxes12)):"по транзакциям типа «Налоги»", m.taxesTotal>0.5?"neg":"") +
-    tile("Возврат вложений", m.invested>0?pct(m.received/m.invested*100):"—", "получено ÷ вложено") +
-    tile("Доход за 12 мес.", money(m.inc12), m.inc12>0?("в среднем "+money(m.inc12/12)+" в мес."):"поступлений не было") +
-    tile("Арендная доходность", m.invested>0?pct(m.rent12/m.invested*100):"—",
-      (m.rent12>0 && m.taxes12>0) ? ("после налога: "+pct((m.rent12-m.taxes12)/m.invested*100)) : "аренда за 12 мес. ÷ вложено") +
-    tile("Осталось вернуть", money(m.remaining), "до окупаемости номинально") +
-    tile("Окупаемость", okup, m.forecastD? "прогноз: "+m.forecastD.toLocaleDateString("ru-RU",{month:"long",year:"numeric"}) : "");
-
+  renderTiles(m);
   renderJournal(m);
   renderChart(m);
   renderYearBlock(m);
@@ -587,6 +593,76 @@ function renderMonthBlock(m){
        `<td>${money(sInc-sOut-sTax)}</td><td></td><td></td></tr></tfoot>`;
   t.innerHTML = h;
 }
+
+/* ── настраиваемые плитки показателей ── */
+const TILE_DEFS = [
+  {id:"xirr", name:"XIRR фактическая", hero:true, b:m=>[
+    "XIRR — фактическая", m.irr===null?"н/д":pct(m.irr*100),
+    m.irr===null?(m.received>0?"поступления пока слишком малы для годовой ставки":"появится после первого поступления"):"по реальным денежным потокам",
+    m.irr===null?"":(m.irr>0.0005?"pos":m.irr<-0.0005?"neg":"")]},
+  {id:"xirrVal", name:"XIRR с оценкой", hero:true, b:m=>[
+    "XIRR — с учётом оценки", m.irrVal===null?"н/д":pct(m.irrVal*100),
+    m.val>0?("оценка = внесённые деньги, "+money(m.val)):"появится после первого взноса",
+    m.irrVal===null?"":(m.irrVal>0.0005?"pos":m.irrVal<-0.0005?"neg":"")]},
+  {id:"invested", name:"Вложено всего", b:m=>["Вложено всего", money(m.invested), "все расходы и взносы", ""]},
+  {id:"received", name:"Получено всего", b:m=>["Получено всего", money(m.received), "аренда, прочее, продажа", ""]},
+  {id:"net", name:"Чистая позиция", b:m=>["Чистая позиция", money(m.net), "получено − вложено − налоги", m.net>=0?"pos":"neg"]},
+  {id:"taxes", name:"Налоги", b:m=>["Налоги уплачено", m.taxesTotal>0.5?money(-m.taxesTotal):"—",
+    m.taxes12>0.5?("за 12 мес.: "+money(-m.taxes12)):"по транзакциям типа «Налоги»", m.taxesTotal>0.5?"neg":""]},
+  {id:"ret", name:"Возврат вложений", b:m=>["Возврат вложений", m.invested>0?pct(m.received/m.invested*100):"—", "получено ÷ вложено", ""]},
+  {id:"inc12", name:"Доход за 12 мес.", b:m=>["Доход за 12 мес.", money(m.inc12),
+    m.inc12>0?("в среднем "+money(m.inc12/12)+" в мес."):"поступлений не было", ""]},
+  {id:"rentYield", name:"Арендная доходность", b:m=>["Арендная доходность", m.invested>0?pct(m.rent12/m.invested*100):"—",
+    (m.rent12>0 && m.taxes12>0) ? ("после налога: "+pct((m.rent12-m.taxes12)/m.invested*100)) : "аренда за 12 мес. ÷ вложено", ""]},
+  {id:"remaining", name:"Осталось вернуть", b:m=>["Осталось вернуть", money(m.remaining), "до окупаемости номинально", ""]},
+  {id:"payback", name:"Окупаемость", b:m=>{
+    const okup = m.invested<=0 ? "нет данных"
+      : m.received>=m.invested+m.taxesTotal ? "достигнута" + (m.paybackDate? " · "+fd(m.paybackDate):"")
+      : m.forecastM!==null ? `через ~${m.forecastM} мес.` : "нет данных о доходе";
+    return ["Окупаемость", okup,
+      m.forecastD? "прогноз: "+m.forecastD.toLocaleDateString("ru-RU",{month:"long",year:"numeric"}) : "", ""];
+  }},
+];
+function enabledTileIds(){
+  const t = S.settings.tiles;
+  return Array.isArray(t) ? t : TILE_DEFS.map(d=>d.id);
+}
+function renderTiles(m){
+  const on = new Set(enabledTileIds());
+  $("tiles").innerHTML = TILE_DEFS.filter(d=>on.has(d.id)).map(d=>{
+    const [lbl,val,sub,cls] = d.b(m);
+    return tile(lbl, val, sub, cls, !!d.hero);
+  }).join("") || `<div class="empty">Все блоки скрыты — включите нужные в «Настроить».</div>`;
+  renderTileCfg();
+}
+function renderTileCfg(){
+  const on = new Set(enabledTileIds());
+  $("tileCfg" + "Wrap").innerHTML = TILE_DEFS.map(d=>
+    `<button class="tchip${on.has(d.id)?' on':''}" data-tile="${d.id}">${on.has(d.id)?'✓ ':'+ '}${d.name}</button>`).join("");
+}
+$("tilesCfgBtn").addEventListener("click", ()=>{
+  const w = $("tileCfgWrap");
+  w.style.display = w.style.display === "none" ? "" : "none";
+});
+$("tileCfgWrap").addEventListener("click", async e=>{
+  const b = e.target.closest(".tchip"); if(!b) return;
+  let ids = enabledTileIds().slice();
+  if(ids.includes(b.dataset.tile)) ids = ids.filter(x=>x!==b.dataset.tile);
+  else ids = TILE_DEFS.map(d=>d.id).filter(id=> ids.includes(id) || id===b.dataset.tile);
+  S.settings.tiles = ids;
+  if(M) renderTiles(M);
+  try{ await api("set",{key:"tiles",value:ids}); }
+  catch(err){ toast("Ошибка сохранения набора блоков"); }
+});
+
+/* ── вкладки ── */
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click", ()=>{
+  document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on", x===b));
+  document.querySelectorAll(".tabsec").forEach(sec=>{
+    sec.style.display = sec.id === "tab-"+b.dataset.tab ? "" : "none";
+  });
+  if(b.dataset.tab === "metrics" && M){ renderChart(M); renderYearBlock(M); renderMonthBlock(M); }
+}));
 
 /* ── паспорт инвестиции ── */
 const PP_FIELDS = [
