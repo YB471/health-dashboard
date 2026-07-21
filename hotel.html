@@ -38,6 +38,8 @@
   header{margin-bottom:16px}
   header h1{font-size:18px;font-weight:500;margin:0 0 2px}
   .sub{color:var(--tx2);font-size:13px}
+  .sub a{color:var(--lo);text-decoration:none}
+  .sub a:hover{text-decoration:underline}
   .mrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center}
   .chip{font-size:12px;color:var(--tx2);border:1px solid var(--bd);border-radius:999px;padding:4px 12px;background:var(--card)}
   .chip b{color:var(--tx)}
@@ -134,7 +136,7 @@
 <div class="wrap" id="app" style="display:none">
   <header>
     <h1 id="pageTitle">Atlantida Boutique Hotel</h1>
-    <div class="sub">Журнал реальных транзакций · показатели считаются автоматически по датам платежей</div>
+    <div class="sub" id="pageSub">Журнал реальных транзакций · показатели считаются автоматически по датам платежей</div>
     <div class="mrow">
       <span class="chip">Вложено: <b id="chipInv">—</b></span>
       <span class="chip">Оценка актива: <b id="chipVal">—</b></span>
@@ -691,6 +693,9 @@ function renderPassport(){
   const nm = (p.name || "").trim();
   $("pageTitle").textContent = nm || "Инвестиционный трекер";
   document.title = (nm ? nm + " — " : "") + "фактическая доходность";
+  $("pageSub").innerHTML = (p.address || "").trim()
+    ? ppAddrHtml(p.address)
+    : "Журнал реальных транзакций · показатели считаются автоматически по датам платежей";
   $("ppView").innerHTML = PP_FIELDS.map(([k,lbl])=>{
     let v;
     if(k==="address") v = ppAddrHtml(p[k]);
