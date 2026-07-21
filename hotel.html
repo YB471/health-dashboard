@@ -452,11 +452,16 @@ function renderChart(m){
     const tx=el("text",{x:mL-8,y:Y(t)+4,"text-anchor":"end","font-size":10.5,fill:"var(--muted)"});
     tx.textContent = moneyC(t);
   }
-  const nlab=Math.min(5,pts.length);
-  for(let i=0;i<nlab;i++){
-    const p=pts[Math.round(i*(pts.length-1)/(nlab-1))];
-    const tx=el("text",{x:X(p.d),y:H-8,"text-anchor":i===0?"start":i===nlab-1?"end":"middle","font-size":10.5,fill:"var(--muted)"});
-    tx.textContent=p.lbl;
+  const lastPx = X(pts[pts.length-1].d);
+  const chosen = [{x:X(pts[0].d), p:pts[0], a:"start"}];
+  for(let i=1;i<pts.length-1;i++){
+    const x = X(pts[i].d);
+    if(x - chosen[chosen.length-1].x > 85 && lastPx - x > 85) chosen.push({x, p:pts[i], a:"middle"});
+  }
+  if(pts.length>1) chosen.push({x:lastPx, p:pts[pts.length-1], a:"end"});
+  for(const c of chosen){
+    const tx=el("text",{x:c.x,y:H-8,"text-anchor":c.a,"font-size":10.5,fill:"var(--muted)"});
+    tx.textContent=c.p.lbl;
   }
   let dPath=""; pts.forEach((p,i)=>{dPath+=(i?"L":"M")+X(p.d).toFixed(1)+","+Y(p.v).toFixed(1);});
   el("path",{d:dPath,fill:"none",stroke:"var(--blue)","stroke-width":2,"stroke-linejoin":"round","stroke-linecap":"round"});
