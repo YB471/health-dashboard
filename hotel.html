@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Доходность инвестиции — ATLANTIDA</title>
+<title>Инвестиционный трекер — фактическая доходность</title>
 <script>try{if(localStorage.getItem("ht_pw"))document.documentElement.className+=" authed";}catch(e){}</script>
 <style>
   :root{--bg:#faf9f7;--card:#fff;--bd:rgba(0,0,0,.1);--bd2:rgba(0,0,0,.2);--tx:#1a1a18;--tx2:#5f5e5a;--tx3:#8a8983;--tk:rgba(0,0,0,.05);
@@ -42,6 +42,17 @@
   .chip{font-size:12px;color:var(--tx2);border:1px solid var(--bd);border-radius:999px;padding:4px 12px;background:var(--card)}
   .chip b{color:var(--tx)}
   .btn2{padding:7px 12px;font-size:13px;border:1px solid var(--bd2);border-radius:8px;background:transparent;color:inherit;cursor:pointer;margin-left:auto}
+
+  /* passport */
+  .pp{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px 18px}
+  .pp .pi .k{font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--tx3)}
+  .pp .pi .v{font-size:14px;margin-top:1px;font-weight:500}
+  .pp .pi .v a{color:var(--lo);text-decoration:none}
+  .pp .pi .v a:hover{text-decoration:underline}
+  .ppform{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px 14px;margin-top:4px}
+  .ppform .field input{width:100%}
+  .ppbtns{display:flex;gap:8px;margin-top:12px}
+  .ppbtns .save{padding:8px 16px;font-size:13px;border:0;border-radius:8px;background:var(--ok);color:#fff;cursor:pointer}
 
   /* cards */
   .card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:16px 18px;margin-bottom:14px}
@@ -102,8 +113,8 @@
 
 <div id="login">
   <div class="lbox">
-    <h1>Доходность инвестиции</h1>
-    <div class="lsub">Номер в отеле ATLANTIDA · журнал транзакций</div>
+    <h1>Инвестиционный трекер</h1>
+    <div class="lsub">Журнал транзакций и показатели фактической доходности</div>
     <input id="pw" type="password" placeholder="Пароль" autocomplete="current-password">
     <button id="loginBtn">Войти</button>
     <div id="lerr"></div>
@@ -113,7 +124,7 @@
 <div class="wrap" id="app" style="display:none">
   <header>
     <h1>Фактическая доходность инвестиции</h1>
-    <div class="sub">Объект: номер в бутик-отеле ATLANTIDA (Карпаты) под управлением оператора · показатели считаются автоматически по датам платежей</div>
+    <div class="sub">Журнал реальных транзакций · показатели считаются автоматически по датам платежей</div>
     <div class="mrow">
       <span class="chip">Вложено: <b id="chipInv">—</b></span>
       <span class="chip">Оценка актива: <b id="chipVal">—</b></span>
@@ -124,6 +135,17 @@
   </header>
 
   <div class="card">
+    <div class="crow"><h2>Паспорт инвестиции</h2>
+      <button class="btn2" id="ppEdit" style="margin-left:auto">Редактировать</button></div>
+    <div class="pp" id="ppView"></div>
+    <div class="ppform" id="ppForm" style="display:none"></div>
+    <div class="ppbtns" id="ppBtns" style="display:none">
+      <button class="save" id="ppSave">Сохранить</button>
+      <button class="btn2" id="ppCancel" style="margin-left:0">Отмена</button>
+    </div>
+  </div>
+
+  <div class="card">
     <div class="params">
       <div class="field"><label for="curSel">Валюта</label>
         <select id="curSel">
@@ -131,6 +153,8 @@
           <option value="AED">AED</option><option value="฿">THB — ฿</option>
           <option value="₴">UAH — ₴</option><option value="₽">RUB — ₽</option>
         </select></div>
+      <div class="field"><label for="taxInp">Налог на доход, %</label>
+        <input id="taxInp" type="number" min="0" max="90" step="0.5" style="width:110px"></div>
       <div class="field" style="justify-content:center">
         <div class="note" style="margin:0">Текущая оценка актива равна внесённым деньгам и обновляется автоматически с каждым взносом.</div>
       </div>
@@ -298,14 +322,15 @@ function compute(){
     forecastD = fdt;
   }
 
+  const taxPct = Math.min(90, Math.max(0, Number(S.settings.tax_pct) || 0));
   const byYear = new Map(), byMonth = new Map();
   for(const r of rows){
     const y = pd(r.tx_date).getFullYear();
     const mKey = r.tx_date.slice(0,7);
     if(!byYear.has(y)) byYear.set(y, {inc:0, out:0, incNoSale:0});
-    if(!byMonth.has(mKey)) byMonth.set(mKey, {inc:0, out:0});
+    if(!byMonth.has(mKey)) byMonth.set(mKey, {inc:0, out:0, incNoSale:0});
     const b = byYear.get(y), m = byMonth.get(mKey);
-    if(r.flow>0){ b.inc += r.flow; m.inc += r.flow; if(r.tx_type!=="Продажа актива") b.incNoSale += r.flow; }
+    if(r.flow>0){ b.inc += r.flow; m.inc += r.flow; if(r.tx_type!=="Продажа актива"){ b.incNoSale += r.flow; m.incNoSale += r.flow; } }
     else { b.out += -r.flow; m.out += -r.flow; }
   }
   const y0 = rows.length ? pd(rows[0].tx_date).getFullYear() : today.getFullYear();
@@ -320,8 +345,17 @@ function compute(){
   }
   let cumRun=0; years.forEach(x=>{ cumRun += x.net; x.cum = cumRun; });
 
-  return {rows, invested, received, net: received-invested, inc12, rent12, irr, irrVal, val,
-          paybackDate, remaining, forecastM, forecastD, years, byMonth, y0, y1};
+  /* вложено нарастающим итогом на конец каждого месяца */
+  const invEnd = new Map();
+  let runOut = 0;
+  for(let y=y0; y<=y1; y++) for(let mo=1; mo<=12; mo++){
+    const key = y+"-"+String(mo).padStart(2,"0");
+    runOut += (byMonth.get(key)?.out || 0);
+    invEnd.set(key, runOut);
+  }
+
+  return {rows, invested, received, net: received-invested, inc12, rent12, irr, irrVal, val, taxPct,
+          paybackDate, remaining, forecastM, forecastD, years, byMonth, invEnd, y0, y1};
 }
 
 /* ── рендер ── */
@@ -337,6 +371,8 @@ function render(){
   $("chipN").textContent = m.rows.length;
   $("chipUpd").textContent = new Date().toLocaleDateString("ru-RU");
   $("curSel").value = S.settings.currency || "$";
+  if(document.activeElement !== $("taxInp")) $("taxInp").value = m.taxPct || "";
+  renderPassport();
 
   const okup = m.invested<=0 ? "нет данных"
     : m.received>=m.invested ? "достигнута" + (m.paybackDate? " · "+fd(m.paybackDate):"")
@@ -353,7 +389,8 @@ function render(){
     tile("Чистая позиция", money(m.net), "получено − вложено", m.net>=0?"pos":"neg") +
     tile("Возврат вложений", m.invested>0?pct(m.received/m.invested*100):"—", "получено ÷ вложено") +
     tile("Доход за 12 мес.", money(m.inc12), m.inc12>0?("в среднем "+money(m.inc12/12)+" в мес."):"поступлений не было") +
-    tile("Арендная доходность", m.invested>0?pct(m.rent12/m.invested*100):"—", "аренда за 12 мес. ÷ вложено") +
+    tile("Арендная доходность", m.invested>0?pct(m.rent12/m.invested*100):"—",
+      (m.rent12>0 && m.taxPct>0) ? ("после налога "+pct(m.taxPct)+": "+pct(m.rent12*(1-m.taxPct/100)/m.invested*100)) : "аренда за 12 мес. ÷ вложено") +
     tile("Осталось вернуть", money(m.remaining), "до окупаемости номинально") +
     tile("Окупаемость", okup, m.forecastD? "прогноз: "+m.forecastD.toLocaleDateString("ru-RU",{month:"long",year:"numeric"}) : "");
 
@@ -475,19 +512,20 @@ function renderYearBlock(m){
   drawBars($("yearChart"), m.years.map(x=>({lbl:String(x.y), full:String(x.y), inc:x.inc, out:x.out})));
   const t = $("yearTbl");
   if(!m.rows.length){ t.innerHTML = `<tbody><tr><td class="empty">Нет данных.</td></tr></tbody>`; return; }
-  let h = `<thead><tr><th>Год</th><th>Взносы и расходы</th><th>Поступления</th><th>Чистый поток</th><th>Нарастающим итогом</th><th>Доходность</th></tr></thead><tbody>`;
+  let h = `<thead><tr><th>Год</th><th>Взносы и расходы</th><th>Поступления</th><th>Чистый поток</th><th>Нарастающим итогом</th><th>Доходность до налога</th><th>После налога</th></tr></thead><tbody>`;
   for(const x of m.years){
     h += `<tr><td>${x.y}</td>`+
       `<td class="${x.out>0.5?'neg':''}">${x.out>0.5?money(-x.out):'—'}</td>`+
       `<td class="${x.inc>0.5?'pos':''}">${x.inc>0.5?money(x.inc):'—'}</td>`+
       `<td class="${x.net<-0.5?'neg':''}">${money(x.net)}</td>`+
       `<td class="${x.cum<-0.5?'neg':''}">${money(x.cum)}</td>`+
-      `<td>${x.yieldPct!==null?pct(x.yieldPct):'—'}</td></tr>`;
+      `<td>${x.yieldPct!==null?pct(x.yieldPct):'—'}</td>`+
+      `<td>${x.yieldPct!==null?pct(x.yieldPct*(1-m.taxPct/100)):'—'}</td></tr>`;
   }
   const totOut = m.years.reduce((s,x)=>s+x.out,0), totInc = m.years.reduce((s,x)=>s+x.inc,0);
   h += `</tbody><tfoot><tr><td>Итого</td><td class="neg">${money(-totOut)}</td>`+
        `<td class="${totInc>0.5?'pos':''}">${totInc>0.5?money(totInc):'—'}</td>`+
-       `<td>${money(totInc-totOut)}</td><td></td><td></td></tr></tfoot>`;
+       `<td>${money(totInc-totOut)}</td><td></td><td></td><td></td></tr></tfoot>`;
   t.innerHTML = h;
 }
 
@@ -503,26 +541,84 @@ function renderMonthBlock(m){
   const buckets = [];
   for(let mo=0; mo<12; mo++){
     const key = year+"-"+String(mo+1).padStart(2,"0");
-    const b = m.byMonth.get(key) || {inc:0,out:0};
-    buckets.push({lbl:MONTHS_S[mo], full:MONTHS_S[mo]+" "+year, inc:b.inc, out:b.out});
+    const b = m.byMonth.get(key) || {inc:0,out:0,incNoSale:0};
+    buckets.push({lbl:MONTHS_S[mo], full:MONTHS_S[mo]+" "+year, inc:b.inc, out:b.out, incNoSale:b.incNoSale||0});
   }
   drawBars($("monthChart"), buckets);
   const t = $("monthTbl");
   const filled = buckets.map((b,i)=>({...b, i})).filter(b=>b.inc>0.5||b.out>0.5);
   if(!filled.length){ t.innerHTML = `<tbody><tr><td class="empty">В ${year} году операций не было.</td></tr></tbody>`; return; }
-  let h = `<thead><tr><th>Месяц</th><th>Взносы и расходы</th><th>Поступления</th><th>Чистый поток</th></tr></thead><tbody>`;
+  let h = `<thead><tr><th>Месяц</th><th>Взносы и расходы</th><th>Поступления</th><th>Чистый поток</th><th>Доходность до налога</th><th>После налога</th></tr></thead><tbody>`;
   for(const b of filled){
     const net=b.inc-b.out;
+    const key = year+"-"+String(b.i+1).padStart(2,"0");
+    const ie = m.invEnd.get(key) || 0;
+    const yp = (ie>0 && b.incNoSale>0.5) ? b.incNoSale/ie*100 : null;
     h += `<tr><td>${MONTHS_S[b.i]} ${year}</td>`+
       `<td class="${b.out>0.5?'neg':''}">${b.out>0.5?money(-b.out):'—'}</td>`+
       `<td class="${b.inc>0.5?'pos':''}">${b.inc>0.5?money(b.inc):'—'}</td>`+
-      `<td class="${net<-0.5?'neg':''}">${money(net)}</td></tr>`;
+      `<td class="${net<-0.5?'neg':''}">${money(net)}</td>`+
+      `<td>${yp!==null?pct(yp):'—'}</td>`+
+      `<td>${yp!==null?pct(yp*(1-m.taxPct/100)):'—'}</td></tr>`;
   }
   const sOut=filled.reduce((s,b)=>s+b.out,0), sInc=filled.reduce((s,b)=>s+b.inc,0);
   h += `</tbody><tfoot><tr><td>Итого за год</td><td class="neg">${sOut>0.5?money(-sOut):'—'}</td>`+
-       `<td class="${sInc>0.5?'pos':''}">${sInc>0.5?money(sInc):'—'}</td><td>${money(sInc-sOut)}</td></tr></tfoot>`;
+       `<td class="${sInc>0.5?'pos':''}">${sInc>0.5?money(sInc):'—'}</td><td>${money(sInc-sOut)}</td><td></td><td></td></tr></tfoot>`;
   t.innerHTML = h;
 }
+
+/* ── паспорт инвестиции ── */
+const PP_FIELDS = [
+  ["name","Объект"],
+  ["type","Тип актива"],
+  ["country","Страна и регион"],
+  ["address","Адрес"],
+  ["entry","Дата входа"],
+  ["exit","Дата выхода"],
+  ["operator","Оператор / УК"],
+  ["note","Примечание"],
+];
+function ppData(){ const p = S.settings.passport; return (p && typeof p === "object") ? p : {}; }
+function ppAddrHtml(v){
+  if(!v) return "—";
+  const href = /^https?:\/\//i.test(v) ? v : "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(v);
+  return `<a href="${esc(href)}" target="_blank" rel="noopener">${esc(v)} ↗</a>`;
+}
+function renderPassport(){
+  const p = ppData();
+  $("ppView").innerHTML = PP_FIELDS.map(([k,lbl])=>{
+    let v;
+    if(k==="address") v = ppAddrHtml(p[k]);
+    else if(k==="entry"||k==="exit") v = /^\d{4}-\d{2}-\d{2}$/.test(p[k]||"") ? fd(p[k]) : esc(p[k]||"") || "—";
+    else v = esc(p[k]||"") || "—";
+    return `<div class="pi"><div class="k">${lbl}</div><div class="v">${v}</div></div>`;
+  }).join("");
+}
+function ppToggle(edit){
+  $("ppView").style.display = edit ? "none" : "";
+  $("ppForm").style.display = edit ? "" : "none";
+  $("ppBtns").style.display = edit ? "" : "none";
+  $("ppEdit").style.display = edit ? "none" : "";
+  if(edit){
+    const p = ppData();
+    $("ppForm").innerHTML = PP_FIELDS.map(([k,lbl])=>{
+      const type = (k==="entry"||k==="exit") ? "date" : "text";
+      const ph = k==="address" ? "адрес или ссылка на Google Maps" : "";
+      return `<div class="field"><label>${lbl}</label><input data-pp="${k}" type="${type}" value="${esc(p[k]||"")}" placeholder="${ph}" maxlength="300"></div>`;
+    }).join("");
+  }
+}
+$("ppEdit").addEventListener("click", ()=>ppToggle(true));
+$("ppCancel").addEventListener("click", ()=>ppToggle(false));
+$("ppSave").addEventListener("click", async ()=>{
+  const p = {};
+  document.querySelectorAll("#ppForm [data-pp]").forEach(i=>{ p[i.dataset.pp] = i.value.trim(); });
+  try{
+    await api("set",{key:"passport",value:p});
+    S.settings.passport = p;
+    ppToggle(false); renderPassport(); toast("Паспорт сохранён");
+  }catch(e){ toast("Ошибка сохранения паспорта"); }
+});
 
 /* ── события ── */
 async function refresh(){
@@ -572,6 +668,17 @@ $("jr").addEventListener("click", async e=>{
   catch(err){ toast("Ошибка удаления"); }
 });
 
+let tT=null;
+$("taxInp").addEventListener("input", ()=>{
+  clearTimeout(tT);
+  tT=setTimeout(async ()=>{
+    const v = Math.min(90, Math.max(0, parseFloat($("taxInp").value)||0));
+    $("saveNote").textContent="сохраняю…";
+    try{ await api("set",{key:"tax_pct",value:v}); S.settings.tax_pct=v; render(); $("saveNote").textContent="сохранено"; }
+    catch(e){ $("saveNote").textContent="ошибка сохранения"; }
+    setTimeout(()=>$("saveNote").textContent="",1800);
+  },700);
+});
 $("curSel").addEventListener("change", async ()=>{
   const v=$("curSel").value;
   try{ await api("set",{key:"currency",value:v}); S.settings.currency=v; render(); }
