@@ -173,7 +173,7 @@
     <h2>Журнал транзакций</h2>
     <div class="tbl-wrap"><table id="jr"></table></div>
     <div class="note">Знак определяется типом: взносы, сборы, мебель и прочие расходы — отток; аренда, прочий доход и продажа — приток.
-    «Нарастающим итогом» — совокупная денежная позиция на дату. XIRR — годовая ставка, при которой приведённая сумма всех потоков равна нулю; «с учётом оценки» — как если бы актив был продан сегодня по указанной оценке. Прогноз окупаемости — по среднему доходу за последние 12 месяцев. Данные хранятся в Supabase (таблицы hotel_transactions / hotel_settings), доступ только по паролю.</div>
+    «Нарастающим итогом» — совокупная денежная позиция на дату. XIRR — годовая ставка, при которой приведённая сумма всех потоков равна нулю; «с учётом оценки» — как если бы актив был продан сегодня по указанной оценке. Прогноз окупаемости — по среднему доходу за последние 12 месяцев. Данные хранятся в отдельном проекте Supabase «Hotel-Invest» (таблицы hotel_transactions / hotel_settings), доступ только по паролю.</div>
   </div>
 </div>
 
@@ -181,7 +181,7 @@
 
 <script>
 'use strict';
-const FN = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/hotel-tracker";
+const FN = "https://betrbivpzbfvcckkznwk.supabase.co/functions/v1/hotel-tracker";
 const INCOME = new Set(["Доход от аренды","Прочий доход","Продажа актива"]);
 const $ = id => document.getElementById(id);
 const nf0 = new Intl.NumberFormat('ru-RU',{maximumFractionDigits:0});
