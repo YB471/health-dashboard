@@ -3,40 +3,43 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Фактическая доходность — номер в отеле</title>
+<title>ATLANTIDA — фактическая доходность инвестиции</title>
 <script>try{if(localStorage.getItem("ht_pw"))document.documentElement.className+=" authed";}catch(e){}</script>
 <style>
   :root{
     color-scheme: light dark;
-    --plane:#f6f5f1; --surface:#fdfdfb; --ink:#171a17; --ink2:#5b5f57; --muted:#8a8d84;
-    --grid:#e4e3db; --axis:#c6c5bb; --border:rgba(23,26,23,.10);
-    --accent:#1d5c4d; --accent-soft:rgba(29,92,77,.08);
-    --blue:#2a78d6; --red:#c23a38; --good:#006300;
-    --shadow:0 1px 2px rgba(23,26,23,.05),0 4px 16px rgba(23,26,23,.05);
+    /* палитра брендбука ATLANTIDA: #EBE4D4 #948F74 #213024 #4F2E17 #2C1F0F */
+    --plane:#EBE4D4; --surface:#F8F5EC; --ink:#2C1F0F; --ink2:#4F3A26; --muted:#948F74;
+    --grid:#DFD8C4; --axis:#C6BFA6; --border:rgba(44,31,15,.12);
+    --accent:#213024; --accent-ink:#EBE4D4; --accent-soft:rgba(33,48,36,.08);
+    --blue:#2a72c8; --red:#b8402f; --good:#2e5c38;
+    --shadow:0 1px 2px rgba(44,31,15,.06),0 4px 16px rgba(44,31,15,.06);
   }
   @media (prefers-color-scheme: dark){
     :root{
-      --plane:#0e100f; --surface:#181a18; --ink:#f4f4ef; --ink2:#c0c3ba; --muted:#8a8d84;
-      --grid:#2a2c29; --axis:#3a3c38; --border:rgba(255,255,255,.10);
-      --accent:#4db99b; --accent-soft:rgba(77,185,155,.12);
-      --blue:#3987e5; --red:#e66767; --good:#0ca30c;
-      --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.25);
+      --plane:#141b16; --surface:#213024; --ink:#EBE4D4; --ink2:#cfc8b2; --muted:#948F74;
+      --grid:#2e4234; --axis:#3e5645; --border:rgba(235,228,212,.13);
+      --accent:#bcb695; --accent-ink:#213024; --accent-soft:rgba(148,143,116,.16);
+      --blue:#5b9be8; --red:#e07b6b; --good:#8fbf7f;
+      --shadow:0 1px 2px rgba(0,0,0,.35),0 4px 16px rgba(0,0,0,.3);
     }
   }
   *{box-sizing:border-box}
   html,body{margin:0}
-  body{background:var(--plane);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
-  .serif{font-family:"Charter","Iowan Old Style",Georgia,"Times New Roman",serif}
+  body{background:var(--plane);color:var(--ink);
+    font:15px/1.5 -apple-system,BlinkMacSystemFont,system-ui,Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased}
   .wrap{max-width:1080px;margin:0 auto;padding:28px 20px 60px}
 
   /* login */
   #login{position:fixed;inset:0;background:var(--plane);display:flex;align-items:center;justify-content:center;z-index:40}
   html.authed #login{display:none}
-  .lbox{background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);padding:30px 32px;width:min(360px,90vw)}
-  .lbox .eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:600}
-  .lbox h1{font-family:"Charter",Georgia,serif;font-size:22px;margin:6px 0 16px}
-  .lbox input{width:100%;font:15px system-ui;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--plane);color:var(--ink)}
-  .lbox button{width:100%;margin-top:10px;font:600 14px system-ui;padding:10px;border:0;border-radius:8px;background:var(--accent);color:#fff;cursor:pointer}
+  .lbox{background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);padding:30px 32px;width:min(370px,90vw);text-align:center}
+  .wordmark{letter-spacing:.42em;font-weight:600;font-size:20px;color:var(--accent);text-indent:.42em}
+  .wordsub{letter-spacing:.3em;font-size:9.5px;text-transform:uppercase;color:var(--muted);margin-top:3px;text-indent:.3em}
+  .lbox h1{font-size:15px;font-weight:600;margin:18px 0 14px;color:var(--ink2)}
+  .lbox input{width:100%;font:15px system-ui;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--plane);color:var(--ink);text-align:center}
+  .lbox button{width:100%;margin-top:10px;font:600 14px system-ui;padding:10px;border:0;border-radius:8px;background:var(--accent);color:var(--accent-ink);cursor:pointer}
   #lerr{color:var(--red);font-size:12.5px;margin-top:8px;min-height:16px}
   #boot{position:fixed;inset:0;background:var(--plane);display:none;align-items:center;justify-content:center;z-index:50}
   html.authed #boot{display:flex}
@@ -45,9 +48,9 @@
   @keyframes sp{to{transform:rotate(360deg)}}
 
   /* masthead */
-  .mast{border-bottom:2px solid var(--ink);padding-bottom:16px;margin-bottom:20px}
-  .eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:600}
-  .mast h1{font-family:"Charter","Iowan Old Style",Georgia,serif;font-size:clamp(24px,4vw,34px);line-height:1.15;margin:6px 0 4px}
+  .mast{border-bottom:2px solid var(--accent);padding-bottom:16px;margin-bottom:16px}
+  .brandrow{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+  .mast h1{font-size:clamp(21px,3.6vw,29px);font-weight:700;line-height:1.15;margin:10px 0 4px;letter-spacing:-.01em}
   .mast .sub{color:var(--ink2);font-size:13.5px}
   .mrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;align-items:center}
   .chip{font-size:12px;color:var(--ink2);border:1px solid var(--border);border-radius:999px;padding:4px 12px;background:var(--surface)}
@@ -56,9 +59,22 @@
   .btn:hover{border-color:var(--accent)}
   .btn.ghost{color:var(--muted);background:transparent;border-color:var(--border);margin-left:auto}
 
+  /* hotel card */
+  .hotel{display:flex;gap:18px;align-items:center;background:var(--accent);color:var(--accent-ink);
+    border-radius:14px;box-shadow:var(--shadow);padding:18px 22px;margin-bottom:16px;flex-wrap:wrap}
+  @media (prefers-color-scheme: dark){ .hotel{background:var(--surface);color:var(--ink);border:1px solid var(--border)} }
+  .hotel svg{flex:0 0 auto;opacity:.9}
+  .hotel .ht{flex:1 1 260px;min-width:240px}
+  .hotel .hname{letter-spacing:.35em;font-weight:600;font-size:15px;text-indent:.35em}
+  .hotel .hsub{letter-spacing:.26em;font-size:9px;text-transform:uppercase;opacity:.75;margin-top:2px;text-indent:.26em}
+  .hotel .hdesc{font-size:12.5px;opacity:.85;margin-top:8px;line-height:1.55;max-width:56ch}
+  .hotel .htag{font-size:12px;font-style:italic;opacity:.7;margin-top:6px}
+
   /* cards */
   .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);padding:18px 20px;margin-bottom:16px}
-  .card h2{font-family:"Charter",Georgia,serif;font-size:18px;margin:0 0 12px}
+  .card h2{font-size:16.5px;font-weight:700;margin:0 0 12px;letter-spacing:-.01em}
+  .card .crow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+  .card .crow h2{margin:0}
   .params{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-end}
   .field{display:flex;flex-direction:column;gap:4px}
   .field label{font-size:11.5px;color:var(--ink2)}
@@ -76,22 +92,28 @@
 
   .chart-host{width:100%;margin-top:4px}
   .chart-host svg{display:block;width:100%;height:auto}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--ink2);margin:0 0 6px}
+  .key{display:inline-flex;align-items:center;gap:6px}
+  .sw{width:10px;height:10px;border-radius:3px;display:inline-block}
 
   /* add form */
   .addrow{display:grid;grid-template-columns:150px 1fr 130px 1fr auto;gap:8px;align-items:end}
-  @media (max-width:760px){.addrow{grid-template-columns:1fr 1fr;}.addrow .field.wide{grid-column:1/-1}}
-  .addrow button{font:600 13px system-ui;background:var(--accent);color:#fff;border:0;border-radius:8px;padding:9px 16px;cursor:pointer;height:37px}
+  @media (max-width:760px){.addrow{grid-template-columns:1fr 1fr}.addrow .field.wide{grid-column:1/-1}}
+  .addrow button{font:600 13px system-ui;background:var(--accent);color:var(--accent-ink);border:0;border-radius:8px;padding:9px 16px;cursor:pointer;height:37px}
   .addrow button:disabled{opacity:.5}
   #addErr{color:var(--red);font-size:12px;margin-top:6px;min-height:14px}
 
-  /* journal */
+  /* tables */
   .tbl-wrap{overflow-x:auto;border:1px solid var(--grid);border-radius:10px}
-  table{border-collapse:collapse;width:100%;font-size:13px;min-width:640px}
+  table{border-collapse:collapse;width:100%;font-size:13px}
+  #jr{min-width:640px}
   th,td{padding:8px 12px;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
-  th:nth-child(1),td:nth-child(1),th:nth-child(2),td:nth-child(2),th:nth-child(5),td:nth-child(5){text-align:left}
-  td:nth-child(5){white-space:normal;min-width:160px;color:var(--ink2);font-size:12.5px}
+  th:first-child,td:first-child{text-align:left}
+  #jr th:nth-child(2),#jr td:nth-child(2),#jr th:nth-child(5),#jr td:nth-child(5){text-align:left}
+  #jr td:nth-child(5){white-space:normal;min-width:160px;color:var(--ink2);font-size:12.5px}
   thead th{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2);border-bottom:1px solid var(--axis);background:var(--plane);position:sticky;top:0}
   tbody tr+tr td{border-top:1px solid var(--grid)}
+  tfoot td{border-top:2px solid var(--axis);font-weight:650;background:var(--plane)}
   td.neg{color:var(--red)} td.pos{color:var(--good)}
   .del{border:0;background:none;color:var(--muted);cursor:pointer;font-size:15px;padding:2px 6px;border-radius:6px}
   .del:hover{color:var(--red);background:var(--accent-soft)}
@@ -106,8 +128,9 @@
 
 <div id="login">
   <div class="lbox">
-    <div class="eyebrow">Инвестиционный учёт</div>
-    <h1>Доходность номера в отеле</h1>
+    <div class="wordmark">ATLANTIDA</div>
+    <div class="wordsub">Boutique Hotel</div>
+    <h1>Учёт доходности инвестиции</h1>
     <input id="pw" type="password" placeholder="Пароль" autocomplete="current-password">
     <button id="loginBtn">Войти</button>
     <div id="lerr"></div>
@@ -116,7 +139,10 @@
 
 <div class="wrap" id="app" style="display:none">
   <header class="mast">
-    <div class="eyebrow">Инвестиционный учёт · Гостиничная недвижимость</div>
+    <div class="brandrow">
+      <span class="wordmark" style="font-size:14px">ATLANTIDA</span>
+      <span class="wordsub" style="margin-top:0">Boutique Hotel · Карпаты</span>
+    </div>
     <h1>Фактическая доходность инвестиции</h1>
     <div class="sub">Журнал реальных транзакций · показатели считаются автоматически по датам платежей</div>
     <div class="mrow">
@@ -127,9 +153,27 @@
     </div>
   </header>
 
+  <div class="hotel">
+    <svg width="64" height="40" viewBox="0 0 64 40" fill="none" aria-hidden="true">
+      <path d="M2 38 L14 10 L23 30 L32 6 L41 30 L50 10 L62 38" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <path d="M2 38 H62" stroke="currentColor" stroke-width="1" opacity=".4"/>
+    </svg>
+    <div class="ht">
+      <div class="hname">ATLANTIDA</div>
+      <div class="hsub">Boutique Hotel · Active &amp; Silent</div>
+      <div class="hdesc">Объект инвестиции — номер в бутик-отеле под управлением оператора. Знак бренда — три буквы «А», соединённые волной: три горы, символ региона.</div>
+      <div class="htag">«Silence when you need it. Power when you're ready.»</div>
+    </div>
+  </div>
+
   <div class="card">
     <div class="params">
-      <div class="field"><label for="valInp">Текущая оценка актива</label>
+      <div class="field"><label for="valMode">Оценка актива</label>
+        <select id="valMode">
+          <option value="auto">= внесённые деньги (авто)</option>
+          <option value="manual">вручную</option>
+        </select></div>
+      <div class="field" id="valInpWrap"><label for="valInp">Сумма оценки</label>
         <input id="valInp" type="number" min="0" step="1000"></div>
       <div class="field"><label for="curSel">Валюта</label>
         <select id="curSel">
@@ -149,6 +193,30 @@
   <div class="card">
     <h2>Денежная позиция нарастающим итогом</h2>
     <div class="chart-host" id="chart"></div>
+  </div>
+
+  <div class="card">
+    <h2>Доходность по годам</h2>
+    <div class="legend">
+      <span class="key"><span class="sw" style="background:var(--blue)"></span>Поступления</span>
+      <span class="key"><span class="sw" style="background:var(--red)"></span>Взносы и расходы</span>
+    </div>
+    <div class="chart-host" id="yearChart"></div>
+    <div class="tbl-wrap" style="margin-top:14px"><table id="yearTbl"></table></div>
+    <div class="note">Доходность за год — поступления от аренды и прочие доходы (без продажи актива) ÷ вложено на конец года.</div>
+  </div>
+
+  <div class="card">
+    <div class="crow">
+      <h2>Доходность по месяцам</h2>
+      <div class="field" style="margin-left:auto"><select id="mYear"></select></div>
+    </div>
+    <div class="legend">
+      <span class="key"><span class="sw" style="background:var(--blue)"></span>Поступления</span>
+      <span class="key"><span class="sw" style="background:var(--red)"></span>Взносы и расходы</span>
+    </div>
+    <div class="chart-host" id="monthChart"></div>
+    <div class="tbl-wrap" style="margin-top:14px"><table id="monthTbl"></table></div>
   </div>
 
   <div class="card">
@@ -173,7 +241,7 @@
     <h2>Журнал транзакций</h2>
     <div class="tbl-wrap"><table id="jr"></table></div>
     <div class="note">Знак определяется типом: взносы, сборы, мебель и прочие расходы — отток; аренда, прочий доход и продажа — приток.
-    «Нарастающим итогом» — совокупная денежная позиция на дату. XIRR — годовая ставка, при которой приведённая сумма всех потоков равна нулю; «с учётом оценки» — как если бы актив был продан сегодня по указанной оценке. Прогноз окупаемости — по среднему доходу за последние 12 месяцев. Данные хранятся в отдельном проекте Supabase «Hotel-Invest» (таблицы hotel_transactions / hotel_settings), доступ только по паролю.</div>
+    «Нарастающим итогом» — совокупная денежная позиция на дату. XIRR — годовая ставка, при которой приведённая сумма всех потоков равна нулю; «с учётом оценки» — как если бы актив был продан сегодня по текущей оценке (в режиме «авто» оценка равна внесённым деньгам). Прогноз окупаемости — по среднему доходу за последние 12 месяцев. Данные хранятся в отдельном проекте Supabase «Hotel-Invest», доступ только по паролю.</div>
   </div>
 </div>
 
@@ -183,11 +251,12 @@
 'use strict';
 const FN = "https://betrbivpzbfvcckkznwk.supabase.co/functions/v1/hotel-tracker";
 const INCOME = new Set(["Доход от аренды","Прочий доход","Продажа актива"]);
+const MONTHS_S = ["янв","фев","мар","апр","май","июн","июл","авг","сен","окт","ноя","дек"];
 const $ = id => document.getElementById(id);
 const nf0 = new Intl.NumberFormat('ru-RU',{maximumFractionDigits:0});
 const nf1 = new Intl.NumberFormat('ru-RU',{minimumFractionDigits:1,maximumFractionDigits:1});
 const PRE = new Set(["$","€","AED","฿"]);
-let S = { txs: [], settings: { valuation: 0, currency: "$" } };
+let S = { txs: [], settings: { valuation: 0, currency: "$", val_mode: "auto" } };
 
 function money(v){
   if(!isFinite(v)) return "—";
@@ -195,6 +264,12 @@ function money(v){
   const a = nf0.format(Math.round(Math.abs(v)));
   const core = PRE.has(c) ? (c==="AED" ? "AED "+a : c+a) : a+" "+c;
   return (v < -0.5 ? "−" : "") + core;
+}
+function moneyC(v){
+  const a=Math.abs(v), s=v<0?"−":"";
+  if(a>=1e6) return s+nf1.format(a/1e6)+" млн";
+  if(a>=1e4) return s+nf0.format(a/1e3)+" тыс.";
+  return s+nf0.format(a);
 }
 function pct(v){ return isFinite(v) ? (v<0?"−":"")+nf1.format(Math.abs(v))+" %" : "—"; }
 function esc(s){ const d=document.createElement('div'); d.textContent=s??""; return d.innerHTML; }
@@ -213,7 +288,7 @@ async function api(action, extra={}){
 }
 
 /* ── финансовые вычисления ── */
-function xirr(cfs){ // cfs: [{t: годы, v}]
+function xirr(cfs){
   if(!cfs.some(c=>c.v>0) || !cfs.some(c=>c.v<0)) return null;
   const f = r => cfs.reduce((s,c)=> s + c.v/Math.pow(1+r, c.t), 0);
   let lo=-0.9999, hi=10, flo=f(lo), fhi=f(hi);
@@ -250,10 +325,11 @@ function compute(){
   const rent12 = rows.filter(r=>r.tx_type==="Доход от аренды" && pd(r.tx_date)>=yearAgo).reduce((s,r)=>s+r.flow,0);
 
   const t0 = rows.length ? pd(rows[0].tx_date) : today;
-  const yrs = d => (d - t0) / 31536000000; // мс в году (365 сут)
+  const yrs = d => (d - t0) / 31536000000;
   const cfs = rows.map(r => ({t: yrs(pd(r.tx_date)), v: r.flow}));
   const irr = xirr(cfs);
-  const val = Number(S.settings.valuation) || 0;
+  const valMode = S.settings.val_mode === "manual" ? "manual" : "auto";
+  const val = valMode === "auto" ? invested : (Number(S.settings.valuation) || 0);
   const irrVal = val > 0 ? xirr(cfs.concat([{t: yrs(today), v: val}])) : null;
 
   let paybackDate = null, wasNeg = false;
@@ -268,20 +344,48 @@ function compute(){
     const fdt = new Date(today); fdt.setMonth(fdt.getMonth()+forecastM);
     forecastD = fdt;
   }
-  return {rows, invested, received, net: received-invested, inc12, rent12, irr, irrVal, val,
-          paybackDate, remaining, forecastM, forecastD};
+
+  /* по годам и месяцам */
+  const byYear = new Map(), byMonth = new Map(); // byMonth: "yyyy-mm" -> {inc,out}
+  for(const r of rows){
+    const y = pd(r.tx_date).getFullYear();
+    const mKey = r.tx_date.slice(0,7);
+    if(!byYear.has(y)) byYear.set(y, {inc:0, out:0, incNoSale:0});
+    if(!byMonth.has(mKey)) byMonth.set(mKey, {inc:0, out:0});
+    const b = byYear.get(y), m = byMonth.get(mKey);
+    if(r.flow>0){ b.inc += r.flow; m.inc += r.flow; if(r.tx_type!=="Продажа актива") b.incNoSale += r.flow; }
+    else { b.out += -r.flow; m.out += -r.flow; }
+  }
+  const y0 = rows.length ? pd(rows[0].tx_date).getFullYear() : today.getFullYear();
+  const y1 = Math.max(today.getFullYear(), rows.length ? pd(rows[rows.length-1].tx_date).getFullYear() : y0);
+  const years = [];
+  let investedRun = 0;
+  for(let y=y0; y<=y1; y++){
+    const b = byYear.get(y) || {inc:0,out:0,incNoSale:0};
+    investedRun += b.out;
+    years.push({y, inc:b.inc, out:b.out, net:b.inc-b.out,
+      yieldPct: investedRun>0 && b.incNoSale>0 ? b.incNoSale/investedRun*100 : null});
+  }
+  let cumRun=0; years.forEach(x=>{ cumRun += x.net; x.cum = cumRun; });
+
+  return {rows, invested, received, net: received-invested, inc12, rent12, irr, irrVal, val, valMode,
+          paybackDate, remaining, forecastM, forecastD, years, byMonth, y0, y1};
 }
 
 /* ── рендер ── */
 function tile(lbl, val, sub, cls="", hero=false){
   return `<div class="tile${hero?' hero':''}"><div class="lbl">${lbl}</div><div class="val ${cls}">${val}</div><div class="sub">${sub||""}</div></div>`;
 }
+let M = null;
 function render(){
-  const m = compute();
+  M = compute();
+  const m = M;
   $("chipInv").textContent = money(m.invested);
   $("chipN").textContent = m.rows.length;
   $("chipUpd").textContent = new Date().toLocaleDateString("ru-RU");
-  $("valInp").value = m.val || "";
+  $("valMode").value = m.valMode;
+  $("valInpWrap").style.display = m.valMode === "manual" ? "" : "none";
+  if(m.valMode === "manual") $("valInp").value = (Number(S.settings.valuation)||0) || "";
   $("curSel").value = S.settings.currency || "$";
 
   const okup = m.invested<=0 ? "нет данных"
@@ -292,7 +396,9 @@ function render(){
       m.irr===null?(m.received>0?"поступления пока слишком малы для годовой ставки":"появится после первого поступления"):"по реальным денежным потокам",
       m.irr===null?"":(m.irr>=0?"pos":"neg"), true) +
     tile("XIRR — с учётом оценки", m.irrVal===null?"н/д":pct(m.irrVal*100),
-      m.val>0?("оценка актива "+money(m.val)):"укажите оценку актива",
+      m.valMode==="auto"
+        ? (m.val>0?("оценка = внесённые деньги, "+money(m.val)):"появится после первого взноса")
+        : (m.val>0?("оценка актива "+money(m.val)):"укажите сумму оценки"),
       m.irrVal===null?"":(m.irrVal>=0?"pos":"neg"), true) +
     tile("Вложено всего", money(m.invested), "все расходы и взносы") +
     tile("Получено всего", money(m.received), "аренда, прочее, продажа") +
@@ -305,6 +411,8 @@ function render(){
 
   renderJournal(m);
   renderChart(m);
+  renderYearBlock(m);
+  renderMonthBlock(m);
 }
 
 function renderJournal(m){
@@ -321,11 +429,12 @@ function renderJournal(m){
   jr.innerHTML = h + "</tbody>";
 }
 
+/* линия нарастающим итогом */
 function renderChart(m){
   const host = $("chart"); host.innerHTML = "";
   if(m.rows.length < 2){ host.innerHTML = `<div class="empty">График появится после двух транзакций.</div>`; return; }
   const W = Math.max(420, host.clientWidth||600), H = 240;
-  const mL=60, mR=16, mT=14, mB=26, pw=W-mL-mR, ph=H-mT-mB;
+  const mL=64, mR=16, mT=14, mB=26, pw=W-mL-mR, ph=H-mT-mB;
   const NS = "http://www.w3.org/2000/svg";
   const svg = document.createElementNS(NS,"svg");
   svg.setAttribute("viewBox",`0 0 ${W} ${H}`);
@@ -336,15 +445,13 @@ function renderChart(m){
   const X = d => mL + pw*((d-x0)/Math.max(1,(x1-x0)));
   const Y = v => mT + ph*(1-(v-lo)/(hi-lo));
   const el = (t,a)=>{ const e=document.createElementNS(NS,t); for(const k in a) e.setAttribute(k,a[k]); svg.appendChild(e); return e; };
-  // сетка
   const span=hi-lo, step0=span/4, mag=Math.pow(10,Math.floor(Math.log10(step0)));
   let step=mag; for(const k of [1,2,2.5,5,10]) if(mag*k>=step0){step=mag*k;break;}
   for(let t=Math.ceil(lo/step)*step; t<=hi; t+=step){
     el("line",{x1:mL,x2:W-mR,y1:Y(t),y2:Y(t),stroke:t===0?"var(--axis)":"var(--grid)","stroke-width":1});
     const tx=el("text",{x:mL-8,y:Y(t)+4,"text-anchor":"end","font-size":10.5,fill:"var(--muted)"});
-    tx.textContent = Math.abs(t)>=1e6? nf1.format(t/1e6)+" млн" : Math.abs(t)>=1e4? nf0.format(t/1e3)+" тыс." : nf0.format(t);
+    tx.textContent = moneyC(t);
   }
-  // подписи дат (первая/последняя + до 3 промежуточных)
   const nlab=Math.min(5,pts.length);
   for(let i=0;i<nlab;i++){
     const p=pts[Math.round(i*(pts.length-1)/(nlab-1))];
@@ -359,6 +466,111 @@ function renderChart(m){
     t.textContent=`${p.lbl}: ${money(p.v)}`; c.appendChild(t);
   });
   host.appendChild(svg);
+}
+
+/* столбцы: поступления вверх (синий), расходы вниз (красный) */
+function drawBars(host, buckets){
+  host.innerHTML = "";
+  if(!buckets.some(b=>b.inc>0.5 || b.out>0.5)){
+    host.innerHTML = `<div class="empty">Нет данных за период.</div>`; return;
+  }
+  const W = Math.max(420, host.clientWidth||600), H = 230;
+  const mL=64, mR=16, mT=12, mB=26, pw=W-mL-mR, ph=H-mT-mB;
+  const NS = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(NS,"svg");
+  svg.setAttribute("viewBox",`0 0 ${W} ${H}`);
+  const el=(t,a,parent)=>{ const e=document.createElementNS(NS,t); for(const k in a) e.setAttribute(k,a[k]); (parent||svg).appendChild(e); return e; };
+  let hi = Math.max(...buckets.map(b=>b.inc), 0), lo = -Math.max(...buckets.map(b=>b.out), 0);
+  if(hi===0 && lo===0) hi=1;
+  const pad=(hi-lo)*.08||1; hi+=pad; if(lo<0) lo-=pad;
+  const Y = v => mT + ph*(1-(v-lo)/(hi-lo));
+  const y0 = Y(0);
+  const band = pw/buckets.length, barW = Math.min(26, band*0.6);
+  const span=hi-lo, step0=span/4, mag=Math.pow(10,Math.floor(Math.log10(step0)));
+  let step=mag; for(const k of [1,2,2.5,5,10]) if(mag*k>=step0){step=mag*k;break;}
+  for(let t=Math.ceil(lo/step)*step; t<=hi; t+=step){
+    el("line",{x1:mL,x2:W-mR,y1:Y(t),y2:Y(t),stroke:Math.abs(t)<step*1e-6?"var(--axis)":"var(--grid)","stroke-width":1});
+    const tx=el("text",{x:mL-8,y:Y(t)+4,"text-anchor":"end","font-size":10.5,fill:"var(--muted)"});
+    tx.textContent = moneyC(t);
+  }
+  const rr = (x,y,w,h,side)=>{ // скруглённый дальний торец
+    const r=Math.max(0,Math.min(4,w/2,h));
+    if(h<=0||w<=0) return "";
+    return side==="top"
+      ? `M${x},${y+h} L${x},${y+r} Q${x},${y} ${x+r},${y} L${x+w-r},${y} Q${x+w},${y} ${x+w},${y+r} L${x+w},${y+h} Z`
+      : `M${x},${y} L${x+w},${y} L${x+w},${y+h-r} Q${x+w},${y+h} ${x+w-r},${y+h} L${x+r},${y+h} Q${x},${y+h} ${x},${y+h-r} Z`;
+  };
+  buckets.forEach((b,i)=>{
+    const cx = mL + band*i + band/2, x = cx - barW/2;
+    const seg = (d,color,label,amt)=>{
+      const p = el("path",{d,fill:color});
+      const t = document.createElementNS(NS,"title");
+      t.textContent = `${b.full||b.lbl} · ${label}: ${money(amt)}`; p.appendChild(t);
+    };
+    const hInc = Math.abs(y0 - Y(b.inc)), hOut = Math.abs(Y(-b.out) - y0);
+    if(b.inc>0.5 && hInc>=0.5) seg(rr(x, y0-hInc, barW, hInc, "top"), "var(--blue)", "поступления", b.inc);
+    if(b.out>0.5 && hOut>=0.5) seg(rr(x, y0, barW, hOut, "bottom"), "var(--red)", "взносы и расходы", -b.out);
+    const showEvery = Math.ceil(buckets.length/12);
+    if(i % showEvery === 0){
+      const tx=el("text",{x:cx,y:H-8,"text-anchor":"middle","font-size":10.5,fill:"var(--muted)"});
+      tx.textContent=b.lbl;
+    }
+  });
+  el("line",{x1:mL,x2:W-mR,y1:y0,y2:y0,stroke:"var(--axis)","stroke-width":1});
+  host.appendChild(svg);
+}
+
+function renderYearBlock(m){
+  drawBars($("yearChart"), m.years.map(x=>({lbl:String(x.y), full:String(x.y), inc:x.inc, out:x.out})));
+  const t = $("yearTbl");
+  if(!m.rows.length){ t.innerHTML = `<tbody><tr><td class="empty">Нет данных.</td></tr></tbody>`; return; }
+  let h = `<thead><tr><th>Год</th><th>Взносы и расходы</th><th>Поступления</th><th>Чистый поток</th><th>Нарастающим итогом</th><th>Доходность</th></tr></thead><tbody>`;
+  for(const x of m.years){
+    h += `<tr><td>${x.y}</td>`+
+      `<td class="${x.out>0.5?'neg':''}">${x.out>0.5?money(-x.out):'—'}</td>`+
+      `<td class="${x.inc>0.5?'pos':''}">${x.inc>0.5?money(x.inc):'—'}</td>`+
+      `<td class="${x.net<-0.5?'neg':''}">${money(x.net)}</td>`+
+      `<td class="${x.cum<-0.5?'neg':''}">${money(x.cum)}</td>`+
+      `<td>${x.yieldPct!==null?pct(x.yieldPct):'—'}</td></tr>`;
+  }
+  const totOut = m.years.reduce((s,x)=>s+x.out,0), totInc = m.years.reduce((s,x)=>s+x.inc,0);
+  h += `</tbody><tfoot><tr><td>Итого</td><td class="neg">${money(-totOut)}</td>`+
+       `<td class="${totInc>0.5?'pos':''}">${totInc>0.5?money(totInc):'—'}</td>`+
+       `<td>${money(totInc-totOut)}</td><td></td><td></td></tr></tfoot>`;
+  t.innerHTML = h;
+}
+
+function renderMonthBlock(m){
+  const sel = $("mYear");
+  const cur = sel.value;
+  sel.innerHTML = "";
+  for(let y=m.y1; y>=m.y0; y--){
+    const o=document.createElement("option"); o.value=y; o.textContent=y+" год"; sel.appendChild(o);
+  }
+  if(cur && +cur>=m.y0 && +cur<=m.y1) sel.value = cur;
+  const year = +sel.value;
+  const buckets = [];
+  for(let mo=0; mo<12; mo++){
+    const key = year+"-"+String(mo+1).padStart(2,"0");
+    const b = m.byMonth.get(key) || {inc:0,out:0};
+    buckets.push({lbl:MONTHS_S[mo], full:MONTHS_S[mo]+" "+year, inc:b.inc, out:b.out});
+  }
+  drawBars($("monthChart"), buckets);
+  const t = $("monthTbl");
+  const filled = buckets.map((b,i)=>({...b, i})).filter(b=>b.inc>0.5||b.out>0.5);
+  if(!filled.length){ t.innerHTML = `<tbody><tr><td class="empty">В ${year} году операций не было.</td></tr></tbody>`; return; }
+  let h = `<thead><tr><th>Месяц</th><th>Взносы и расходы</th><th>Поступления</th><th>Чистый поток</th></tr></thead><tbody>`;
+  for(const b of filled){
+    const net=b.inc-b.out;
+    h += `<tr><td>${MONTHS_S[b.i]} ${year}</td>`+
+      `<td class="${b.out>0.5?'neg':''}">${b.out>0.5?money(-b.out):'—'}</td>`+
+      `<td class="${b.inc>0.5?'pos':''}">${b.inc>0.5?money(b.inc):'—'}</td>`+
+      `<td class="${net<-0.5?'neg':''}">${money(net)}</td></tr>`;
+  }
+  const sOut=filled.reduce((s,b)=>s+b.out,0), sInc=filled.reduce((s,b)=>s+b.inc,0);
+  h += `</tbody><tfoot><tr><td>Итого за год</td><td class="neg">${sOut>0.5?money(-sOut):'—'}</td>`+
+       `<td class="${sInc>0.5?'pos':''}">${sInc>0.5?money(sInc):'—'}</td><td>${money(sInc-sOut)}</td></tr></tfoot>`;
+  t.innerHTML = h;
 }
 
 /* ── события ── */
@@ -409,6 +621,11 @@ $("jr").addEventListener("click", async e=>{
   catch(err){ toast("Ошибка удаления"); }
 });
 
+$("valMode").addEventListener("change", async ()=>{
+  const v=$("valMode").value;
+  try{ await api("set",{key:"val_mode",value:v}); S.settings.val_mode=v; render(); toast(v==="auto"?"Оценка считается по внесённым деньгам":"Режим ручной оценки"); }
+  catch(e){ toast("Ошибка сохранения режима"); }
+});
 let vT=null;
 $("valInp").addEventListener("input", ()=>{
   clearTimeout(vT);
@@ -426,6 +643,7 @@ $("curSel").addEventListener("change", async ()=>{
   try{ await api("set",{key:"currency",value:v}); S.settings.currency=v; render(); }
   catch(e){ toast("Ошибка сохранения валюты"); }
 });
+$("mYear").addEventListener("change", ()=>{ if(M) renderMonthBlock(M); });
 
 let rT=null;
 addEventListener("resize", ()=>{ clearTimeout(rT); rT=setTimeout(()=>render(),200); });
