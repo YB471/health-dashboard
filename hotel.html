@@ -7,10 +7,10 @@
 <script>try{if(localStorage.getItem("ht_pw"))document.documentElement.className+=" authed";}catch(e){}</script>
 <style>
   :root{--bg:#faf9f7;--card:#fff;--bd:rgba(0,0,0,.1);--bd2:rgba(0,0,0,.2);--tx:#1a1a18;--tx2:#5f5e5a;--tx3:#8a8983;--tk:rgba(0,0,0,.05);
-    --ok:#1d9e75;--okbg:rgba(29,158,117,.16);--hi:#d4453f;--lo:#2f7dd4;--warn:#ba7517;--hibg:rgba(212,69,63,.11)}
+    --ok:#1d9e75;--okbg:rgba(29,158,117,.16);--hi:#d4453f;--lo:#2f7dd4;--warn:#ba7517;--hibg:rgba(212,69,63,.11);--warnbg:rgba(186,117,23,.13)}
   @media(prefers-color-scheme:dark){
     :root{--bg:#1c1c1a;--card:#262624;--bd:rgba(255,255,255,.12);--bd2:rgba(255,255,255,.22);--tx:#ededeb;--tx2:#b4b2a9;--tx3:#88877f;--tk:rgba(255,255,255,.06);
-      --okbg:rgba(29,158,117,.28);--hi:#e8635d;--lo:#5b9be8;--warn:#d39233;--hibg:rgba(232,99,93,.2)}
+      --okbg:rgba(29,158,117,.28);--hi:#e8635d;--lo:#5b9be8;--warn:#d39233;--hibg:rgba(232,99,93,.2);--warnbg:rgba(211,146,51,.22)}
   }
   *{box-sizing:border-box}
   html,body{margin:0}
@@ -43,14 +43,17 @@
   .mrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center}
   .chip{font-size:12px;color:var(--tx2);border:1px solid var(--bd);border-radius:999px;padding:4px 12px;background:var(--card)}
   .chip b{color:var(--tx)}
-  .btn2{padding:7px 12px;font-size:13px;border:1px solid var(--bd2);border-radius:8px;background:transparent;color:inherit;cursor:pointer;margin-left:auto}
+  .chip.phase b{color:var(--warn)}
+  .chip.phase.oper b{color:var(--ok)}
+  .btn2{padding:7px 12px;font-size:13px;border:1px solid var(--bd2);border-radius:8px;background:transparent;color:inherit;cursor:pointer;margin-left:6px}
+  .push{margin-left:auto}
 
   /* tabs */
   .tabs{display:flex;gap:2px;border-bottom:1px solid var(--bd);margin-bottom:16px;overflow-x:auto}
   .tab{padding:9px 14px;font-size:14px;border:0;background:transparent;color:var(--tx2);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
   .tab.on{color:var(--tx);border-bottom-color:var(--ok);font-weight:600}
 
-  /* segmented control */
+  /* segmented */
   .seg{display:inline-flex;border:1px solid var(--bd2);border-radius:8px;overflow:hidden}
   .seg button{padding:6px 12px;font-size:12.5px;background:transparent;border:0;color:var(--tx2);cursor:pointer;white-space:nowrap}
   .seg button+button{border-left:1px solid var(--bd)}
@@ -70,7 +73,7 @@
   .ppform{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px 14px;margin-top:4px}
   .ppform .field input{width:100%}
   .ppbtns{display:flex;gap:8px;margin-top:12px}
-  .ppbtns .save{padding:8px 16px;font-size:13px;border:0;border-radius:8px;background:var(--ok);color:#fff;cursor:pointer}
+  .savebtn{padding:8px 16px;font-size:13px;border:0;border-radius:8px;background:var(--ok);color:#fff;cursor:pointer}
 
   /* cards */
   .card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:16px 18px;margin-bottom:14px}
@@ -83,6 +86,8 @@
   .field input,.field select{font:14px system-ui;color:var(--tx);background:var(--bg);border:1px solid var(--bd2);border-radius:8px;padding:8px 10px;font-variant-numeric:tabular-nums}
   .field input[type=number]{text-align:right;width:140px}
   #saveNote{font-size:11.5px;color:var(--tx3);align-self:center}
+  #valDateNote{font-size:10.5px;color:var(--tx3)}
+  #valDateNote.stale{color:var(--warn);font-weight:600}
 
   .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:9px}
   .tile{background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:10px 12px}
@@ -99,16 +104,17 @@
   .sw{width:10px;height:10px;border-radius:3px;display:inline-block}
 
   /* add form */
-  .addrow{display:grid;grid-template-columns:150px 1fr 130px 1fr auto;gap:8px;align-items:end}
+  .addrow{display:grid;grid-template-columns:150px 1fr 130px 1fr auto auto;gap:8px;align-items:end}
   @media (max-width:760px){.addrow{grid-template-columns:1fr 1fr}.addrow .field.wide{grid-column:1/-1}}
   .addrow button{padding:9px 16px;font-size:14px;border:0;border-radius:8px;background:var(--ok);color:#fff;cursor:pointer;height:37px}
   .addrow button:disabled{opacity:.5}
+  .addrow #editCancel{background:transparent;color:var(--tx2);border:1px solid var(--bd2);display:none}
   #addErr{color:var(--hi);font-size:12px;margin-top:6px;min-height:14px}
 
   /* tables */
   .tbl-wrap{overflow-x:auto;border:1px solid var(--bd);border-radius:10px}
   table{border-collapse:collapse;width:100%;font-size:13px}
-  #jr{min-width:640px}
+  #jr{min-width:680px}
   th,td{padding:8px 12px;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
   th:first-child,td:first-child{text-align:left}
   #jr th:nth-child(2),#jr td:nth-child(2),#jr th:nth-child(5),#jr td:nth-child(5){text-align:left}
@@ -117,16 +123,33 @@
   tbody tr+tr td{border-top:1px solid var(--bd)}
   tbody tr:hover td{background:var(--tk)}
   tfoot td{border-top:2px solid var(--bd2);font-weight:600;background:var(--bg)}
-  td.neg{color:var(--hi)} td.pos{color:var(--ok)}
-  .del{border:0;background:none;color:var(--tx3);cursor:pointer;font-size:15px;padding:2px 6px;border-radius:6px}
+  td.neg{color:var(--hi)} td.pos{color:var(--ok)} td.wrn{color:var(--warn)}
+  .del,.edt{border:0;background:none;color:var(--tx3);cursor:pointer;font-size:14px;padding:2px 6px;border-radius:6px}
   .del:hover{color:var(--hi);background:var(--hibg)}
+  .edt:hover{color:var(--lo);background:var(--tk)}
   .empty{padding:22px;text-align:center;color:var(--tx3);font-size:13px}
   .note{font-size:11.5px;color:var(--tx3);margin-top:10px;line-height:1.5}
+  .meth{font-size:13px;color:var(--tx2);line-height:1.65}
+  .meth b{color:var(--tx)}
+  .meth ul{padding-left:18px;margin:6px 0}
+  .meth li{margin:4px 0}
+  .st{font-size:11.5px;font-weight:600;border-radius:999px;padding:2px 10px}
+  .st.paid{color:var(--ok);background:var(--okbg)}
+  .st.due{color:var(--tx3);background:var(--tk)}
+  .st.late{color:var(--hi);background:var(--hibg)}
   #tip{position:fixed;z-index:55;pointer-events:none;background:var(--tx);color:var(--bg);
     font-size:12px;line-height:1.5;padding:8px 11px;border-radius:9px;opacity:0;transition:opacity .12s;
-    max-width:260px;font-variant-numeric:tabular-nums;box-shadow:0 4px 16px rgba(0,0,0,.25)}
+    max-width:270px;font-variant-numeric:tabular-nums;box-shadow:0 4px 16px rgba(0,0,0,.25)}
   #tip b{font-size:12.5px}
   #toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--tx);color:var(--bg);font-size:13px;padding:8px 16px;border-radius:9px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:60}
+
+  @media print{
+    body{background:#fff}
+    .tabs,.addrow,.btn2,.del,.edt,#tileCfgWrap,#login,#boot,#toast,#tip,#addErr{display:none!important}
+    .tabsec{display:block!important}
+    .card{break-inside:avoid;border-color:#ccc;box-shadow:none}
+    thead th{position:static}
+  }
 </style>
 </head>
 <body>
@@ -145,13 +168,15 @@
 
 <div class="wrap" id="app" style="display:none">
   <header>
-    <h1 id="pageTitle">Atlantida Boutique Hotel</h1>
+    <h1 id="pageTitle">Инвестиционный трекер</h1>
     <div class="sub" id="pageSub">Журнал реальных транзакций · показатели считаются автоматически по датам платежей</div>
     <div class="mrow">
+      <span class="chip phase" id="chipPhase">Этап: <b>—</b></span>
       <span class="chip">Вложено: <b id="chipInv">—</b></span>
       <span class="chip">Оценка актива: <b id="chipVal">—</b></span>
       <span class="chip">Операций: <b id="chipN">—</b></span>
-      <span class="chip">Обновлено: <b id="chipUpd">—</b></span>
+      <span class="chip">Отчёт на: <b id="chipUpd">—</b></span>
+      <button class="btn2 push" id="printBtn">Печать / PDF</button>
       <button class="btn2" id="logoutBtn">Выйти</button>
     </div>
   </header>
@@ -162,7 +187,6 @@
     <button class="tab" data-tab="info">Справочная информация</button>
   </div>
 
-
   <div id="tab-metrics" class="tabsec">
   <div class="card">
     <div class="params">
@@ -172,15 +196,17 @@
           <option value="manual">вручную</option>
         </select></div>
       <div class="field"><label for="valInp">Сумма оценки</label>
-        <input id="valInp" type="number" min="0" step="1000"></div>
-      <div class="field"><label for="curSel">Валюта</label>
+        <input id="valInp" type="number" min="0" step="1000">
+        <span id="valDateNote"></span></div>
+      <div class="field"><label for="curSel">Валюта учёта</label>
         <select id="curSel">
+          <option value="USDT">USDT</option>
           <option value="$">USD — $</option><option value="€">EUR — €</option>
           <option value="AED">AED</option><option value="฿">THB — ฿</option>
           <option value="₴">UAH — ₴</option><option value="₽">RUB — ₽</option>
         </select></div>
-      <div class="field" style="justify-content:center">
-        <div class="note" style="margin:0">В режиме «авто» поле показывает текущую сумму вложений и обновляется с каждым взносом; «вручную» — введите свою оценку (рынок / цена застройщика).</div>
+      <div class="field" style="justify-content:center;max-width:360px">
+        <div class="note" style="margin:0">Учёт ведётся в одной валюте — выбор меняет только подпись, суммы не пересчитываются. Оценка «авто» равна внесённым деньгам; «вручную» — ваша оценка с датой.</div>
       </div>
       <div id="saveNote"></div>
     </div>
@@ -188,9 +214,24 @@
 
   <div class="card">
     <div class="crow"><h2>Показатели</h2>
-      <button class="btn2" id="tilesCfgBtn" style="margin-left:auto">Настроить</button></div>
+      <button class="btn2 push" id="tilesCfgBtn">Настроить</button></div>
     <div id="tileCfgWrap" style="display:none"></div>
     <div class="tiles" id="tiles"></div>
+  </div>
+
+  <div class="card">
+    <div class="crow"><h2>Платежи по договору — план-факт</h2>
+      <button class="btn2 push" id="planEdit">Редактировать план</button></div>
+    <div id="planView"></div>
+    <div id="planFormWrap" style="display:none">
+      <div id="planForm"></div>
+      <div class="ppbtns">
+        <button class="btn2" id="planAddRow" style="margin-left:0">+ строка</button>
+        <button class="savebtn" id="planSave">Сохранить план</button>
+        <button class="btn2" id="planCancel" style="margin-left:0">Отмена</button>
+      </div>
+    </div>
+    <div class="note">Факт — транзакции типа «Взнос по договору». Статус транша: «оплачен», когда накопленные взносы покрывают накопленный план по этот транш включительно.</div>
   </div>
 
   <div class="card">
@@ -212,7 +253,7 @@
     </div>
     <div class="chart-host" id="rentChart"></div>
     <div class="tiles" id="rentStats" style="margin-top:12px"></div>
-    <div class="note">Доход — только транзакции типа «Доход от аренды»; «после налога» — за вычетом всех налогов периода. Доходность по месяцам — в годовом выражении (доход месяца × 12 ÷ вложено на конец месяца); по годам — доход года ÷ вложено на конец года. Наведите курсор на точку или столбец — во всплывающей подсказке полный разрез: аренда, налоги, чистыми, вложено, доходность.</div>
+    <div class="note">Доход — только транзакции типа «Доход от аренды»; «после налога» — за вычетом всех налогов периода. Доходность — на средневзвешенный вложенный капитал периода; по месяцам — в годовом выражении (простая аннуализация ×12).</div>
   </div>
 
   <div class="card">
@@ -221,7 +262,7 @@
   </div>
 
   <div class="card">
-    <div class="crow"><h2>Доходность по периодам</h2></div>
+    <div class="crow"><h2>Потоки по периодам</h2></div>
     <div class="crow" style="gap:8px;margin-bottom:8px">
       <span class="seg" id="pfPeriod">
         <button data-v="month" class="on">По месяцам</button>
@@ -230,52 +271,70 @@
       <span class="seg" id="pfMetric">
         <button data-v="flows" class="on">Потоки</button>
         <button data-v="net">Чистый поток</button>
-        <button data-v="yield">Доходность %</button>
-      </span>
-      <span class="seg" id="pfTax">
-        <button data-v="gross" class="on">До налога</button>
-        <button data-v="net">После налога</button>
       </span>
     </div>
     <div class="legend" id="pfLegend"></div>
     <div class="chart-host" id="pfChart"></div>
     <div class="tbl-wrap" style="margin-top:14px"><table id="pfTbl"></table></div>
-    <div class="note">Доходность — поступления без продажи актива ÷ вложено на конец периода, по месяцам — в годовом выражении (×12); «после налога» — за вычетом фактических налогов периода. Наведите курсор на график — подсказка покажет полный разрез периода.</div>
+    <div class="note">Доходность в таблице — поступления без продажи актива ÷ средневзвешенный вложенный капитал периода (по месяцам — ×12, простая аннуализация); «после налога» — за вычетом фактических налогов периода. Доходность именно аренды — в блоке «Арендная доходность».</div>
   </div>
-
   </div><!-- /tab-metrics -->
 
   <div id="tab-tx" class="tabsec" style="display:none">
   <div class="card">
-    <h2>Новая транзакция</h2>
+    <h2 id="txFormTitle">Новая транзакция</h2>
     <div class="addrow">
       <div class="field"><label for="fDate">Дата</label><input id="fDate" type="date"></div>
       <div class="field"><label for="fType">Тип</label>
         <select id="fType">
           <option>Взнос по договору</option><option>Оформление и сборы</option>
           <option>Мебель и отделка</option><option>Прочий расход</option>
-          <option>Налоги</option><option>Доход от аренды</option><option>Прочий доход</option>
+          <option>Налоги</option><option>Возврат средств</option>
+          <option>Доход от аренды</option><option>Прочий доход</option>
           <option>Продажа актива</option>
         </select></div>
       <div class="field"><label for="fAmt">Сумма (без знака)</label><input id="fAmt" type="number" min="0" step="100"></div>
       <div class="field wide"><label for="fCom">Комментарий</label><input id="fCom" type="text" maxlength="500" placeholder="необязательно"></div>
       <button id="addBtn">Добавить</button>
+      <button id="editCancel">Отмена</button>
     </div>
     <div id="addErr"></div>
   </div>
 
   <div class="card">
-    <h2>Журнал транзакций</h2>
+    <div class="crow"><h2>Журнал транзакций</h2>
+      <button class="btn2 push" id="csvBtn">Выгрузить CSV</button></div>
     <div class="tbl-wrap"><table id="jr"></table></div>
-    <div class="note">Знак определяется типом: взносы, сборы, мебель, налоги и прочие расходы — отток; аренда, прочий доход и продажа — приток. Налоги не входят во «вложено» и в оценку актива — это операционный расход.
-    «Нарастающим итогом» — совокупная денежная позиция на дату. XIRR — годовая ставка, при которой приведённая сумма всех потоков равна нулю; «с учётом оценки» — как если бы актив был продан сегодня по текущей оценке (введённой вручную, а если она не задана — равной внесённым деньгам). Прогноз окупаемости — по среднему доходу за последние 12 месяцев. Данные хранятся в отдельном проекте Supabase «Hotel-Invest», доступ только по паролю.</div>
+    <div class="note">Знак определяется типом: взносы, сборы, мебель, налоги и прочие расходы — отток; аренда, прочий доход, продажа и возврат средств — приток. «Возврат средств» уменьшает вложения (не считается доходом). Налоги не входят во «вложено» и в оценку актива. ✎ — исправить запись, ✕ — удалить.</div>
   </div>
   </div><!-- /tab-tx -->
 
   <div id="tab-info" class="tabsec" style="display:none">
   <div class="card">
-    <h2>Справочная информация</h2>
-    <div class="empty">Раздел пока пуст — наполним его тем, что вам нужно.</div>
+    <div class="crow"><h2>Паспорт инвестиции</h2>
+      <button class="btn2 push" id="ppEdit">Редактировать</button></div>
+    <div class="pp" id="ppView"></div>
+    <div class="ppform" id="ppForm" style="display:none"></div>
+    <div class="ppbtns" id="ppBtns" style="display:none">
+      <button class="savebtn" id="ppSave">Сохранить</button>
+      <button class="btn2" id="ppCancel" style="margin-left:0">Отмена</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Методика расчётов</h2>
+    <div class="meth">
+      <ul>
+        <li><b>Валюта учёта.</b> Все суммы вносятся и хранятся в одной валюте (фактические платежи — USDT). Переключатель валюты меняет только подпись и не выполняет конвертаций.</li>
+        <li><b>Вложено</b> — все оттоки, кроме налогов, минус «Возврат средств». Налоги — операционный расход: уменьшают чистую позицию и XIRR, но не «вложено» и не оценку актива.</li>
+        <li><b>XIRR (фактическая)</b> — годовая ставка r, при которой сумма всех потоков CF·(1+r)^(−t) равна нулю; t — время платежа в годах. Считается по реальным датам транзакций.</li>
+        <li><b>XIRR с учётом оценки</b> — те же потоки плюс условная продажа по текущей оценке: в режиме «авто» — по внесённым деньгам на сегодня; в ручном режиме — по вашей оценке на её дату (оценка старше 90 дней помечается как устаревшая).</li>
+        <li><b>Доходность периода</b> — поступления периода (для арендного блока — только аренда; в таблицах потоков — все поступления без продажи) ÷ средневзвешенный вложенный капитал периода. По месяцам приводится к годовому выражению простой аннуализацией (×12).</li>
+        <li><b>Окупаемость</b> — факт: первый выход накопленного потока в ноль после понесённых вложений (номинально, без дисконтирования); прогноз — остаток ÷ чистый темп поступлений за последние 12 месяцев, в годах.</li>
+        <li><b>Оценка актива</b> — не рыночная котировка: «авто» равна внесённым деньгам (консервативная учётная база), ручная — ваша оценка с фиксацией даты.</li>
+        <li>При будущей продаже актива итоговая доходность будет разделена на операционную (аренда) и капитальную (прирост стоимости) составляющие.</li>
+      </ul>
+    </div>
   </div>
   </div><!-- /tab-info -->
 </div>
@@ -287,16 +346,18 @@
 'use strict';
 const FN = "https://betrbivpzbfvcckkznwk.supabase.co/functions/v1/hotel-tracker";
 const INCOME = new Set(["Доход от аренды","Прочий доход","Продажа актива"]);
+const CAPBACK = "Возврат средств";
 const MONTHS_S = ["янв","фев","мар","апр","май","июн","июл","авг","сен","окт","ноя","дек"];
+const DAY = 86400000;
 const $ = id => document.getElementById(id);
 const nf0 = new Intl.NumberFormat('ru-RU',{maximumFractionDigits:0});
 const nf1 = new Intl.NumberFormat('ru-RU',{minimumFractionDigits:1,maximumFractionDigits:1});
 const PRE = new Set(["$","€","AED","฿"]);
-let S = { txs: [], settings: { currency: "$" } };
+let S = { txs: [], settings: { currency: "USDT" } };
 
 function money(v){
   if(!isFinite(v)) return "—";
-  const c = S.settings.currency || "$";
+  const c = S.settings.currency || "USDT";
   const a = nf0.format(Math.round(Math.abs(v)));
   const core = PRE.has(c) ? (c==="AED" ? "AED "+a : c+a) : a+" "+c;
   return (v < -0.5 ? "−" : "") + core;
@@ -311,6 +372,7 @@ function pct(v){ if(!isFinite(v)) return "—"; if(Math.abs(v)<0.05) v=0; return
 function esc(s){ const d=document.createElement('div'); d.textContent=s??""; return d.innerHTML; }
 function pd(s){ const [y,m,d]=s.split("-").map(Number); return new Date(y,m-1,d); }
 function fd(s){ const dt=pd(s); return String(dt.getDate()).padStart(2,"0")+"."+String(dt.getMonth()+1).padStart(2,"0")+"."+dt.getFullYear(); }
+function iso(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
 function showTip(html, x, y){
   const e = $("tip");
   e.innerHTML = html; e.style.opacity = 1;
@@ -360,29 +422,67 @@ function compute(){
   const txs = [...S.txs].sort((a,b)=> a.tx_date===b.tx_date
     ? String(a.created_at).localeCompare(String(b.created_at))
     : (a.tx_date < b.tx_date ? -1 : 1));
-  const rows = txs.map(t => ({...t, flow: (INCOME.has(t.tx_type)? 1 : -1) * Number(t.amount)}));
+  const rows = txs.map(t => ({...t,
+    flow: (INCOME.has(t.tx_type) || t.tx_type===CAPBACK ? 1 : -1) * Number(t.amount)}));
   let c = 0; rows.forEach(r => { c += r.flow; r.cum = c; });
 
-  /* вложения — оттоки без налогов; налоги — отдельная категория */
-  const invested = -rows.filter(r=>r.flow<0 && r.tx_type!=="Налоги").reduce((s,r)=>s+r.flow,0);
-  const taxesTotal = -rows.filter(r=>r.tx_type==="Налоги").reduce((s,r)=>s+r.flow,0);
-  const received =  rows.filter(r=>r.flow>0).reduce((s,r)=>s+r.flow,0);
-  const today = new Date(); today.setHours(0,0,0,0);
-  const yearAgo = new Date(today); yearAgo.setDate(yearAgo.getDate()-365);
-  const inc12 = rows.filter(r=>r.flow>0 && pd(r.tx_date)>=yearAgo).reduce((s,r)=>s+r.flow,0);
-  const rent12 = rows.filter(r=>r.tx_type==="Доход от аренды" && pd(r.tx_date)>=yearAgo).reduce((s,r)=>s+r.flow,0);
-  const rentTotal = rows.filter(r=>r.tx_type==="Доход от аренды").reduce((s,r)=>s+r.flow,0);
-  const taxes12 = -rows.filter(r=>r.tx_type==="Налоги" && pd(r.tx_date)>=yearAgo).reduce((s,r)=>s+r.flow,0);
+  /* капитал: оттоки без налогов минус возвраты */
+  const invested = rows.reduce((s,r)=>{
+    if(r.tx_type===CAPBACK) return s - Number(r.amount);
+    if(r.flow<0 && r.tx_type!=="Налоги") return s + Number(r.amount);
+    return s;
+  }, 0);
+  const taxesTotal = rows.filter(r=>r.tx_type==="Налоги").reduce((s,r)=>s+Number(r.amount),0);
+  const received = rows.filter(r=>r.flow>0 && r.tx_type!==CAPBACK).reduce((s,r)=>s+r.flow,0);
 
-  const t0 = rows.length ? pd(rows[0].tx_date) : today;
-  const yrs = d => (d - t0) / 31536000000;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const tomorrow = today.getTime() + DAY;
+  const yearAgo = new Date(today); yearAgo.setDate(yearAgo.getDate()-365);
+  const inc12 = rows.filter(r=>r.flow>0 && r.tx_type!==CAPBACK && pd(r.tx_date)>=yearAgo).reduce((s,r)=>s+r.flow,0);
+  const rent12 = rows.filter(r=>r.tx_type==="Доход от аренды" && pd(r.tx_date)>=yearAgo).reduce((s,r)=>s+r.flow,0);
+  const taxes12 = rows.filter(r=>r.tx_type==="Налоги" && pd(r.tx_date)>=yearAgo).reduce((s,r)=>s+Number(r.amount),0);
+  const rentTotal = rows.filter(r=>r.tx_type==="Доход от аренды").reduce((s,r)=>s+r.flow,0);
+
+  /* ступенчатая функция вложенного капитала (для средневзвешенных знаменателей) */
+  const capEv = [];
+  { let cap = 0;
+    for(const r of rows){
+      if(r.tx_type==="Налоги") continue;
+      if(r.tx_type===CAPBACK) cap -= Number(r.amount);
+      else if(r.flow<0) cap += Number(r.amount);
+      else continue;
+      capEv.push({t: pd(r.tx_date).getTime(), cum: cap});
+    } }
+  const firstCapT = capEv.length ? capEv[0].t : null;
+  function capAt(t){ let c=0; for(const e of capEv){ if(e.t<=t) c=e.cum; else break; } return c; }
+  function avgCap(t0,t1){
+    if(firstCapT===null) return 0;
+    t0 = Math.max(t0, firstCapT);
+    if(t1<=t0) return capAt(t0);
+    let area=0, prev=t0, cc=capAt(t0);
+    for(const e of capEv){
+      if(e.t<=t0){ cc=e.cum; continue; }
+      if(e.t>=t1) break;
+      area += cc*(e.t-prev); prev=e.t; cc=e.cum;
+    }
+    area += cc*(t1-prev);
+    return area/(t1-t0);
+  }
+  const avg12 = avgCap(yearAgo.getTime(), tomorrow);
+
+  const t0d = rows.length ? pd(rows[0].tx_date) : today;
+  const yrs = d => (d - t0d) / 31536000000;
   const cfs = rows.map(r => ({t: yrs(pd(r.tx_date)), v: r.flow}));
   const irr = xirr(cfs);
-  /* оценка: режим авто = внесённые деньги, вручную = сохранённая сумма */
+
+  /* оценка актива */
   const valManual = S.settings.val_mode === "manual";
   const manualVal = Number(S.settings.valuation) || 0;
+  const valDateStr = valManual ? String(S.settings.valuation_date||"") : "";
   const val = valManual ? manualVal : invested;
-  const irrVal = val > 0 ? xirr(cfs.concat([{t: yrs(today), v: val}])) : null;
+  const valDate = valManual && /^\d{4}-\d{2}-\d{2}$/.test(valDateStr) ? pd(valDateStr) : today;
+  const valStale = valManual && valDateStr && (today - valDate) > 90*DAY;
+  const irrVal = val > 0 ? xirr(cfs.concat([{t: yrs(valDate), v: val}])) : null;
 
   let paybackDate = null, wasNeg = false;
   for(const r of rows){
@@ -399,84 +499,581 @@ function compute(){
     forecastD = fdt;
   }
 
+  /* корзины по месяцам и годам */
   const byYear = new Map(), byMonth = new Map();
   for(const r of rows){
     const y = pd(r.tx_date).getFullYear();
     const mKey = r.tx_date.slice(0,7);
-    if(!byYear.has(y)) byYear.set(y, {inc:0, out:0, tax:0, incNoSale:0, rent:0});
-    if(!byMonth.has(mKey)) byMonth.set(mKey, {inc:0, out:0, tax:0, incNoSale:0, rent:0});
+    if(!byYear.has(y)) byYear.set(y, {inc:0,out:0,tax:0,incNoSale:0,rent:0});
+    if(!byMonth.has(mKey)) byMonth.set(mKey, {inc:0,out:0,tax:0,incNoSale:0,rent:0});
     const b = byYear.get(y), m = byMonth.get(mKey);
-    if(r.flow>0){ b.inc += r.flow; m.inc += r.flow; if(r.tx_type!=="Продажа актива"){ b.incNoSale += r.flow; m.incNoSale += r.flow; }
-      if(r.tx_type==="Доход от аренды"){ b.rent += r.flow; m.rent += r.flow; } }
-    else if(r.tx_type==="Налоги"){ b.tax += -r.flow; m.tax += -r.flow; }
+    if(r.tx_type==="Налоги"){ b.tax += -r.flow; m.tax += -r.flow; }
+    else if(r.tx_type===CAPBACK){ /* возврат капитала: не доход и не расход */ }
+    else if(r.flow>0){
+      b.inc += r.flow; m.inc += r.flow;
+      if(r.tx_type!=="Продажа актива"){ b.incNoSale += r.flow; m.incNoSale += r.flow; }
+      if(r.tx_type==="Доход от аренды"){ b.rent += r.flow; m.rent += r.flow; }
+    }
     else { b.out += -r.flow; m.out += -r.flow; }
   }
   const y0 = rows.length ? pd(rows[0].tx_date).getFullYear() : today.getFullYear();
   const y1 = Math.max(today.getFullYear(), rows.length ? pd(rows[rows.length-1].tx_date).getFullYear() : y0);
+
+  /* средневзвешенный капитал по периодам */
+  const avgInvM = new Map(), avgInvY = new Map();
+  for(let y=y0; y<=y1; y++){
+    const ys = new Date(y,0,1).getTime(), ye = Math.min(new Date(y+1,0,1).getTime(), tomorrow);
+    if(ye>ys) avgInvY.set(y, avgCap(ys, ye));
+    for(let mo=1; mo<=12; mo++){
+      const ms = new Date(y,mo-1,1).getTime(), me = Math.min(new Date(y,mo,1).getTime(), tomorrow);
+      if(me>ms) avgInvM.set(y+"-"+String(mo).padStart(2,"0"), avgCap(ms, me));
+    }
+  }
+
   const years = [];
-  let investedRun = 0;
   for(let y=y0; y<=y1; y++){
     const b = byYear.get(y) || {inc:0,out:0,tax:0,incNoSale:0,rent:0};
-    investedRun += b.out;
-    years.push({y, inc:b.inc, out:b.out, tax:b.tax, rent:b.rent||0, incNoSale:b.incNoSale||0, invEndYear:investedRun, net:b.inc-b.out-b.tax,
-      yieldPct: investedRun>0 && b.incNoSale>0 ? b.incNoSale/investedRun*100 : null,
-      yieldNet: investedRun>0 && b.incNoSale>0 ? (b.incNoSale-b.tax)/investedRun*100 : null});
+    const avg = avgInvY.get(y) || 0;
+    years.push({y, inc:b.inc, out:b.out, tax:b.tax, rent:b.rent, incNoSale:b.incNoSale,
+      avg, net:b.inc-b.out-b.tax,
+      yieldPct: avg>0 && b.incNoSale>0.5 ? b.incNoSale/avg*100 : null,
+      yieldNet: avg>0 && b.incNoSale>0.5 ? (b.incNoSale-b.tax)/avg*100 : null});
   }
   let cumRun=0; years.forEach(x=>{ cumRun += x.net; x.cum = cumRun; });
 
-  /* вложено нарастающим итогом на конец каждого месяца */
-  const invEnd = new Map();
-  let runOut = 0;
-  for(let y=y0; y<=y1; y++) for(let mo=1; mo<=12; mo++){
-    const key = y+"-"+String(mo).padStart(2,"0");
-    runOut += (byMonth.get(key)?.out || 0);
-    invEnd.set(key, runOut);
-  }
+  /* фаза */
+  const hasSale = rows.some(r=>r.tx_type==="Продажа актива");
+  const hasRent = rows.some(r=>r.tx_type==="Доход от аренды");
 
-  return {rows, invested, taxesTotal, received, net: received-invested-taxesTotal, inc12, rent12, taxes12, rentTotal,
-          irr, irrVal, val, valManual, paybackDate, remaining, forecastM, forecastD, years, byMonth, invEnd, y0, y1};
+  return {rows, invested, taxesTotal, received, net: received-invested-taxesTotal,
+          inc12, rent12, taxes12, rentTotal, avg12,
+          irr, irrVal, val, valManual, valDateStr, valStale,
+          paybackDate, remaining, forecastM, forecastD,
+          years, byMonth, avgInvM, avgInvY, y0, y1, hasSale, hasRent};
 }
 
-/* ── рендер ── */
+/* ── плитки ── */
 function tile(lbl, val, sub, cls="", hero=false){
   return `<div class="tile${hero?' hero':''}"><div class="lbl">${lbl}</div><div class="val ${cls}">${val}</div><div class="sub">${sub||""}</div></div>`;
 }
-let M = null;
-function render(){
-  M = compute();
-  const m = M;
-  $("chipInv").textContent = money(m.invested);
-  $("chipVal").textContent = money(m.val);
-  $("chipN").textContent = m.rows.length;
-  $("chipUpd").textContent = new Date().toLocaleDateString("ru-RU");
-  $("curSel").value = S.settings.currency || "$";
-  $("valMode").value = m.valManual ? "manual" : "auto";
-  $("valInp").disabled = !m.valManual;
-  if(document.activeElement !== $("valInp"))
-    $("valInp").value = m.valManual ? (Number(S.settings.valuation)||"") : Math.round(m.invested);
-  renderPassport();
-
-  renderTiles(m);
-  renderRent(m);
-  renderJournal(m);
-  renderChart(m);
-  renderPeriods(m);
+const TILE_DEFS = [
+  {id:"xirr", name:"XIRR фактическая", hero:true, b:m=>[
+    "XIRR — фактическая", m.irr===null?"н/д":pct(m.irr*100),
+    m.irr===null?(m.received>0?"поступления пока слишком малы для годовой ставки":"появится после первого поступления"):"по реальным денежным потокам",
+    m.irr===null?"":(m.irr>0.0005?"pos":m.irr<-0.0005?"neg":"")]},
+  {id:"xirrVal", name:"XIRR с оценкой", hero:true, b:m=>{
+    let sub;
+    if(m.val<=0) sub = m.valManual?"введите сумму оценки":"появится после первого взноса";
+    else if(m.valManual) sub = "оценка (вручную)"+(m.valDateStr?" от "+fd(m.valDateStr):"")+": "+money(m.val)+(m.valStale?" ⚠ устарела":"");
+    else sub = "оценка = внесённые деньги, "+money(m.val);
+    return ["XIRR — с учётом оценки", m.irrVal===null?"н/д":pct(m.irrVal*100), sub,
+      m.irrVal===null?"":(m.irrVal>0.0005?"pos":m.irrVal<-0.0005?"neg":"")];
+  }},
+  {id:"invested", name:"Вложено всего", b:m=>["Вложено всего", money(m.invested), "взносы и расходы минус возвраты, без налогов", ""]},
+  {id:"received", name:"Получено всего", b:m=>["Получено всего", money(m.received), "аренда, прочий доход, продажа", ""]},
+  {id:"net", name:"Чистая позиция", b:m=>["Чистая позиция", money(m.net), "получено − вложено − налоги", m.net>=0?"pos":"neg"]},
+  {id:"taxes", name:"Налоги", b:m=>["Налоги уплачено", m.taxesTotal>0.5?money(-m.taxesTotal):"—",
+    m.taxes12>0.5?("за 12 мес.: "+money(-m.taxes12)):"по транзакциям типа «Налоги»", m.taxesTotal>0.5?"neg":""]},
+  {id:"ret", name:"Возврат вложений", b:m=>["Возврат вложений", m.invested>0?pct(m.received/m.invested*100):"—", "получено ÷ вложено", ""]},
+  {id:"inc12", name:"Поступления за 12 мес.", b:m=>["Поступления за 12 мес.", money(m.inc12),
+    m.inc12>0?("в среднем "+money(m.inc12/12)+" в мес."):"поступлений не было", ""]},
+  {id:"rentYield", name:"Арендная доходность", b:m=>["Арендная доходность",
+    m.avg12>0?pct(m.rent12/m.avg12*100):"—",
+    (m.rent12>0 && m.taxes12>0) ? ("после налога: "+pct((m.rent12-m.taxes12)/m.avg12*100)) : "аренда 12 мес. ÷ средний вложенный капитал", ""]},
+  {id:"remaining", name:"Осталось вернуть", b:m=>["Осталось вернуть", money(m.remaining), "до окупаемости номинально", ""]},
+  {id:"payback", name:"Окупаемость", b:m=>{
+    const yearsRu = mo => {
+      const r = Math.round(mo/12*10)/10;
+      if(Number.isInteger(r)){
+        const w = r%10, h = r%100;
+        return nf0.format(r)+" "+((w===1&&h!==11)?"год":(w>=2&&w<=4&&(h<10||h>=20))?"года":"лет");
+      }
+      return nf1.format(r)+" года";
+    };
+    const okup = m.invested<=0 ? "нет данных"
+      : m.received>=m.invested+m.taxesTotal ? "достигнута" + (m.paybackDate? " · "+fd(m.paybackDate):"")
+      : m.forecastM!==null ? `через ~${yearsRu(m.forecastM)}` : "нет данных о доходе";
+    return ["Окупаемость", okup,
+      m.forecastD? "прогноз: "+m.forecastD.toLocaleDateString("ru-RU",{month:"long",year:"numeric"}) : "", ""];
+  }},
+];
+function enabledTileIds(){
+  const t = S.settings.tiles;
+  return Array.isArray(t) ? t : TILE_DEFS.map(d=>d.id);
 }
+function renderTiles(m){
+  const on = new Set(enabledTileIds());
+  $("tiles").innerHTML = TILE_DEFS.filter(d=>on.has(d.id)).map(d=>{
+    const [lbl,val,sub,cls] = d.b(m);
+    return tile(lbl, val, sub, cls, !!d.hero);
+  }).join("") || `<div class="empty">Все блоки скрыты — включите нужные в «Настроить».</div>`;
+  renderTileCfg();
+}
+function renderTileCfg(){
+  const on = new Set(enabledTileIds());
+  $("tileCfgWrap").innerHTML = TILE_DEFS.map(d=>
+    `<button class="tchip${on.has(d.id)?' on':''}" data-tile="${d.id}">${on.has(d.id)?'✓ ':'+ '}${d.name}</button>`).join("");
+}
+$("tilesCfgBtn").addEventListener("click", ()=>{
+  const w = $("tileCfgWrap");
+  w.style.display = w.style.display === "none" ? "" : "none";
+});
+$("tileCfgWrap").addEventListener("click", async e=>{
+  const b = e.target.closest(".tchip"); if(!b) return;
+  let ids = enabledTileIds().slice();
+  if(ids.includes(b.dataset.tile)) ids = ids.filter(x=>x!==b.dataset.tile);
+  else ids = TILE_DEFS.map(d=>d.id).filter(id=> ids.includes(id) || id===b.dataset.tile);
+  S.settings.tiles = ids;
+  if(M) renderTiles(M);
+  try{ await api("set",{key:"tiles",value:ids}); }
+  catch(err){ toast("Ошибка сохранения набора блоков"); }
+});
 
-function renderJournal(m){
-  const jr = $("jr");
-  if(!m.rows.length){ jr.innerHTML = `<tbody><tr><td class="empty">Журнал пуст — добавьте первую транзакцию выше.</td></tr></tbody>`; return; }
-  let h = `<thead><tr><th>Дата</th><th>Тип</th><th>Поток</th><th>Нарастающим итогом</th><th>Комментарий</th><th></th></tr></thead><tbody>`;
-  for(const r of [...m.rows].reverse()){
-    h += `<tr><td>${fd(r.tx_date)}</td><td>${esc(r.tx_type)}</td>`+
-      `<td class="${r.flow<0?'neg':'pos'}">${r.flow>0?'+':''}${money(r.flow)}</td>`+
-      `<td class="${r.cum<0?'neg':''}">${money(r.cum)}</td>`+
-      `<td>${esc(r.comment)}</td>`+
-      `<td><button class="del" data-id="${r.id}" title="Удалить">✕</button></td></tr>`;
+/* ── план-факт платежей ── */
+let PLAN_EDIT = null;
+function planData(){ const p = S.settings.plan; return Array.isArray(p) ? p : []; }
+function renderPlan(m){
+  const plan = planData();
+  const v = $("planView");
+  if(!plan.length){
+    v.innerHTML = `<div class="empty">План платежей не заполнен. Нажмите «Редактировать план» и внесите транши из договора — появится план-факт: сколько внесено, сколько осталось и ближайший платёж.</div>`;
+    return;
   }
-  jr.innerHTML = h + "</tbody>";
+  const today = iso(new Date());
+  const factTotal = m.rows.filter(r=>r.tx_type==="Взнос по договору").reduce((s,r)=>s+Number(r.amount),0);
+  let cumPlan = 0, nextDue = null;
+  const rowsH = plan.map((p,i)=>{
+    cumPlan += p.amount;
+    const paid = factTotal + 0.01 >= cumPlan;
+    const late = !paid && p.date < today;
+    if(!paid && !nextDue) nextDue = p;
+    const st = paid ? `<span class="st paid">оплачен</span>` : late ? `<span class="st late">просрочен</span>` : `<span class="st due">ожидается</span>`;
+    return `<tr><td>${i+1}</td><td>${fd(p.date)}</td><td style="text-align:left">${esc(p.label)||"Транш "+(i+1)}</td>`+
+      `<td>${money(p.amount)}</td><td>${money(cumPlan)}</td><td style="text-align:center">${st}</td></tr>`;
+  }).join("");
+  const planTotal = plan.reduce((s,p)=>s+p.amount,0);
+  const left = Math.max(0, planTotal - factTotal);
+  v.innerHTML = `
+    <div class="tiles" style="margin-bottom:12px">
+      ${tile("Всего по договору", money(planTotal), plan.length+" траншей")}
+      ${tile("Внесено взносов", money(factTotal), factTotal>=planTotal-0.01?"план исполнен":"по журналу транзакций")}
+      ${tile("Осталось внести", money(left), left>0.5?"будущие обязательства":"—", left>0.5?"neg":"pos")}
+      ${tile("Ближайший транш", nextDue?money(nextDue.amount):"—", nextDue?("до "+fd(nextDue.date)):"все транши оплачены")}
+    </div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>№</th><th>Срок</th><th>Назначение</th><th>Сумма</th><th>План нарастающим</th><th style="text-align:center">Статус</th></tr></thead>
+      <tbody>${rowsH}</tbody>
+    </table></div>`;
+}
+function planFormRow(p, i){
+  return `<div class="params" data-plan-row style="margin-bottom:8px">
+    <div class="field"><label>Срок</label><input type="date" data-pf="date" value="${esc(p.date||"")}"></div>
+    <div class="field"><label>Сумма</label><input type="number" min="0" step="100" data-pf="amount" value="${p.amount||""}"></div>
+    <div class="field" style="flex:1"><label>Назначение</label><input type="text" maxlength="100" data-pf="label" value="${esc(p.label||"")}" placeholder="Транш ${i+1}" style="width:100%"></div>
+    <button class="btn2" data-plan-del style="margin-left:0">✕</button>
+  </div>`;
+}
+function renderPlanForm(){
+  $("planForm").innerHTML = PLAN_EDIT.map((p,i)=>planFormRow(p,i)).join("") ||
+    `<div class="empty">Строк нет — добавьте первую.</div>`;
+}
+$("planEdit").addEventListener("click", ()=>{
+  PLAN_EDIT = planData().map(p=>({...p}));
+  if(!PLAN_EDIT.length) PLAN_EDIT.push({date:"",amount:"",label:""});
+  renderPlanForm();
+  $("planView").style.display="none"; $("planFormWrap").style.display=""; $("planEdit").style.display="none";
+});
+$("planCancel").addEventListener("click", ()=>{
+  $("planView").style.display=""; $("planFormWrap").style.display="none"; $("planEdit").style.display="";
+});
+$("planAddRow").addEventListener("click", ()=>{
+  collectPlanForm(); PLAN_EDIT.push({date:"",amount:"",label:""}); renderPlanForm();
+});
+$("planForm").addEventListener("click", e=>{
+  const b = e.target.closest("[data-plan-del]"); if(!b) return;
+  collectPlanForm();
+  const rows = [...document.querySelectorAll("[data-plan-row]")];
+  const idx = rows.indexOf(b.closest("[data-plan-row]"));
+  if(idx>=0) PLAN_EDIT.splice(idx,1);
+  renderPlanForm();
+});
+function collectPlanForm(){
+  PLAN_EDIT = [...document.querySelectorAll("[data-plan-row]")].map(r=>({
+    date: r.querySelector('[data-pf="date"]').value,
+    amount: parseFloat(r.querySelector('[data-pf="amount"]').value)||0,
+    label: r.querySelector('[data-pf="label"]').value.trim(),
+  }));
+}
+$("planSave").addEventListener("click", async ()=>{
+  collectPlanForm();
+  const rows = PLAN_EDIT.filter(p=>p.date && p.amount>0);
+  try{
+    await api("set",{key:"plan",value:rows});
+    S.settings.plan = rows.sort((a,b)=>a.date.localeCompare(b.date));
+    $("planView").style.display=""; $("planFormWrap").style.display="none"; $("planEdit").style.display="";
+    if(M) renderPlan(M);
+    toast("План сохранён");
+  }catch(e){ toast("Ошибка: проверьте даты и суммы строк"); }
+});
+
+/* ── блок арендной доходности ── */
+const RY = {metric:"income", period:"month", tax:"gross"};
+[["ryMetric","metric"],["ryPeriod","period"],["ryTax","tax"]].forEach(([id,prop])=>{
+  $(id).addEventListener("click", e=>{
+    const b = e.target.closest("button"); if(!b) return;
+    [...$(id).querySelectorAll("button")].forEach(x=>x.classList.toggle("on", x===b));
+    RY[prop] = b.dataset.v;
+    if(M) renderRent(M);
+  });
+});
+function rentSeries(m){
+  const pts = [];
+  const today = new Date();
+  if(RY.period === "month"){
+    let first = null;
+    for(const [k,v] of m.byMonth) if((v.rent||0)>0.5 && (!first || k<first)) first = k;
+    for(let y=m.y0; y<=m.y1; y++) for(let mo=1; mo<=12; mo++){
+      if(y===today.getFullYear() && mo>today.getMonth()+1) break;
+      const key = y+"-"+String(mo).padStart(2,"0");
+      const b = m.byMonth.get(key) || {rent:0,tax:0};
+      pts.push({lbl: MONTHS_S[mo-1]+(mo===1?" "+String(y).slice(2):""), full: MONTHS_S[mo-1]+" "+y,
+        rent: b.rent||0, tax: b.tax||0, avg: m.avgInvM.get(key)||0, ann: 12,
+        started: first!==null && key>=first});
+    }
+  } else {
+    let started = false;
+    for(const x of m.years){
+      if((x.rent||0)>0.5) started = true;
+      pts.push({lbl:String(x.y), full:String(x.y), rent:x.rent||0, tax:x.tax||0, avg:x.avg||0, ann:1, started});
+    }
+  }
+  return pts;
+}
+function rentTipHtml(p, metricLine){
+  const net = p.rent - p.tax;
+  let t = "<b>" + esc(p.full) + "</b>";
+  if(metricLine) t += "<br>" + metricLine;
+  t += "<br>Аренда: " + money(p.rent) + "<br>Налоги: " + (p.tax>0.5?money(-p.tax):"—") + "<br>После налога: " + money(net);
+  if(p.avg>0){
+    t += "<br>Вложено (средн. за период): " + money(p.avg);
+    t += "<br>Доходность (годовая): " + pct(p.rent*p.ann/p.avg*100) + " · чистыми: " + pct(net*p.ann/p.avg*100);
+  }
+  return t;
+}
+function renderRent(m){
+  const host = $("rentChart"); host.innerHTML = "";
+  const pts = rentSeries(m);
+  const net = RY.tax === "net";
+  const base = p => net ? p.rent - p.tax : p.rent;
+  let series;
+  if(RY.metric === "income") series = pts.map(p => ({...p, v: base(p)}));
+  else if(RY.metric === "yield") series = pts.map(p => ({...p, v: (p.avg>0 && p.started) ? base(p)*p.ann/p.avg*100 : null}));
+  else { let c=0; series = pts.map(p => { c += base(p); return {...p, v: p.started ? c : null}; }); }
+
+  if(!pts.some(p=>p.rent>0.5)){
+    host.innerHTML = `<div class="empty">Пока нет транзакций типа «Доход от аренды» — блок оживёт с первым поступлением.</div>`;
+  } else {
+    drawRentChart(host, series, RY.metric);
+  }
+
+  const totR = net ? m.rentTotal - m.taxesTotal : m.rentTotal;
+  const r12 = net ? m.rent12 - m.taxes12 : m.rent12;
+  const sfx = net ? " (после налога)" : "";
+  $("rentStats").innerHTML =
+    tile("Аренда всего"+sfx, m.rentTotal>0.5?money(totR):"—", "за всё время") +
+    tile("За 12 месяцев"+sfx, m.rentTotal>0.5?money(r12):"—", "скользящее окно 365 дней") +
+    tile("В среднем в месяц", m.rentTotal>0.5?money(r12/12):"—", "по последним 12 мес.") +
+    tile("Доходность (12 мес.)"+sfx, (m.avg12>0 && m.rentTotal>0.5)?pct(r12/m.avg12*100):"—", "годовая, на средневзвешенный капитал");
+}
+function drawRentChart(host, series, metric){
+  const W = Math.max(420, host.clientWidth||600), H = 250;
+  const mL=64, mR=16, mT=14, mB=26, pw=W-mL-mR, ph=H-mT-mB;
+  const NS = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(NS,"svg");
+  svg.setAttribute("viewBox",`0 0 ${W} ${H}`);
+  const el=(t,a,parent)=>{ const e=document.createElementNS(NS,t); for(const k in a) e.setAttribute(k,a[k]); (parent||svg).appendChild(e); return e; };
+  const vals = series.map(p=>p.v).filter(v=>v!==null && isFinite(v));
+  let lo = Math.min(0, ...vals), hi = Math.max(0, ...vals);
+  if(hi===lo){ hi = lo+1; }
+  const pad=(hi-lo)*.1||1; hi+=pad; if(lo<0) lo-=pad;
+  const Y = v => mT + ph*(1-(v-lo)/(hi-lo));
+  const isPct = metric === "yield";
+  const fmtAx = v => isPct ? (Math.abs(v)<0.05?"0":nf1.format(v))+" %" : moneyC(v);
+  const span=hi-lo, step0=span/4, mag=Math.pow(10,Math.floor(Math.log10(step0)));
+  let step=mag; for(const k of [1,2,2.5,5,10]) if(mag*k>=step0){step=mag*k;break;}
+  for(let t=Math.ceil(lo/step)*step; t<=hi; t+=step){
+    el("line",{x1:mL,x2:W-mR,y1:Y(t),y2:Y(t),stroke:Math.abs(t)<step*1e-6?"var(--bd2)":"var(--bd)","stroke-width":1});
+    const tx=el("text",{x:mL-8,y:Y(t)+4,"text-anchor":"end","font-size":10.5,fill:"var(--tx3)"});
+    tx.textContent = fmtAx(t);
+  }
+  const n = series.length, band = pw/Math.max(1,n);
+  const Xc = i => mL + band*i + band/2;
+  const y0 = Y(0);
+  let lastX = -1e9;
+  series.forEach((p,i)=>{
+    const x = Xc(i);
+    if(x - lastX >= 46 || i===n-1){
+      const tx=el("text",{x, y:H-8, "text-anchor":"middle","font-size":10,fill:"var(--tx3)"});
+      tx.textContent = p.lbl; lastX = x;
+    }
+  });
+  const rr = (x,y,w,h,side)=>{
+    const r=Math.max(0,Math.min(4,w/2,h)); if(h<=0||w<=0) return "";
+    return side==="top"
+      ? `M${x},${y+h} L${x},${y+r} Q${x},${y} ${x+r},${y} L${x+w-r},${y} Q${x+w},${y} ${x+w},${y+r} L${x+w},${y+h} Z`
+      : `M${x},${y} L${x+w},${y} L${x+w},${y+h-r} Q${x+w},${y+h} ${x+w-r},${y+h} L${x+r},${y+h} Q${x},${y+h} ${x},${y+h-r} Z`;
+  };
+  if(metric === "income"){
+    const barW = Math.min(24, band*0.62);
+    series.forEach((p,i)=>{
+      if(p.v===null || Math.abs(p.v)<0.5) return;
+      const x = Xc(i)-barW/2;
+      const h = Math.abs(Y(p.v)-y0);
+      if(h<0.5) return;
+      el("path",{d: p.v>=0 ? rr(x, y0-h, barW, h, "top") : rr(x, y0, barW, h, "bottom"), fill: p.v>=0 ? "var(--lo)" : "var(--hi)"});
+    });
+  } else {
+    let dPath="", started=false;
+    series.forEach((p,i)=>{
+      if(p.v===null){ return; }
+      dPath += (started?"L":"M") + Xc(i).toFixed(1) + "," + Y(p.v).toFixed(1);
+      started = true;
+    });
+    if(dPath) el("path",{d:dPath, fill:"none", stroke:"var(--lo)","stroke-width":2,"stroke-linejoin":"round","stroke-linecap":"round"});
+    series.forEach((p,i)=>{
+      if(p.v===null) return;
+      el("circle",{cx:Xc(i), cy:Y(p.v), r:4, fill:"var(--lo)", stroke:"var(--card)","stroke-width":2});
+    });
+    const lastIdx = series.map((p,i)=>p.v!==null?i:-1).filter(i=>i>=0).pop();
+    if(lastIdx!==undefined && lastIdx>=0){
+      const p = series[lastIdx];
+      const tx = el("text",{x:Xc(lastIdx)-8, y:Y(p.v)-10, "text-anchor":"end","font-size":11.5,"font-weight":600, fill:"var(--tx)"});
+      tx.textContent = isPct ? pct(p.v) : moneyC(p.v);
+    }
+  }
+  el("line",{x1:mL,x2:W-mR,y1:y0,y2:y0,stroke:"var(--bd2)","stroke-width":1});
+
+  const guide = el("g",{opacity:0});
+  const gl = el("line",{y1:mT,y2:mT+ph,stroke:"var(--bd2)","stroke-width":1}, guide);
+  const gc = el("circle",{r:5.5, fill:"var(--lo)", stroke:"var(--card)","stroke-width":2}, guide);
+  const ov = el("rect",{x:mL,y:mT,width:pw,height:ph,fill:"transparent"});
+  const fmtVal = v => metric==="yield" ? pct(v) : money(v);
+  const metricName = metric==="income" ? "Доход" : metric==="yield" ? "Доходность (годовая)" : "Аренда нарастающим итогом";
+  ov.addEventListener("mousemove", e=>{
+    const box = svg.getBoundingClientRect();
+    if(!box.width) return;
+    const px = (e.clientX - box.left) * (W / box.width);
+    let i = Math.max(0, Math.min(n-1, Math.round((px - mL - band/2) / band)));
+    let j = -1;
+    for(let d=0; d<n; d++){
+      if(i-d>=0 && series[i-d].v!==null){ j=i-d; break; }
+      if(i+d<n && series[i+d].v!==null){ j=i+d; break; }
+    }
+    if(j<0){ guide.setAttribute("opacity",0); hideTip(); return; }
+    const p = series[j];
+    guide.setAttribute("opacity",1);
+    gl.setAttribute("x1",Xc(j)); gl.setAttribute("x2",Xc(j));
+    if(metric==="income"){ gc.setAttribute("opacity",0); }
+    else { gc.setAttribute("opacity",1); gc.setAttribute("cx",Xc(j)); gc.setAttribute("cy",Y(p.v)); }
+    showTip(rentTipHtml(p, "<b>"+metricName+": "+fmtVal(p.v)+"</b>"), e.clientX, e.clientY);
+  });
+  ov.addEventListener("mouseleave", ()=>{ guide.setAttribute("opacity",0); hideTip(); });
+  host.appendChild(svg);
 }
 
+/* ── потоки по периодам ── */
+const PF = {period:"month", metric:"flows"};
+[["pfPeriod","period"],["pfMetric","metric"]].forEach(([id,prop])=>{
+  $(id).addEventListener("click", e=>{
+    const b = e.target.closest("button"); if(!b) return;
+    [...$(id).querySelectorAll("button")].forEach(x=>x.classList.toggle("on", x===b));
+    PF[prop] = b.dataset.v;
+    if(M) renderPeriods(M);
+  });
+});
+function pfSeries(m){
+  const pts = [];
+  const today = new Date();
+  if(PF.period === "month"){
+    for(let y=m.y0; y<=m.y1; y++) for(let mo=1; mo<=12; mo++){
+      if(y===today.getFullYear() && mo>today.getMonth()+1) break;
+      const key = y+"-"+String(mo).padStart(2,"0");
+      const b = m.byMonth.get(key) || {inc:0,out:0,tax:0,incNoSale:0};
+      pts.push({lbl: MONTHS_S[mo-1]+(mo===1?" "+String(y).slice(2):""), full: MONTHS_S[mo-1]+" "+y,
+        inc:b.inc||0, out:b.out||0, tax:b.tax||0, incNoSale:b.incNoSale||0,
+        avg: m.avgInvM.get(key)||0, ann:12});
+    }
+  } else {
+    for(const x of m.years){
+      pts.push({lbl:String(x.y), full:String(x.y), inc:x.inc, out:x.out, tax:x.tax,
+        incNoSale:x.incNoSale||0, avg:x.avg||0, ann:1});
+    }
+  }
+  return pts;
+}
+function pfTipHtml(p){
+  const netFlow = p.inc - p.out - p.tax;
+  let t = "<b>" + esc(p.full) + "</b>";
+  t += "<br>Поступления: " + (p.inc>0.5?money(p.inc):"—");
+  t += "<br>Взносы и расходы: " + (p.out>0.5?money(-p.out):"—");
+  t += "<br>Налоги: " + (p.tax>0.5?money(-p.tax):"—");
+  t += "<br>Чистый поток: " + money(netFlow);
+  if(p.avg>0){
+    t += "<br>Вложено (средн. за период): " + money(p.avg);
+    if(p.incNoSale>0.5)
+      t += "<br>Доходность (годовая): " + pct(p.incNoSale*p.ann/p.avg*100) + " · чистыми: " + pct((p.incNoSale-p.tax)*p.ann/p.avg*100);
+  }
+  return t;
+}
+function renderPeriods(m){
+  const pts = pfSeries(m);
+  $("pfLegend").innerHTML = PF.metric === "flows"
+    ? `<span class="key"><span class="sw" style="background:var(--lo)"></span>Поступления</span>
+       <span class="key"><span class="sw" style="background:var(--hi)"></span>Взносы и расходы</span>
+       <span class="key"><span class="sw" style="background:var(--warn)"></span>Налоги</span>`
+    : `<span class="key"><span class="sw" style="background:var(--lo)"></span>Чистый поток ≥ 0</span>
+       <span class="key"><span class="sw" style="background:var(--hi)"></span>Чистый поток &lt; 0</span>`;
+  drawPeriodChart($("pfChart"), pts);
+  renderPfTable(m, pts);
+}
+function drawPeriodChart(host, pts){
+  host.innerHTML = "";
+  if(!pts.some(p=>p.inc>0.5 || p.out>0.5 || p.tax>0.5)){
+    host.innerHTML = `<div class="empty">Нет данных за период.</div>`; return;
+  }
+  const val = p => p.inc - p.out - p.tax;
+  const W = Math.max(420, host.clientWidth||600), H = 260;
+  const mL=64, mR=16, mT=14, mB=26, pw=W-mL-mR, ph=H-mT-mB;
+  const NS = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(NS,"svg");
+  svg.setAttribute("viewBox",`0 0 ${W} ${H}`);
+  const el=(t,a,parent)=>{ const e=document.createElementNS(NS,t); for(const k in a) e.setAttribute(k,a[k]); (parent||svg).appendChild(e); return e; };
+  let lo=0, hi=0;
+  if(PF.metric === "flows"){
+    hi = Math.max(...pts.map(p=>p.inc), 0);
+    lo = -Math.max(...pts.map(p=>p.out+p.tax), 0);
+  } else {
+    const vals = pts.map(val);
+    lo = Math.min(0, ...vals); hi = Math.max(0, ...vals);
+  }
+  if(hi===lo) hi = lo+1;
+  const pad=(hi-lo)*.09||1; hi+=pad; if(lo<0) lo-=pad;
+  const Y = v => mT + ph*(1-(v-lo)/(hi-lo));
+  const y0 = Y(0);
+  const span=hi-lo, step0=span/4, mag=Math.pow(10,Math.floor(Math.log10(step0)));
+  let step=mag; for(const k of [1,2,2.5,5,10]) if(mag*k>=step0){step=mag*k;break;}
+  for(let t=Math.ceil(lo/step)*step; t<=hi; t+=step){
+    el("line",{x1:mL,x2:W-mR,y1:Y(t),y2:Y(t),stroke:Math.abs(t)<step*1e-6?"var(--bd2)":"var(--bd)","stroke-width":1});
+    const tx=el("text",{x:mL-8,y:Y(t)+4,"text-anchor":"end","font-size":10.5,fill:"var(--tx3)"});
+    tx.textContent = moneyC(t);
+  }
+  const n = pts.length, band = pw/Math.max(1,n);
+  const Xc = i => mL + band*i + band/2;
+  let lastX = -1e9;
+  pts.forEach((p,i)=>{
+    const x = Xc(i);
+    if(x - lastX >= 46 || i===n-1){
+      const tx=el("text",{x, y:H-8, "text-anchor":"middle","font-size":10,fill:"var(--tx3)"});
+      tx.textContent = p.lbl; lastX = x;
+    }
+  });
+  const rr = (x,y,w,h,side)=>{
+    const r=Math.max(0,Math.min(4,w/2,h)); if(h<=0||w<=0) return "";
+    return side==="top"
+      ? `M${x},${y+h} L${x},${y+r} Q${x},${y} ${x+r},${y} L${x+w-r},${y} Q${x+w},${y} ${x+w},${y+r} L${x+w},${y+h} Z`
+      : `M${x},${y} L${x+w},${y} L${x+w},${y+h-r} Q${x+w},${y+h} ${x+w-r},${y+h} L${x+r},${y+h} Q${x},${y+h} ${x},${y+h-r} Z`;
+  };
+  const barW = Math.min(24, band*0.62);
+  pts.forEach((p,i)=>{
+    const x = Xc(i)-barW/2;
+    if(PF.metric === "flows"){
+      const hInc = Math.abs(Y(p.inc)-y0);
+      if(p.inc>0.5 && hInc>=0.5) el("path",{d:rr(x,y0-hInc,barW,hInc,"top"),fill:"var(--lo)"});
+      let yD = y0;
+      const hOut = Math.abs(Y(-p.out)-y0);
+      if(p.out>0.5 && hOut>=0.5){
+        const bottom = !(p.tax>0.5);
+        const d = bottom ? rr(x,yD,barW,hOut,"bottom")
+          : `M${x},${yD} L${x+barW},${yD} L${x+barW},${yD+hOut} L${x},${yD+hOut} Z`;
+        el("path",{d,fill:"var(--hi)"}); yD += hOut + 2;
+      }
+      const hTax = Math.abs(Y(-p.tax)-y0);
+      if(p.tax>0.5 && hTax>=0.5) el("path",{d:rr(x,yD,barW,hTax,"bottom"),fill:"var(--warn)"});
+    } else {
+      const v = val(p);
+      if(Math.abs(v)<0.5) return;
+      const h = Math.abs(Y(v)-y0);
+      if(h<0.5) return;
+      el("path",{d: v>=0 ? rr(x,y0-h,barW,h,"top") : rr(x,y0,barW,h,"bottom"), fill: v>=0?"var(--lo)":"var(--hi)"});
+    }
+  });
+  el("line",{x1:mL,x2:W-mR,y1:y0,y2:y0,stroke:"var(--bd2)","stroke-width":1});
+
+  const guide = el("g",{opacity:0});
+  const gl = el("line",{y1:mT,y2:mT+ph,stroke:"var(--bd2)","stroke-width":1}, guide);
+  const ov = el("rect",{x:mL,y:mT,width:pw,height:ph,fill:"transparent"});
+  ov.addEventListener("mousemove", e=>{
+    const box = svg.getBoundingClientRect();
+    if(!box.width) return;
+    const px = (e.clientX - box.left) * (W / box.width);
+    const j = Math.max(0, Math.min(n-1, Math.round((px - mL - band/2) / band)));
+    const p = pts[j];
+    guide.setAttribute("opacity",1);
+    gl.setAttribute("x1",Xc(j)); gl.setAttribute("x2",Xc(j));
+    const v = p.inc - p.out - p.tax;
+    const head = PF.metric==="net" ? "<b>Чистый поток: "+money(v)+"</b><br>" : "";
+    showTip("<b>"+esc(p.full)+"</b><br>" + head + pfTipHtml(p).replace("<b>"+esc(p.full)+"</b><br>","").replace("<b>"+esc(p.full)+"</b>",""), e.clientX, e.clientY);
+  });
+  ov.addEventListener("mouseleave", ()=>{ guide.setAttribute("opacity",0); hideTip(); });
+  host.appendChild(svg);
+}
+function renderPfTable(m, pts){
+  const t = $("pfTbl");
+  if(PF.period === "year"){
+    if(!m.rows.length){ t.innerHTML = `<tbody><tr><td class="empty">Нет данных.</td></tr></tbody>`; return; }
+    let h = `<thead><tr><th>Год</th><th>Взносы и расходы</th><th>Поступления</th><th>Налоги</th><th>Чистый поток</th><th>Нарастающим итогом</th><th>Доходность до налога</th><th>После налога</th></tr></thead><tbody>`;
+    for(const x of m.years){
+      h += `<tr><td>${x.y}</td>`+
+        `<td class="${x.out>0.5?'neg':''}">${x.out>0.5?money(-x.out):'—'}</td>`+
+        `<td class="${x.inc>0.5?'pos':''}">${x.inc>0.5?money(x.inc):'—'}</td>`+
+        `<td class="${x.tax>0.5?'wrn':''}">${x.tax>0.5?money(-x.tax):'—'}</td>`+
+        `<td class="${x.net<-0.5?'neg':''}">${money(x.net)}</td>`+
+        `<td class="${x.cum<-0.5?'neg':''}">${money(x.cum)}</td>`+
+        `<td>${x.yieldPct!==null?pct(x.yieldPct):'—'}</td>`+
+        `<td>${x.yieldNet!==null?pct(x.yieldNet):'—'}</td></tr>`;
+    }
+    const totOut = m.years.reduce((s,x)=>s+x.out,0), totInc = m.years.reduce((s,x)=>s+x.inc,0), totTax = m.years.reduce((s,x)=>s+x.tax,0);
+    h += `</tbody><tfoot><tr><td>Итого</td><td class="neg">${money(-totOut)}</td>`+
+         `<td class="${totInc>0.5?'pos':''}">${totInc>0.5?money(totInc):'—'}</td>`+
+         `<td class="${totTax>0.5?'wrn':''}">${totTax>0.5?money(-totTax):'—'}</td>`+
+         `<td>${money(totInc-totOut-totTax)}</td><td></td><td></td><td></td></tr></tfoot>`;
+    t.innerHTML = h;
+  } else {
+    const filled = pts.filter(p=>p.inc>0.5||p.out>0.5||p.tax>0.5);
+    if(!filled.length){ t.innerHTML = `<tbody><tr><td class="empty">Операций не было.</td></tr></tbody>`; return; }
+    let h = `<thead><tr><th>Месяц</th><th>Взносы и расходы</th><th>Поступления</th><th>Налоги</th><th>Чистый поток</th><th>Доходность до налога</th><th>После налога</th></tr></thead><tbody>`;
+    for(const b of filled){
+      const netF = b.inc-b.out-b.tax;
+      const yp = (b.avg>0 && b.incNoSale>0.5) ? b.incNoSale*b.ann/b.avg*100 : null;
+      const ypNet = (b.avg>0 && b.incNoSale>0.5) ? (b.incNoSale-b.tax)*b.ann/b.avg*100 : null;
+      h += `<tr><td>${b.full}</td>`+
+        `<td class="${b.out>0.5?'neg':''}">${b.out>0.5?money(-b.out):'—'}</td>`+
+        `<td class="${b.inc>0.5?'pos':''}">${b.inc>0.5?money(b.inc):'—'}</td>`+
+        `<td class="${b.tax>0.5?'wrn':''}">${b.tax>0.5?money(-b.tax):'—'}</td>`+
+        `<td class="${netF<-0.5?'neg':''}">${money(netF)}</td>`+
+        `<td>${yp!==null?pct(yp):'—'}</td>`+
+        `<td>${ypNet!==null?pct(ypNet):'—'}</td></tr>`;
+    }
+    const sOut=filled.reduce((s,b)=>s+b.out,0), sInc=filled.reduce((s,b)=>s+b.inc,0), sTax=filled.reduce((s,b)=>s+b.tax,0);
+    h += `</tbody><tfoot><tr><td>Итого</td><td class="neg">${sOut>0.5?money(-sOut):'—'}</td>`+
+         `<td class="${sInc>0.5?'pos':''}">${sInc>0.5?money(sInc):'—'}</td>`+
+         `<td class="${sTax>0.5?'wrn':''}">${sTax>0.5?money(-sTax):'—'}</td>`+
+         `<td>${money(sInc-sOut-sTax)}</td><td></td><td></td></tr></tfoot>`;
+    t.innerHTML = h;
+  }
+}
+
+/* ── линия накопленной позиции ── */
 function renderChart(m){
   const host = $("chart"); host.innerHTML = "";
   if(m.rows.length < 2){ host.innerHTML = `<div class="empty">График появится после двух транзакций.</div>`; return; }
@@ -520,543 +1117,48 @@ function renderChart(m){
   host.appendChild(svg);
 }
 
-function drawBars(host, buckets){
-  host.innerHTML = "";
-  if(!buckets.some(b=>b.inc>0.5 || b.out>0.5 || (b.tax||0)>0.5)){
-    host.innerHTML = `<div class="empty">Нет данных за период.</div>`; return;
+/* ── журнал ── */
+function renderJournal(m){
+  const jr = $("jr");
+  if(!m.rows.length){ jr.innerHTML = `<tbody><tr><td class="empty">Журнал пуст — добавьте первую транзакцию выше.</td></tr></tbody>`; return; }
+  let h = `<thead><tr><th>Дата</th><th>Тип</th><th>Поток</th><th>Нарастающим итогом</th><th>Комментарий</th><th></th></tr></thead><tbody>`;
+  for(const r of [...m.rows].reverse()){
+    h += `<tr><td>${fd(r.tx_date)}</td><td>${esc(r.tx_type)}</td>`+
+      `<td class="${r.flow<0?'neg':'pos'}">${r.flow>0?'+':''}${money(r.flow)}</td>`+
+      `<td class="${r.cum<0?'neg':''}">${money(r.cum)}</td>`+
+      `<td>${esc(r.comment)}</td>`+
+      `<td><button class="edt" data-id="${r.id}" title="Исправить">✎</button><button class="del" data-id="${r.id}" title="Удалить">✕</button></td></tr>`;
   }
-  const W = Math.max(420, host.clientWidth||600), H = 230;
-  const mL=64, mR=16, mT=12, mB=26, pw=W-mL-mR, ph=H-mT-mB;
-  const NS = "http://www.w3.org/2000/svg";
-  const svg = document.createElementNS(NS,"svg");
-  svg.setAttribute("viewBox",`0 0 ${W} ${H}`);
-  const el=(t,a,parent)=>{ const e=document.createElementNS(NS,t); for(const k in a) e.setAttribute(k,a[k]); (parent||svg).appendChild(e); return e; };
-  let hi = Math.max(...buckets.map(b=>b.inc), 0), lo = -Math.max(...buckets.map(b=>(b.out||0)+(b.tax||0)), 0);
-  if(hi===0 && lo===0) hi=1;
-  const pad=(hi-lo)*.08||1; hi+=pad; if(lo<0) lo-=pad;
-  const Y = v => mT + ph*(1-(v-lo)/(hi-lo));
-  const y0 = Y(0);
-  const band = pw/buckets.length, barW = Math.min(26, band*0.6);
-  const span=hi-lo, step0=span/4, mag=Math.pow(10,Math.floor(Math.log10(step0)));
-  let step=mag; for(const k of [1,2,2.5,5,10]) if(mag*k>=step0){step=mag*k;break;}
-  for(let t=Math.ceil(lo/step)*step; t<=hi; t+=step){
-    el("line",{x1:mL,x2:W-mR,y1:Y(t),y2:Y(t),stroke:Math.abs(t)<step*1e-6?"var(--bd2)":"var(--bd)","stroke-width":1});
-    const tx=el("text",{x:mL-8,y:Y(t)+4,"text-anchor":"end","font-size":10.5,fill:"var(--tx3)"});
-    tx.textContent = moneyC(t);
-  }
-  const rr = (x,y,w,h,side)=>{
-    const r=Math.max(0,Math.min(4,w/2,h));
-    if(h<=0||w<=0) return "";
-    return side==="top"
-      ? `M${x},${y+h} L${x},${y+r} Q${x},${y} ${x+r},${y} L${x+w-r},${y} Q${x+w},${y} ${x+w},${y+r} L${x+w},${y+h} Z`
-      : `M${x},${y} L${x+w},${y} L${x+w},${y+h-r} Q${x+w},${y+h} ${x+w-r},${y+h} L${x+r},${y+h} Q${x},${y+h} ${x},${y+h-r} Z`;
-  };
-  buckets.forEach((b,i)=>{
-    const cx = mL + band*i + band/2, x = cx - barW/2;
-    const seg = (d,color,label,amt)=>{
-      const p = el("path",{d,fill:color});
-      const t = document.createElementNS(NS,"title");
-      t.textContent = `${b.full||b.lbl} · ${label}: ${money(amt)}`; p.appendChild(t);
-    };
-    const tax = b.tax||0;
-    const hInc = Math.abs(y0 - Y(b.inc)), hOut = Math.abs(Y(-b.out) - y0), hTax = Math.abs(Y(-tax) - y0);
-    if(b.inc>0.5 && hInc>=0.5) seg(rr(x, y0-hInc, barW, hInc, "top"), "var(--lo)", "поступления", b.inc);
-    let yD = y0;
-    if(b.out>0.5 && hOut>=0.5){
-      const bottomMost = !(tax>0.5 && hTax>=0.5);
-      const d = bottomMost ? rr(x, yD, barW, hOut, "bottom")
-        : `M${x},${yD} L${x+barW},${yD} L${x+barW},${yD+hOut} L${x},${yD+hOut} Z`;
-      seg(d, "var(--hi)", "взносы и расходы", -b.out);
-      yD += hOut + 2;
-    }
-    if(tax>0.5 && hTax>=0.5) seg(rr(x, yD, barW, hTax, "bottom"), "var(--warn)", "налоги", -tax);
-    const showEvery = Math.ceil(buckets.length/12);
-    if(i % showEvery === 0){
-      const tx=el("text",{x:cx,y:H-8,"text-anchor":"middle","font-size":10.5,fill:"var(--tx3)"});
-      tx.textContent=b.lbl;
-    }
-  });
-  el("line",{x1:mL,x2:W-mR,y1:y0,y2:y0,stroke:"var(--bd2)","stroke-width":1});
-  host.appendChild(svg);
+  jr.innerHTML = h + "</tbody>";
 }
-
-
-/* ── блок арендной доходности ── */
-const RY = {metric:"income", period:"month", tax:"gross"};
-[["ryMetric","metric"],["ryPeriod","period"],["ryTax","tax"]].forEach(([id,prop])=>{
-  $(id).addEventListener("click", e=>{
-    const b = e.target.closest("button"); if(!b) return;
-    [...$(id).querySelectorAll("button")].forEach(x=>x.classList.toggle("on", x===b));
-    RY[prop] = b.dataset.v;
-    if(M) renderRent(M);
-  });
-});
-
-function rentSeries(m){
-  const pts = [];
-  const today = new Date();
-  if(RY.period === "month"){
-    let first = null;
-    for(const [k,v] of m.byMonth) if((v.rent||0)>0.5 && (!first || k<first)) first = k;
-    for(let y=m.y0; y<=m.y1; y++) for(let mo=1; mo<=12; mo++){
-      if(y===today.getFullYear() && mo>today.getMonth()+1) break;
-      const key = y+"-"+String(mo).padStart(2,"0");
-      const b = m.byMonth.get(key) || {rent:0,tax:0};
-      pts.push({lbl: MONTHS_S[mo-1]+(mo===1?" "+String(y).slice(2):""), full: MONTHS_S[mo-1]+" "+y,
-        rent: b.rent||0, tax: b.tax||0, ie: m.invEnd.get(key)||0, ann: 12,
-        started: first!==null && key>=first});
-    }
-  } else {
-    let started = false;
-    for(const x of m.years){
-      if((x.rent||0)>0.5) started = true;
-      pts.push({lbl:String(x.y), full:String(x.y), rent:x.rent||0, tax:x.tax||0, ie:x.invEndYear||0, ann:1, started});
-    }
-  }
-  return pts;
+function exportCSV(){
+  if(!M) return;
+  const q = s => '"'+String(s??'').replace(/"/g,'""')+'"';
+  let csv = '﻿Дата;Тип;Сумма;Поток;Нарастающим итогом;Комментарий\n';
+  for(const r of M.rows)
+    csv += [r.tx_date, q(r.tx_type), String(r.amount).replace('.',','), String(r.flow).replace('.',','), String(Math.round(r.cum)), q(r.comment||'')].join(';')+'\n';
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'транзакции_'+iso(new Date())+'.csv';
+  a.click(); URL.revokeObjectURL(a.href);
 }
-function rentTipHtml(p, metricLine){
-  const net = p.rent - p.tax;
-  let t = "<b>" + esc(p.full) + "</b>";
-  if(metricLine) t += "<br>" + metricLine;
-  t += "<br>Аренда: " + money(p.rent) + "<br>Налоги: " + (p.tax>0.5?money(-p.tax):"—") + "<br>После налога: " + money(net);
-  if(p.ie>0){
-    t += "<br>Вложено: " + money(p.ie);
-    t += "<br>Доходность (годовая): " + pct(p.rent*p.ann/p.ie*100) + " · чистыми: " + pct(net*p.ann/p.ie*100);
-  }
-  return t;
-}
-function renderRent(m){
-  const host = $("rentChart"); host.innerHTML = "";
-  const pts = rentSeries(m);
-  const net = RY.tax === "net";
-  const base = p => net ? p.rent - p.tax : p.rent;
-  let series;
-  if(RY.metric === "income") series = pts.map(p => ({...p, v: base(p)}));
-  else if(RY.metric === "yield") series = pts.map(p => ({...p, v: (p.ie>0 && p.started) ? base(p)*p.ann/p.ie*100 : null}));
-  else { let c=0; series = pts.map(p => { c += base(p); return {...p, v: p.started ? c : null}; }); }
+$("csvBtn").addEventListener("click", exportCSV);
+$("printBtn").addEventListener("click", ()=>window.print());
 
-  if(!pts.some(p=>p.rent>0.5)){
-    host.innerHTML = `<div class="empty">Пока нет транзакций типа «Доход от аренды» — блок оживёт с первым поступлением.</div>`;
-  } else {
-    drawRentChart(host, series, RY.metric);
-  }
-
-  const totR = net ? m.rentTotal - m.taxesTotal : m.rentTotal;
-  const r12 = net ? m.rent12 - m.taxes12 : m.rent12;
-  const sfx = net ? " (после налога)" : "";
-  $("rentStats").innerHTML =
-    tile("Аренда всего"+sfx, m.rentTotal>0.5?money(totR):"—", "за всё время") +
-    tile("За 12 месяцев"+sfx, m.rentTotal>0.5?money(r12):"—", "скользящее окно 365 дней") +
-    tile("В среднем в месяц", m.rentTotal>0.5?money(r12/12):"—", "по последним 12 мес.") +
-    tile("Доходность (12 мес.)"+sfx, (m.invested>0 && m.rentTotal>0.5)?pct(r12/m.invested*100):"—", "годовая, на вложенный капитал");
-}
-function drawRentChart(host, series, metric){
-  const W = Math.max(420, host.clientWidth||600), H = 250;
-  const mL=64, mR=16, mT=14, mB=26, pw=W-mL-mR, ph=H-mT-mB;
-  const NS = "http://www.w3.org/2000/svg";
-  const svg = document.createElementNS(NS,"svg");
-  svg.setAttribute("viewBox",`0 0 ${W} ${H}`);
-  const el=(t,a,parent)=>{ const e=document.createElementNS(NS,t); for(const k in a) e.setAttribute(k,a[k]); (parent||svg).appendChild(e); return e; };
-  const vals = series.map(p=>p.v).filter(v=>v!==null && isFinite(v));
-  let lo = Math.min(0, ...vals), hi = Math.max(0, ...vals);
-  if(hi===lo){ hi = lo+1; }
-  const pad=(hi-lo)*.1||1; hi+=pad; if(lo<0) lo-=pad;
-  const Y = v => mT + ph*(1-(v-lo)/(hi-lo));
-  const isPct = metric === "yield";
-  const fmtAx = v => isPct ? (Math.abs(v)<0.05?"0":nf1.format(v))+" %" : moneyC(v);
-  const span=hi-lo, step0=span/4, mag=Math.pow(10,Math.floor(Math.log10(step0)));
-  let step=mag; for(const k of [1,2,2.5,5,10]) if(mag*k>=step0){step=mag*k;break;}
-  for(let t=Math.ceil(lo/step)*step; t<=hi; t+=step){
-    el("line",{x1:mL,x2:W-mR,y1:Y(t),y2:Y(t),stroke:Math.abs(t)<step*1e-6?"var(--bd2)":"var(--bd)","stroke-width":1});
-    const tx=el("text",{x:mL-8,y:Y(t)+4,"text-anchor":"end","font-size":10.5,fill:"var(--tx3)"});
-    tx.textContent = fmtAx(t);
-  }
-  const n = series.length, band = pw/Math.max(1,n);
-  const Xc = i => mL + band*i + band/2;
-  const y0 = Y(0);
-  // подписи оси X с прореживанием по ширине
-  let lastX = -1e9;
-  series.forEach((p,i)=>{
-    const x = Xc(i);
-    if(x - lastX >= 46 || i===n-1){
-      const tx=el("text",{x, y:H-8, "text-anchor":"middle","font-size":10,fill:"var(--tx3)"});
-      tx.textContent = p.lbl; lastX = x;
-    }
-  });
-
-  if(metric === "income"){
-    const barW = Math.min(24, band*0.62);
-    const rr = (x,y,w,h,side)=>{
-      const r=Math.max(0,Math.min(4,w/2,h)); if(h<=0||w<=0) return "";
-      return side==="top"
-        ? `M${x},${y+h} L${x},${y+r} Q${x},${y} ${x+r},${y} L${x+w-r},${y} Q${x+w},${y} ${x+w},${y+r} L${x+w},${y+h} Z`
-        : `M${x},${y} L${x+w},${y} L${x+w},${y+h-r} Q${x+w},${y+h} ${x+w-r},${y+h} L${x+r},${y+h} Q${x},${y+h} ${x},${y+h-r} Z`;
-    };
-    series.forEach((p,i)=>{
-      if(p.v===null || Math.abs(p.v)<0.5) return;
-      const x = Xc(i)-barW/2;
-      const h = Math.abs(Y(p.v)-y0);
-      if(h<0.5) return;
-      const d = p.v>=0 ? rr(x, y0-h, barW, h, "top") : rr(x, y0, barW, h, "bottom");
-      el("path",{d, fill: p.v>=0 ? "var(--lo)" : "var(--hi)"});
-    });
-  } else {
-    let dPath="", started=false;
-    series.forEach((p,i)=>{
-      if(p.v===null){ return; }
-      dPath += (started?"L":"M") + Xc(i).toFixed(1) + "," + Y(p.v).toFixed(1);
-      started = true;
-    });
-    if(dPath) el("path",{d:dPath, fill:"none", stroke:"var(--lo)","stroke-width":2,"stroke-linejoin":"round","stroke-linecap":"round"});
-    series.forEach((p,i)=>{
-      if(p.v===null) return;
-      el("circle",{cx:Xc(i), cy:Y(p.v), r:4, fill:"var(--lo)", stroke:"var(--card)","stroke-width":2});
-    });
-    const lastIdx = series.map((p,i)=>p.v!==null?i:-1).filter(i=>i>=0).pop();
-    if(lastIdx!==undefined && lastIdx>=0){
-      const p = series[lastIdx];
-      const tx = el("text",{x:Xc(lastIdx)-8, y:Y(p.v)-10, "text-anchor":"end","font-size":11.5,"font-weight":600, fill:"var(--tx)"});
-      tx.textContent = isPct ? pct(p.v) : moneyC(p.v);
-    }
-  }
-  el("line",{x1:mL,x2:W-mR,y1:y0,y2:y0,stroke:"var(--bd2)","stroke-width":1});
-
-  /* hover: направляющая + подсветка точки + мгновенный тултип */
-  const guide = el("g",{opacity:0});
-  const gl = el("line",{y1:mT,y2:mT+ph,stroke:"var(--bd2)","stroke-width":1}, guide);
-  const gc = el("circle",{r:5.5, fill:"var(--lo)", stroke:"var(--card)","stroke-width":2}, guide);
-  const ov = el("rect",{x:mL,y:mT,width:pw,height:ph,fill:"transparent"});
-  const fmtVal = v => metric==="yield" ? pct(v) : money(v);
-  const metricName = metric==="income" ? "Доход" : metric==="yield" ? "Доходность (годовая)" : "Аренда нарастающим итогом";
-  ov.addEventListener("mousemove", e=>{
-    const box = svg.getBoundingClientRect();
-    const px = (e.clientX - box.left) * (W / box.width);
-    let i = Math.round((px - mL - band/2) / band);
-    i = Math.max(0, Math.min(n-1, i));
-    let j = -1;
-    for(let d=0; d<n; d++){
-      if(i-d>=0 && series[i-d].v!==null){ j=i-d; break; }
-      if(i+d<n && series[i+d].v!==null){ j=i+d; break; }
-    }
-    if(j<0){ guide.setAttribute("opacity",0); hideTip(); return; }
-    const p = series[j];
-    guide.setAttribute("opacity",1);
-    gl.setAttribute("x1",Xc(j)); gl.setAttribute("x2",Xc(j));
-    if(metric==="income"){ gc.setAttribute("opacity",0); }
-    else { gc.setAttribute("opacity",1); gc.setAttribute("cx",Xc(j)); gc.setAttribute("cy",Y(p.v)); }
-    showTip(rentTipHtml(p, "<b>"+metricName+": "+fmtVal(p.v)+"</b>"), e.clientX, e.clientY);
-  });
-  ov.addEventListener("mouseleave", ()=>{ guide.setAttribute("opacity",0); hideTip(); });
-
-  host.appendChild(svg);
-}
-
-/* ── объединённый блок доходности по периодам ── */
-const PF = {period:"month", metric:"flows", tax:"gross"};
-[["pfPeriod","period"],["pfMetric","metric"],["pfTax","tax"]].forEach(([id,prop])=>{
-  $(id).addEventListener("click", e=>{
-    const b = e.target.closest("button"); if(!b) return;
-    [...$(id).querySelectorAll("button")].forEach(x=>x.classList.toggle("on", x===b));
-    PF[prop] = b.dataset.v;
-    if(M) renderPeriods(M);
-  });
-});
-
-function pfSeries(m){
-  const pts = [];
-  const today = new Date();
-  if(PF.period === "month"){
-    let first = null;
-    for(const [k,v] of m.byMonth) if((v.incNoSale||0)>0.5 && (!first || k<first)) first = k;
-    for(let y=m.y0; y<=m.y1; y++) for(let mo=1; mo<=12; mo++){
-      if(y===today.getFullYear() && mo>today.getMonth()+1) break;
-      const key = y+"-"+String(mo).padStart(2,"0");
-      const b = m.byMonth.get(key) || {inc:0,out:0,tax:0,incNoSale:0};
-      pts.push({lbl: MONTHS_S[mo-1]+(mo===1?" "+String(y).slice(2):""), full: MONTHS_S[mo-1]+" "+y,
-        inc:b.inc||0, out:b.out||0, tax:b.tax||0, incNoSale:b.incNoSale||0,
-        ie: m.invEnd.get(key)||0, ann:12, started: first!==null && key>=first});
-    }
-  } else {
-    let started = false;
-    for(const x of m.years){
-      if((x.incNoSale||0)>0.5) started = true;
-      pts.push({lbl:String(x.y), full:String(x.y), inc:x.inc, out:x.out, tax:x.tax,
-        incNoSale:x.incNoSale||0, ie:x.invEndYear||0, ann:1, started});
-    }
-  }
-  return pts;
-}
-function pfTipHtml(p){
-  const netFlow = p.inc - p.out - p.tax;
-  let t = "<b>" + esc(p.full) + "</b>";
-  t += "<br>Поступления: " + (p.inc>0.5?money(p.inc):"—");
-  t += "<br>Взносы и расходы: " + (p.out>0.5?money(-p.out):"—");
-  t += "<br>Налоги: " + (p.tax>0.5?money(-p.tax):"—");
-  t += "<br>Чистый поток: " + money(netFlow);
-  if(p.ie>0){
-    t += "<br>Вложено: " + money(p.ie);
-    if(p.incNoSale>0.5)
-      t += "<br>Доходность (годовая): " + pct(p.incNoSale*p.ann/p.ie*100) + " · чистыми: " + pct((p.incNoSale-p.tax)*p.ann/p.ie*100);
-  }
-  return t;
-}
-function renderPeriods(m){
-  const pts = pfSeries(m);
-  const net = PF.tax === "net";
-  $("pfLegend").innerHTML = PF.metric === "flows"
-    ? `<span class="key"><span class="sw" style="background:var(--lo)"></span>Поступления</span>
-       <span class="key"><span class="sw" style="background:var(--hi)"></span>Взносы и расходы</span>
-       <span class="key"><span class="sw" style="background:var(--warn)"></span>Налоги</span>`
-    : PF.metric === "net"
-    ? `<span class="key"><span class="sw" style="background:var(--lo)"></span>Чистый поток ≥ 0</span>
-       <span class="key"><span class="sw" style="background:var(--hi)"></span>Чистый поток &lt; 0</span>`
-    : "";
-  drawPeriodChart($("pfChart"), pts, m);
-  renderPfTable(m, pts);
-}
-function drawPeriodChart(host, pts, m){
-  host.innerHTML = "";
-  if(!pts.some(p=>p.inc>0.5 || p.out>0.5 || p.tax>0.5)){
-    host.innerHTML = `<div class="empty">Нет данных за период.</div>`; return;
-  }
-  const net = PF.tax === "net";
-  const val = p => PF.metric === "net" ? (net ? p.inc-p.out-p.tax : p.inc-p.out)
-    : PF.metric === "yield" ? ((p.ie>0 && p.started) ? (net ? p.incNoSale-p.tax : p.incNoSale)*p.ann/p.ie*100 : null)
-    : null;
-  const W = Math.max(420, host.clientWidth||600), H = 260;
-  const mL=64, mR=16, mT=14, mB=26, pw=W-mL-mR, ph=H-mT-mB;
-  const NS = "http://www.w3.org/2000/svg";
-  const svg = document.createElementNS(NS,"svg");
-  svg.setAttribute("viewBox",`0 0 ${W} ${H}`);
-  const el=(t,a,parent)=>{ const e=document.createElementNS(NS,t); for(const k in a) e.setAttribute(k,a[k]); (parent||svg).appendChild(e); return e; };
-  let lo=0, hi=0;
-  if(PF.metric === "flows"){
-    hi = Math.max(...pts.map(p=>p.inc), 0);
-    lo = -Math.max(...pts.map(p=>p.out+p.tax), 0);
-  } else {
-    const vals = pts.map(val).filter(v=>v!==null && isFinite(v));
-    if(vals.length){ lo = Math.min(0, ...vals); hi = Math.max(0, ...vals); }
-  }
-  if(hi===lo) hi = lo+1;
-  const pad=(hi-lo)*.09||1; hi+=pad; if(lo<0) lo-=pad;
-  const Y = v => mT + ph*(1-(v-lo)/(hi-lo));
-  const y0 = Y(0);
-  const isPct = PF.metric === "yield";
-  const fmtAx = v => isPct ? (Math.abs(v)<0.05?"0":nf1.format(v))+" %" : moneyC(v);
-  const span=hi-lo, step0=span/4, mag=Math.pow(10,Math.floor(Math.log10(step0)));
-  let step=mag; for(const k of [1,2,2.5,5,10]) if(mag*k>=step0){step=mag*k;break;}
-  for(let t=Math.ceil(lo/step)*step; t<=hi; t+=step){
-    el("line",{x1:mL,x2:W-mR,y1:Y(t),y2:Y(t),stroke:Math.abs(t)<step*1e-6?"var(--bd2)":"var(--bd)","stroke-width":1});
-    const tx=el("text",{x:mL-8,y:Y(t)+4,"text-anchor":"end","font-size":10.5,fill:"var(--tx3)"});
-    tx.textContent = fmtAx(t);
-  }
-  const n = pts.length, band = pw/Math.max(1,n);
-  const Xc = i => mL + band*i + band/2;
-  let lastX = -1e9;
-  pts.forEach((p,i)=>{
-    const x = Xc(i);
-    if(x - lastX >= 46 || i===n-1){
-      const tx=el("text",{x, y:H-8, "text-anchor":"middle","font-size":10,fill:"var(--tx3)"});
-      tx.textContent = p.lbl; lastX = x;
-    }
-  });
-  const rr = (x,y,w,h,side)=>{
-    const r=Math.max(0,Math.min(4,w/2,h)); if(h<=0||w<=0) return "";
-    return side==="top"
-      ? `M${x},${y+h} L${x},${y+r} Q${x},${y} ${x+r},${y} L${x+w-r},${y} Q${x+w},${y} ${x+w},${y+r} L${x+w},${y+h} Z`
-      : `M${x},${y} L${x+w},${y} L${x+w},${y+h-r} Q${x+w},${y+h} ${x+w-r},${y+h} L${x+r},${y+h} Q${x},${y+h} ${x},${y+h-r} Z`;
-  };
-  if(PF.metric === "yield"){
-    let dPath="", started=false;
-    pts.forEach((p,i)=>{ const v=val(p); if(v===null) return;
-      dPath += (started?"L":"M")+Xc(i).toFixed(1)+","+Y(v).toFixed(1); started=true; });
-    if(dPath) el("path",{d:dPath,fill:"none",stroke:"var(--lo)","stroke-width":2,"stroke-linejoin":"round","stroke-linecap":"round"});
-    pts.forEach((p,i)=>{ const v=val(p); if(v===null) return;
-      el("circle",{cx:Xc(i),cy:Y(v),r:4,fill:"var(--lo)",stroke:"var(--card)","stroke-width":2}); });
-  } else {
-    const barW = Math.min(24, band*0.62);
-    pts.forEach((p,i)=>{
-      const x = Xc(i)-barW/2;
-      if(PF.metric === "flows"){
-        const hInc = Math.abs(Y(p.inc)-y0);
-        if(p.inc>0.5 && hInc>=0.5) el("path",{d:rr(x,y0-hInc,barW,hInc,"top"),fill:"var(--lo)"});
-        let yD = y0;
-        const hOut = Math.abs(Y(-p.out)-y0);
-        if(p.out>0.5 && hOut>=0.5){
-          const bottom = !(p.tax>0.5);
-          const d = bottom ? rr(x,yD,barW,hOut,"bottom")
-            : `M${x},${yD} L${x+barW},${yD} L${x+barW},${yD+hOut} L${x},${yD+hOut} Z`;
-          el("path",{d,fill:"var(--hi)"}); yD += hOut + 2;
-        }
-        const hTax = Math.abs(Y(-p.tax)-y0);
-        if(p.tax>0.5 && hTax>=0.5) el("path",{d:rr(x,yD,barW,hTax,"bottom"),fill:"var(--warn)"});
-      } else {
-        const v = val(p);
-        if(v===null || Math.abs(v)<0.5) return;
-        const h = Math.abs(Y(v)-y0);
-        if(h<0.5) return;
-        el("path",{d: v>=0 ? rr(x,y0-h,barW,h,"top") : rr(x,y0,barW,h,"bottom"), fill: v>=0?"var(--lo)":"var(--hi)"});
-      }
-    });
-  }
-  el("line",{x1:mL,x2:W-mR,y1:y0,y2:y0,stroke:"var(--bd2)","stroke-width":1});
-
-  /* hover */
-  const guide = el("g",{opacity:0});
-  const gl = el("line",{y1:mT,y2:mT+ph,stroke:"var(--bd2)","stroke-width":1}, guide);
-  const gc = el("circle",{r:5.5, fill:"var(--lo)", stroke:"var(--card)","stroke-width":2, opacity:0}, guide);
-  const ov = el("rect",{x:mL,y:mT,width:pw,height:ph,fill:"transparent"});
-  const metricName = PF.metric==="flows" ? null : PF.metric==="net" ? ("Чистый поток"+(net?" (после налога)":" (до налога)")) : ("Доходность (годовая)"+(net?", чистыми":""));
-  ov.addEventListener("mousemove", e=>{
-    const box = svg.getBoundingClientRect();
-    if(!box.width) return;
-    const px = (e.clientX - box.left) * (W / box.width);
-    let i = Math.max(0, Math.min(n-1, Math.round((px - mL - band/2) / band)));
-    let j = -1;
-    for(let d=0; d<n; d++){
-      const ok = k => PF.metric!=="yield" ? true : val(pts[k])!==null;
-      if(i-d>=0 && ok(i-d)){ j=i-d; break; }
-      if(i+d<n && ok(i+d)){ j=i+d; break; }
-    }
-    if(j<0){ guide.setAttribute("opacity",0); hideTip(); return; }
-    const p = pts[j];
-    guide.setAttribute("opacity",1);
-    gl.setAttribute("x1",Xc(j)); gl.setAttribute("x2",Xc(j));
-    const v = val(p);
-    if(PF.metric==="yield" && v!==null){ gc.setAttribute("opacity",1); gc.setAttribute("cx",Xc(j)); gc.setAttribute("cy",Y(v)); }
-    else gc.setAttribute("opacity",0);
-    const head = metricName && v!==null ? "<b>"+metricName+": "+(isPct?pct(v):money(v))+"</b>" : "";
-    showTip("<b>"+esc(p.full)+"</b>" + (head?"<br>"+head:"") + pfTipHtml(p).replace("<b>"+esc(p.full)+"</b>",""), e.clientX, e.clientY);
-  });
-  ov.addEventListener("mouseleave", ()=>{ guide.setAttribute("opacity",0); hideTip(); });
-  host.appendChild(svg);
-}
-function renderPfTable(m, pts){
-  const t = $("pfTbl");
-  if(PF.period === "year"){
-    if(!m.rows.length){ t.innerHTML = `<tbody><tr><td class="empty">Нет данных.</td></tr></tbody>`; return; }
-    let h = `<thead><tr><th>Год</th><th>Взносы и расходы</th><th>Поступления</th><th>Налоги</th><th>Чистый поток</th><th>Нарастающим итогом</th><th>Доходность до налога</th><th>После налога</th></tr></thead><tbody>`;
-    for(const x of m.years){
-      h += `<tr><td>${x.y}</td>`+
-        `<td class="${x.out>0.5?'neg':''}">${x.out>0.5?money(-x.out):'—'}</td>`+
-        `<td class="${x.inc>0.5?'pos':''}">${x.inc>0.5?money(x.inc):'—'}</td>`+
-        `<td class="${x.tax>0.5?'neg':''}">${x.tax>0.5?money(-x.tax):'—'}</td>`+
-        `<td class="${x.net<-0.5?'neg':''}">${money(x.net)}</td>`+
-        `<td class="${x.cum<-0.5?'neg':''}">${money(x.cum)}</td>`+
-        `<td>${x.yieldPct!==null?pct(x.yieldPct):'—'}</td>`+
-        `<td>${x.yieldNet!==null?pct(x.yieldNet):'—'}</td></tr>`;
-    }
-    const totOut = m.years.reduce((s,x)=>s+x.out,0), totInc = m.years.reduce((s,x)=>s+x.inc,0), totTax = m.years.reduce((s,x)=>s+x.tax,0);
-    h += `</tbody><tfoot><tr><td>Итого</td><td class="neg">${money(-totOut)}</td>`+
-         `<td class="${totInc>0.5?'pos':''}">${totInc>0.5?money(totInc):'—'}</td>`+
-         `<td class="${totTax>0.5?'neg':''}">${totTax>0.5?money(-totTax):'—'}</td>`+
-         `<td>${money(totInc-totOut-totTax)}</td><td></td><td></td><td></td></tr></tfoot>`;
-    t.innerHTML = h;
-  } else {
-    const filled = pts.filter(p=>p.inc>0.5||p.out>0.5||p.tax>0.5);
-    if(!filled.length){ t.innerHTML = `<tbody><tr><td class="empty">Операций не было.</td></tr></tbody>`; return; }
-    let h = `<thead><tr><th>Месяц</th><th>Взносы и расходы</th><th>Поступления</th><th>Налоги</th><th>Чистый поток</th><th>Доходность до налога</th><th>После налога</th></tr></thead><tbody>`;
-    for(const b of filled){
-      const netF = b.inc-b.out-b.tax;
-      const yp = (b.ie>0 && b.incNoSale>0.5) ? b.incNoSale*b.ann/b.ie*100 : null;
-      const ypNet = (b.ie>0 && b.incNoSale>0.5) ? (b.incNoSale-b.tax)*b.ann/b.ie*100 : null;
-      h += `<tr><td>${b.full}</td>`+
-        `<td class="${b.out>0.5?'neg':''}">${b.out>0.5?money(-b.out):'—'}</td>`+
-        `<td class="${b.inc>0.5?'pos':''}">${b.inc>0.5?money(b.inc):'—'}</td>`+
-        `<td class="${b.tax>0.5?'neg':''}">${b.tax>0.5?money(-b.tax):'—'}</td>`+
-        `<td class="${netF<-0.5?'neg':''}">${money(netF)}</td>`+
-        `<td>${yp!==null?pct(yp):'—'}</td>`+
-        `<td>${ypNet!==null?pct(ypNet):'—'}</td></tr>`;
-    }
-    const sOut=filled.reduce((s,b)=>s+b.out,0), sInc=filled.reduce((s,b)=>s+b.inc,0), sTax=filled.reduce((s,b)=>s+b.tax,0);
-    h += `</tbody><tfoot><tr><td>Итого</td><td class="neg">${sOut>0.5?money(-sOut):'—'}</td>`+
-         `<td class="${sInc>0.5?'pos':''}">${sInc>0.5?money(sInc):'—'}</td>`+
-         `<td class="${sTax>0.5?'neg':''}">${sTax>0.5?money(-sTax):'—'}</td>`+
-         `<td>${money(sInc-sOut-sTax)}</td><td></td><td></td></tr></tfoot>`;
-    t.innerHTML = h;
-  }
-}
-
-/* ── настраиваемые плитки показателей ── */
-const TILE_DEFS = [
-  {id:"xirr", name:"XIRR фактическая", hero:true, b:m=>[
-    "XIRR — фактическая", m.irr===null?"н/д":pct(m.irr*100),
-    m.irr===null?(m.received>0?"поступления пока слишком малы для годовой ставки":"появится после первого поступления"):"по реальным денежным потокам",
-    m.irr===null?"":(m.irr>0.0005?"pos":m.irr<-0.0005?"neg":"")]},
-  {id:"xirrVal", name:"XIRR с оценкой", hero:true, b:m=>[
-    "XIRR — с учётом оценки", m.irrVal===null?"н/д":pct(m.irrVal*100),
-    m.val>0?((m.valManual?"оценка актива (вручную): ":"оценка = внесённые деньги, ")+money(m.val)):(m.valManual?"введите сумму оценки":"появится после первого взноса"),
-    m.irrVal===null?"":(m.irrVal>0.0005?"pos":m.irrVal<-0.0005?"neg":"")]},
-  {id:"invested", name:"Вложено всего", b:m=>["Вложено всего", money(m.invested), "все расходы и взносы", ""]},
-  {id:"received", name:"Получено всего", b:m=>["Получено всего", money(m.received), "аренда, прочее, продажа", ""]},
-  {id:"net", name:"Чистая позиция", b:m=>["Чистая позиция", money(m.net), "получено − вложено − налоги", m.net>=0?"pos":"neg"]},
-  {id:"taxes", name:"Налоги", b:m=>["Налоги уплачено", m.taxesTotal>0.5?money(-m.taxesTotal):"—",
-    m.taxes12>0.5?("за 12 мес.: "+money(-m.taxes12)):"по транзакциям типа «Налоги»", m.taxesTotal>0.5?"neg":""]},
-  {id:"ret", name:"Возврат вложений", b:m=>["Возврат вложений", m.invested>0?pct(m.received/m.invested*100):"—", "получено ÷ вложено", ""]},
-  {id:"inc12", name:"Доход за 12 мес.", b:m=>["Доход за 12 мес.", money(m.inc12),
-    m.inc12>0?("в среднем "+money(m.inc12/12)+" в мес."):"поступлений не было", ""]},
-  {id:"rentYield", name:"Арендная доходность", b:m=>["Арендная доходность", m.invested>0?pct(m.rent12/m.invested*100):"—",
-    (m.rent12>0 && m.taxes12>0) ? ("после налога: "+pct((m.rent12-m.taxes12)/m.invested*100)) : "аренда за 12 мес. ÷ вложено", ""]},
-  {id:"remaining", name:"Осталось вернуть", b:m=>["Осталось вернуть", money(m.remaining), "до окупаемости номинально", ""]},
-  {id:"payback", name:"Окупаемость", b:m=>{
-    const yearsRu = mo => {
-      const r = Math.round(mo/12*10)/10;
-      if(Number.isInteger(r)){
-        const w = r%10, h = r%100;
-        return nf0.format(r)+" "+((w===1&&h!==11)?"год":(w>=2&&w<=4&&(h<10||h>=20))?"года":"лет");
-      }
-      return nf1.format(r)+" года";
-    };
-    const okup = m.invested<=0 ? "нет данных"
-      : m.received>=m.invested+m.taxesTotal ? "достигнута" + (m.paybackDate? " · "+fd(m.paybackDate):"")
-      : m.forecastM!==null ? `через ~${yearsRu(m.forecastM)}` : "нет данных о доходе";
-    return ["Окупаемость", okup,
-      m.forecastD? "прогноз: "+m.forecastD.toLocaleDateString("ru-RU",{month:"long",year:"numeric"}) : "", ""];
-  }},
+/* ── паспорт ── */
+const PP_FIELDS = [
+  ["name","Объект"],
+  ["type","Тип актива"],
+  ["country","Страна и регион"],
+  ["address","Адрес"],
+  ["map","Ссылка на карту (Google Maps)"],
+  ["entry","Дата входа"],
+  ["handover","Плановая сдача"],
+  ["exit","Дата выхода"],
+  ["operator","Оператор / УК"],
+  ["note","Примечание"],
 ];
-function enabledTileIds(){
-  const t = S.settings.tiles;
-  return Array.isArray(t) ? t : TILE_DEFS.map(d=>d.id);
-}
-function renderTiles(m){
-  const on = new Set(enabledTileIds());
-  $("tiles").innerHTML = TILE_DEFS.filter(d=>on.has(d.id)).map(d=>{
-    const [lbl,val,sub,cls] = d.b(m);
-    return tile(lbl, val, sub, cls, !!d.hero);
-  }).join("") || `<div class="empty">Все блоки скрыты — включите нужные в «Настроить».</div>`;
-  renderTileCfg();
-}
-function renderTileCfg(){
-  const on = new Set(enabledTileIds());
-  $("tileCfg" + "Wrap").innerHTML = TILE_DEFS.map(d=>
-    `<button class="tchip${on.has(d.id)?' on':''}" data-tile="${d.id}">${on.has(d.id)?'✓ ':'+ '}${d.name}</button>`).join("");
-}
-$("tilesCfgBtn").addEventListener("click", ()=>{
-  const w = $("tileCfgWrap");
-  w.style.display = w.style.display === "none" ? "" : "none";
-});
-$("tileCfgWrap").addEventListener("click", async e=>{
-  const b = e.target.closest(".tchip"); if(!b) return;
-  let ids = enabledTileIds().slice();
-  if(ids.includes(b.dataset.tile)) ids = ids.filter(x=>x!==b.dataset.tile);
-  else ids = TILE_DEFS.map(d=>d.id).filter(id=> ids.includes(id) || id===b.dataset.tile);
-  S.settings.tiles = ids;
-  if(M) renderTiles(M);
-  try{ await api("set",{key:"tiles",value:ids}); }
-  catch(err){ toast("Ошибка сохранения набора блоков"); }
-});
-
-/* ── вкладки ── */
-document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click", ()=>{
-  document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on", x===b));
-  document.querySelectorAll(".tabsec").forEach(sec=>{
-    sec.style.display = sec.id === "tab-"+b.dataset.tab ? "" : "none";
-  });
-  if(b.dataset.tab === "metrics" && M){ renderRent(M); renderChart(M); renderPeriods(M); }
-}));
-
-/* ── паспорт инвестиции ── */
 function ppData(){ const p = S.settings.passport; return (p && typeof p === "object") ? p : {}; }
 function ppAddrHtml(v, mapUrl){
   const mu = (mapUrl||"").trim();
@@ -1072,6 +1174,99 @@ function renderPassport(){
   $("pageSub").innerHTML = ((p.address || "").trim() || (p.map || "").trim())
     ? ppAddrHtml(p.address, p.map)
     : "Журнал реальных транзакций · показатели считаются автоматически по датам платежей";
+  $("ppView").innerHTML = PP_FIELDS.map(([k,lbl])=>{
+    let v;
+    if(k==="address") v = ppAddrHtml(p[k], p.map);
+    else if(k==="map") v = (p.map||"").trim() ? `<a href="${esc(p.map)}" target="_blank" rel="noopener">Открыть на Google Maps ↗</a>` : "—";
+    else if(k==="entry"||k==="exit"||k==="handover") v = /^\d{4}-\d{2}-\d{2}$/.test(p[k]||"") ? fd(p[k]) : esc(p[k]||"") || "—";
+    else v = esc(p[k]||"") || "—";
+    return `<div class="pi"><div class="k">${lbl}</div><div class="v">${v}</div></div>`;
+  }).join("");
+}
+function ppToggle(edit){
+  $("ppView").style.display = edit ? "none" : "";
+  $("ppForm").style.display = edit ? "" : "none";
+  $("ppBtns").style.display = edit ? "" : "none";
+  $("ppEdit").style.display = edit ? "none" : "";
+  if(edit){
+    const p = ppData();
+    $("ppForm").innerHTML = PP_FIELDS.map(([k,lbl])=>{
+      const type = (k==="entry"||k==="exit"||k==="handover") ? "date" : "text";
+      const ph = k==="address" ? "текстовый адрес" : k==="map" ? "https://maps.app.goo.gl/…" : "";
+      return `<div class="field"><label>${lbl}</label><input data-pp="${k}" type="${type}" value="${esc(p[k]||"")}" placeholder="${ph}" maxlength="300"></div>`;
+    }).join("");
+  }
+}
+$("ppEdit").addEventListener("click", ()=>ppToggle(true));
+$("ppCancel").addEventListener("click", ()=>ppToggle(false));
+$("ppSave").addEventListener("click", async ()=>{
+  const p = {};
+  document.querySelectorAll("#ppForm [data-pp]").forEach(i=>{ p[i.dataset.pp] = i.value.trim(); });
+  try{
+    await api("set",{key:"passport",value:p});
+    S.settings.passport = p;
+    ppToggle(false); renderPassport();
+    if(M) renderPhase(M);
+    toast("Паспорт сохранён");
+  }catch(e){ toast("Ошибка сохранения паспорта"); }
+});
+
+/* ── фаза ── */
+function renderPhase(m){
+  const p = ppData();
+  const chip = $("chipPhase");
+  let txt, oper = false;
+  if(m.hasSale){ txt = "Продан"; oper = true; }
+  else if(m.hasRent){ txt = "Эксплуатация"; oper = true; }
+  else {
+    txt = "Строительство";
+    if(/^\d{4}-\d{2}-\d{2}$/.test(p.handover||"")){
+      const d = pd(p.handover);
+      txt += " · сдача " + MONTHS_S[d.getMonth()] + " " + d.getFullYear();
+    }
+  }
+  chip.classList.toggle("oper", oper);
+  chip.innerHTML = "Этап: <b>"+esc(txt)+"</b>";
+}
+
+/* ── вкладки ── */
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click", ()=>{
+  document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on", x===b));
+  document.querySelectorAll(".tabsec").forEach(sec=>{
+    sec.style.display = sec.id === "tab-"+b.dataset.tab ? "" : "none";
+  });
+  if(b.dataset.tab === "metrics" && M){ renderRent(M); renderChart(M); renderPeriods(M); }
+}));
+
+/* ── рендер ── */
+let M = null;
+function render(){
+  M = compute();
+  const m = M;
+  $("chipInv").textContent = money(m.invested);
+  $("chipVal").textContent = money(m.val);
+  $("chipN").textContent = m.rows.length;
+  $("chipUpd").textContent = new Date().toLocaleDateString("ru-RU");
+  $("valMode").value = m.valManual ? "manual" : "auto";
+  $("valInp").disabled = !m.valManual;
+  if(document.activeElement !== $("valInp"))
+    $("valInp").value = m.valManual ? (Number(S.settings.valuation)||"") : Math.round(m.invested);
+  const vd = $("valDateNote");
+  if(m.valManual && m.valDateStr){
+    vd.textContent = "оценка от "+fd(m.valDateStr)+(m.valStale?" · устарела (>90 дней)":"");
+    vd.className = m.valStale ? "stale" : "";
+    vd.id = "valDateNote";
+  } else { vd.textContent = ""; vd.className = ""; }
+  $("curSel").value = S.settings.currency || "USDT";
+
+  renderPhase(m);
+  renderPassport();
+  renderTiles(m);
+  renderPlan(m);
+  renderRent(m);
+  renderChart(m);
+  renderPeriods(m);
+  renderJournal(m);
 }
 
 /* ── события ── */
@@ -1100,6 +1295,22 @@ $("loginBtn").addEventListener("click", async ()=>{
 $("pw").addEventListener("keydown", e=>{ if(e.key==="Enter") $("loginBtn").click(); });
 $("logoutBtn").addEventListener("click", ()=>{ localStorage.removeItem("ht_pw"); location.reload(); });
 
+/* добавление / исправление транзакций */
+let editId = null;
+function setEditMode(r){
+  editId = r ? r.id : null;
+  $("txFormTitle").textContent = r ? "Изменить транзакцию от "+fd(r.tx_date) : "Новая транзакция";
+  $("addBtn").textContent = r ? "Сохранить" : "Добавить";
+  $("editCancel").style.display = r ? "" : "none";
+  if(r){
+    $("fDate").value = r.tx_date; $("fType").value = r.tx_type;
+    $("fAmt").value = Number(r.amount); $("fCom").value = r.comment||"";
+    document.querySelector('.tab[data-tab="tx"]').click();
+  } else {
+    $("fAmt").value=""; $("fCom").value="";
+  }
+}
+$("editCancel").addEventListener("click", ()=>setEditMode(null));
 $("addBtn").addEventListener("click", async ()=>{
   const btn=$("addBtn"); $("addErr").textContent="";
   const tx_date=$("fDate").value, tx_type=$("fType").value,
@@ -1108,20 +1319,29 @@ $("addBtn").addEventListener("click", async ()=>{
   if(!isFinite(amount)||amount<=0){ $("addErr").textContent="Сумма должна быть больше нуля"; return; }
   btn.disabled=true;
   try{
-    await api("add",{tx_date,tx_type,amount,comment});
-    $("fAmt").value=""; $("fCom").value="";
-    await refresh(); toast("Транзакция добавлена");
+    if(editId) await api("upd",{id:editId, tx_date, tx_type, amount, comment});
+    else await api("add",{tx_date, tx_type, amount, comment});
+    const wasEdit = !!editId;
+    setEditMode(null);
+    await refresh();
+    toast(wasEdit ? "Транзакция обновлена" : "Транзакция добавлена");
   }catch(e){ $("addErr").textContent = e.message==="auth"?"Сессия истекла — войдите заново":"Ошибка: "+e.message; }
   finally{ btn.disabled=false; }
 });
-
 $("jr").addEventListener("click", async e=>{
-  const b=e.target.closest(".del"); if(!b) return;
+  const ed = e.target.closest(".edt");
+  if(ed){
+    const r = M.rows.find(x=>x.id===ed.dataset.id);
+    if(r) setEditMode(r);
+    return;
+  }
+  const b = e.target.closest(".del"); if(!b) return;
   if(!confirm("Удалить транзакцию?")) return;
-  try{ await api("del",{id:b.dataset.id}); await refresh(); toast("Удалено"); }
+  try{ await api("del",{id:b.dataset.id}); if(editId===b.dataset.id) setEditMode(null); await refresh(); toast("Удалено"); }
   catch(err){ toast("Ошибка удаления"); }
 });
 
+/* оценка актива */
 $("valMode").addEventListener("change", async ()=>{
   const v = $("valMode").value;
   try{ await api("set",{key:"val_mode",value:v}); S.settings.val_mode=v; render();
@@ -1135,7 +1355,13 @@ $("valInp").addEventListener("input", ()=>{
   vT=setTimeout(async ()=>{
     const v = Math.max(0, parseFloat($("valInp").value)||0);
     $("saveNote").textContent="сохраняю…";
-    try{ await api("set",{key:"valuation",value:v}); S.settings.valuation=v; render(); $("saveNote").textContent="сохранено"; }
+    try{
+      await api("set",{key:"valuation",value:v});
+      const d = v>0 ? iso(new Date()) : "";
+      await api("set",{key:"valuation_date",value:d});
+      S.settings.valuation=v; S.settings.valuation_date=d;
+      render(); $("saveNote").textContent="сохранено";
+    }
     catch(e){ $("saveNote").textContent="ошибка сохранения"; }
     setTimeout(()=>$("saveNote").textContent="",1800);
   },700);
@@ -1147,11 +1373,11 @@ $("curSel").addEventListener("change", async ()=>{
 });
 
 let rT=null;
-addEventListener("resize", ()=>{ clearTimeout(rT); rT=setTimeout(()=>render(),200); });
+addEventListener("resize", ()=>{ clearTimeout(rT); rT=setTimeout(()=>{ if(M) render(); },200); });
 
 (function init(){
   const d=new Date();
-  $("fDate").value = d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  $("fDate").value = iso(d);
   const saved = localStorage.getItem("ht_pw");
   if(saved){
     enter(saved).catch(()=>{ document.documentElement.classList.remove("authed"); });
