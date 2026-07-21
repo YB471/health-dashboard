@@ -133,7 +133,7 @@
 
 <div class="wrap" id="app" style="display:none">
   <header>
-    <h1>Фактическая доходность инвестиции</h1>
+    <h1 id="pageTitle">Atlantida Boutique Hotel</h1>
     <div class="sub">Журнал реальных транзакций · показатели считаются автоматически по датам платежей</div>
     <div class="mrow">
       <span class="chip">Вложено: <b id="chipInv">—</b></span>
@@ -688,6 +688,9 @@ function ppAddrHtml(v){
 }
 function renderPassport(){
   const p = ppData();
+  const nm = (p.name || "").trim();
+  $("pageTitle").textContent = nm || "Инвестиционный трекер";
+  document.title = (nm ? nm + " — " : "") + "фактическая доходность";
   $("ppView").innerHTML = PP_FIELDS.map(([k,lbl])=>{
     let v;
     if(k==="address") v = ppAddrHtml(p[k]);
