@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Фактическая доходность — номер в отеле</title>
+<script>try{if(localStorage.getItem("ht_pw"))document.documentElement.className+=" authed";}catch(e){}</script>
+<style>
+  :root{
+    color-scheme: light dark;
+    --plane:#f6f5f1; --surface:#fdfdfb; --ink:#171a17; --ink2:#5b5f57; --muted:#8a8d84;
+    --grid:#e4e3db; --axis:#c6c5bb; --border:rgba(23,26,23,.10);
+    --accent:#1d5c4d; --accent-soft:rgba(29,92,77,.08);
+    --blue:#2a78d6; --red:#c23a38; --good:#006300;
+    --shadow:0 1px 2px rgba(23,26,23,.05),0 4px 16px rgba(23,26,23,.05);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --plane:#0e100f; --surface:#181a18; --ink:#f4f4ef; --ink2:#c0c3ba; --muted:#8a8d84;
+      --grid:#2a2c29; --axis:#3a3c38; --border:rgba(255,255,255,.10);
+      --accent:#4db99b; --accent-soft:rgba(77,185,155,.12);
+      --blue:#3987e5; --red:#e66767; --good:#0ca30c;
+      --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.25);
+    }
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{background:var(--plane);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+  .serif{font-family:"Charter","Iowan Old Style",Georgia,"Times New Roman",serif}
+  .wrap{max-width:1080px;margin:0 auto;padding:28px 20px 60px}
+
+  /* login */
+  #login{position:fixed;inset:0;background:var(--plane);display:flex;align-items:center;justify-content:center;z-index:40}
+  html.authed #login{display:none}
+  .lbox{background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);padding:30px 32px;width:min(360px,90vw)}
+  .lbox .eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  .lbox h1{font-family:"Charter",Georgia,serif;font-size:22px;margin:6px 0 16px}
+  .lbox input{width:100%;font:15px system-ui;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--plane);color:var(--ink)}
+  .lbox button{width:100%;margin-top:10px;font:600 14px system-ui;padding:10px;border:0;border-radius:8px;background:var(--accent);color:#fff;cursor:pointer}
+  #lerr{color:var(--red);font-size:12.5px;margin-top:8px;min-height:16px}
+  #boot{position:fixed;inset:0;background:var(--plane);display:none;align-items:center;justify-content:center;z-index:50}
+  html.authed #boot{display:flex}
+  html.authed.ready #boot{display:none}
+  .spin{width:34px;height:34px;border:3px solid var(--grid);border-top-color:var(--accent);border-radius:50%;animation:sp 1s linear infinite}
+  @keyframes sp{to{transform:rotate(360deg)}}
+
+  /* masthead */
+  .mast{border-bottom:2px solid var(--ink);padding-bottom:16px;margin-bottom:20px}
+  .eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  .mast h1{font-family:"Charter","Iowan Old Style",Georgia,serif;font-size:clamp(24px,4vw,34px);line-height:1.15;margin:6px 0 4px}
+  .mast .sub{color:var(--ink2);font-size:13.5px}
+  .mrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;align-items:center}
+  .chip{font-size:12px;color:var(--ink2);border:1px solid var(--border);border-radius:999px;padding:4px 12px;background:var(--surface)}
+  .chip b{color:var(--ink)}
+  .btn{font:600 12.5px system-ui;color:var(--accent);background:var(--accent-soft);border:1px solid transparent;border-radius:8px;padding:6px 12px;cursor:pointer}
+  .btn:hover{border-color:var(--accent)}
+  .btn.ghost{color:var(--muted);background:transparent;border-color:var(--border);margin-left:auto}
+
+  /* cards */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);padding:18px 20px;margin-bottom:16px}
+  .card h2{font-family:"Charter",Georgia,serif;font-size:18px;margin:0 0 12px}
+  .params{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-end}
+  .field{display:flex;flex-direction:column;gap:4px}
+  .field label{font-size:11.5px;color:var(--ink2)}
+  .field input,.field select{font:14px system-ui;color:var(--ink);background:var(--plane);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-variant-numeric:tabular-nums}
+  .field input[type=number]{text-align:right;width:140px}
+  #saveNote{font-size:11.5px;color:var(--muted);align-self:center}
+
+  .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+  .tile{background:var(--plane);border:1px solid var(--border);border-radius:10px;padding:11px 13px}
+  .tile .lbl{font-size:11px;color:var(--ink2);line-height:1.3}
+  .tile .val{font-size:19px;font-weight:650;margin-top:2px;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+  .tile .sub{font-size:10.5px;color:var(--muted);margin-top:2px}
+  .tile.hero{background:var(--accent-soft);border-color:var(--accent)}
+  .tile .val.pos{color:var(--good)} .tile .val.neg{color:var(--red)}
+
+  .chart-host{width:100%;margin-top:4px}
+  .chart-host svg{display:block;width:100%;height:auto}
+
+  /* add form */
+  .addrow{display:grid;grid-template-columns:150px 1fr 130px 1fr auto;gap:8px;align-items:end}
+  @media (max-width:760px){.addrow{grid-template-columns:1fr 1fr;}.addrow .field.wide{grid-column:1/-1}}
+  .addrow button{font:600 13px system-ui;background:var(--accent);color:#fff;border:0;border-radius:8px;padding:9px 16px;cursor:pointer;height:37px}
+  .addrow button:disabled{opacity:.5}
+  #addErr{color:var(--red);font-size:12px;margin-top:6px;min-height:14px}
+
+  /* journal */
+  .tbl-wrap{overflow-x:auto;border:1px solid var(--grid);border-radius:10px}
+  table{border-collapse:collapse;width:100%;font-size:13px;min-width:640px}
+  th,td{padding:8px 12px;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  th:nth-child(1),td:nth-child(1),th:nth-child(2),td:nth-child(2),th:nth-child(5),td:nth-child(5){text-align:left}
+  td:nth-child(5){white-space:normal;min-width:160px;color:var(--ink2);font-size:12.5px}
+  thead th{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2);border-bottom:1px solid var(--axis);background:var(--plane);position:sticky;top:0}
+  tbody tr+tr td{border-top:1px solid var(--grid)}
+  td.neg{color:var(--red)} td.pos{color:var(--good)}
+  .del{border:0;background:none;color:var(--muted);cursor:pointer;font-size:15px;padding:2px 6px;border-radius:6px}
+  .del:hover{color:var(--red);background:var(--accent-soft)}
+  .empty{padding:22px;text-align:center;color:var(--muted);font-size:13px}
+  .note{font-size:11.5px;color:var(--muted);margin-top:10px;line-height:1.5}
+  #toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--plane);font-size:13px;padding:8px 16px;border-radius:9px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:60}
+</style>
+</head>
+<body>
+
+<div id="boot"><div class="spin"></div></div>
+
+<div id="login">
+  <div class="lbox">
+    <div class="eyebrow">Инвестиционный учёт</div>
+    <h1>Доходность номера в отеле</h1>
+    <input id="pw" type="password" placeholder="Пароль" autocomplete="current-password">
+    <button id="loginBtn">Войти</button>
+    <div id="lerr"></div>
+  </div>
+</div>
+
+<div class="wrap" id="app" style="display:none">
+  <header class="mast">
+    <div class="eyebrow">Инвестиционный учёт · Гостиничная недвижимость</div>
+    <h1>Фактическая доходность инвестиции</h1>
+    <div class="sub">Журнал реальных транзакций · показатели считаются автоматически по датам платежей</div>
+    <div class="mrow">
+      <span class="chip">Вложено: <b id="chipInv">—</b></span>
+      <span class="chip">Операций: <b id="chipN">—</b></span>
+      <span class="chip">Обновлено: <b id="chipUpd">—</b></span>
+      <button class="btn ghost" id="logoutBtn">Выйти</button>
+    </div>
+  </header>
+
+  <div class="card">
+    <div class="params">
+      <div class="field"><label for="valInp">Текущая оценка актива</label>
+        <input id="valInp" type="number" min="0" step="1000"></div>
+      <div class="field"><label for="curSel">Валюта</label>
+        <select id="curSel">
+          <option value="$">USD — $</option><option value="€">EUR — €</option>
+          <option value="AED">AED</option><option value="฿">THB — ฿</option>
+          <option value="₴">UAH — ₴</option><option value="₽">RUB — ₽</option>
+        </select></div>
+      <div id="saveNote"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Показатели</h2>
+    <div class="tiles" id="tiles"></div>
+  </div>
+
+  <div class="card">
+    <h2>Денежная позиция нарастающим итогом</h2>
+    <div class="chart-host" id="chart"></div>
+  </div>
+
+  <div class="card">
+    <h2>Новая транзакция</h2>
+    <div class="addrow">
+      <div class="field"><label for="fDate">Дата</label><input id="fDate" type="date"></div>
+      <div class="field"><label for="fType">Тип</label>
+        <select id="fType">
+          <option>Взнос по договору</option><option>Оформление и сборы</option>
+          <option>Мебель и отделка</option><option>Прочий расход</option>
+          <option>Доход от аренды</option><option>Прочий доход</option>
+          <option>Продажа актива</option>
+        </select></div>
+      <div class="field"><label for="fAmt">Сумма (без знака)</label><input id="fAmt" type="number" min="0" step="100"></div>
+      <div class="field wide"><label for="fCom">Комментарий</label><input id="fCom" type="text" maxlength="500" placeholder="необязательно"></div>
+      <button id="addBtn">Добавить</button>
+    </div>
+    <div id="addErr"></div>
+  </div>
+
+  <div class="card">
+    <h2>Журнал транзакций</h2>
+    <div class="tbl-wrap"><table id="jr"></table></div>
+    <div class="note">Знак определяется типом: взносы, сборы, мебель и прочие расходы — отток; аренда, прочий доход и продажа — приток.
+    «Нарастающим итогом» — совокупная денежная позиция на дату. XIRR — годовая ставка, при которой приведённая сумма всех потоков равна нулю; «с учётом оценки» — как если бы актив был продан сегодня по указанной оценке. Прогноз окупаемости — по среднему доходу за последние 12 месяцев. Данные хранятся в Supabase (таблицы hotel_transactions / hotel_settings), доступ только по паролю.</div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+'use strict';
+const FN = "https://pjuwipjyxzxlmhebzdct.supabase.co/functions/v1/hotel-tracker";
+const INCOME = new Set(["Доход от аренды","Прочий доход","Продажа актива"]);
+const $ = id => document.getElementById(id);
+const nf0 = new Intl.NumberFormat('ru-RU',{maximumFractionDigits:0});
+const nf1 = new Intl.NumberFormat('ru-RU',{minimumFractionDigits:1,maximumFractionDigits:1});
+const PRE = new Set(["$","€","AED","฿"]);
+let S = { txs: [], settings: { valuation: 0, currency: "$" } };
+
+function money(v){
+  if(!isFinite(v)) return "—";
+  const c = S.settings.currency || "$";
+  const a = nf0.format(Math.round(Math.abs(v)));
+  const core = PRE.has(c) ? (c==="AED" ? "AED "+a : c+a) : a+" "+c;
+  return (v < -0.5 ? "−" : "") + core;
+}
+function pct(v){ return isFinite(v) ? (v<0?"−":"")+nf1.format(Math.abs(v))+" %" : "—"; }
+function esc(s){ const d=document.createElement('div'); d.textContent=s??""; return d.innerHTML; }
+function pd(s){ const [y,m,d]=s.split("-").map(Number); return new Date(y,m-1,d); }
+function fd(s){ const dt=pd(s); return String(dt.getDate()).padStart(2,"0")+"."+String(dt.getMonth()+1).padStart(2,"0")+"."+dt.getFullYear(); }
+function toast(t){ const e=$("toast"); e.textContent=t; e.style.opacity=1; clearTimeout(toast._t); toast._t=setTimeout(()=>e.style.opacity=0, 2200); }
+
+async function api(action, extra={}){
+  const pw = localStorage.getItem("ht_pw") || "";
+  const r = await fetch(FN, {method:"POST", headers:{"content-type":"application/json"},
+    body: JSON.stringify(Object.assign({password: pw, action}, extra))});
+  if(r.status === 401) throw new Error("auth");
+  const j = await r.json();
+  if(!j.ok) throw new Error(j.error || "server");
+  return j;
+}
+
+/* ── финансовые вычисления ── */
+function xirr(cfs){ // cfs: [{t: годы, v}]
+  if(!cfs.some(c=>c.v>0) || !cfs.some(c=>c.v<0)) return null;
+  const f = r => cfs.reduce((s,c)=> s + c.v/Math.pow(1+r, c.t), 0);
+  let lo=-0.9999, hi=10, flo=f(lo), fhi=f(hi);
+  while(flo*fhi > 0 && hi < 1e6){ hi *= 2; fhi = f(hi); }
+  if(flo*fhi > 0){
+    let prev=lo, fprev=flo, found=false;
+    for(let r=-0.95; r<=10.0001; r+=0.05){
+      const fr=f(r);
+      if(isFinite(fr)&&isFinite(fprev)&&fprev*fr<=0){lo=prev;hi=r;flo=fprev;found=true;break;}
+      prev=r; fprev=fr;
+    }
+    if(!found) return null;
+  }
+  for(let i=0;i<200;i++){
+    const mid=(lo+hi)/2, fm=f(mid);
+    if(!isFinite(fm)) return null;
+    if(flo*fm <= 0) hi=mid; else { lo=mid; flo=fm; }
+  }
+  return (lo+hi)/2;
+}
+
+function compute(){
+  const txs = [...S.txs].sort((a,b)=> a.tx_date===b.tx_date
+    ? String(a.created_at).localeCompare(String(b.created_at))
+    : (a.tx_date < b.tx_date ? -1 : 1));
+  const rows = txs.map(t => ({...t, flow: (INCOME.has(t.tx_type)? 1 : -1) * Number(t.amount)}));
+  let c = 0; rows.forEach(r => { c += r.flow; r.cum = c; });
+
+  const invested = -rows.filter(r=>r.flow<0).reduce((s,r)=>s+r.flow,0);
+  const received =  rows.filter(r=>r.flow>0).reduce((s,r)=>s+r.flow,0);
+  const today = new Date(); today.setHours(0,0,0,0);
+  const yearAgo = new Date(today); yearAgo.setDate(yearAgo.getDate()-365);
+  const inc12 = rows.filter(r=>r.flow>0 && pd(r.tx_date)>=yearAgo).reduce((s,r)=>s+r.flow,0);
+  const rent12 = rows.filter(r=>r.tx_type==="Доход от аренды" && pd(r.tx_date)>=yearAgo).reduce((s,r)=>s+r.flow,0);
+
+  const t0 = rows.length ? pd(rows[0].tx_date) : today;
+  const yrs = d => (d - t0) / 31536000000; // мс в году (365 сут)
+  const cfs = rows.map(r => ({t: yrs(pd(r.tx_date)), v: r.flow}));
+  const irr = xirr(cfs);
+  const val = Number(S.settings.valuation) || 0;
+  const irrVal = val > 0 ? xirr(cfs.concat([{t: yrs(today), v: val}])) : null;
+
+  let paybackDate = null, wasNeg = false;
+  for(const r of rows){
+    if(r.cum < -1e-6) wasNeg = true;
+    else if(wasNeg){ paybackDate = r.tx_date; break; }
+  }
+  const remaining = Math.max(0, invested - received);
+  let forecastM = null, forecastD = null;
+  if(invested > 0 && received < invested && inc12 > 0){
+    forecastM = Math.ceil(remaining / (inc12/12));
+    const fdt = new Date(today); fdt.setMonth(fdt.getMonth()+forecastM);
+    forecastD = fdt;
+  }
+  return {rows, invested, received, net: received-invested, inc12, rent12, irr, irrVal, val,
+          paybackDate, remaining, forecastM, forecastD};
+}
+
+/* ── рендер ── */
+function tile(lbl, val, sub, cls="", hero=false){
+  return `<div class="tile${hero?' hero':''}"><div class="lbl">${lbl}</div><div class="val ${cls}">${val}</div><div class="sub">${sub||""}</div></div>`;
+}
+function render(){
+  const m = compute();
+  $("chipInv").textContent = money(m.invested);
+  $("chipN").textContent = m.rows.length;
+  $("chipUpd").textContent = new Date().toLocaleDateString("ru-RU");
+  $("valInp").value = m.val || "";
+  $("curSel").value = S.settings.currency || "$";
+
+  const okup = m.invested<=0 ? "нет данных"
+    : m.received>=m.invested ? "достигнута" + (m.paybackDate? " · "+fd(m.paybackDate):"")
+    : m.forecastM!==null ? `через ~${m.forecastM} мес.` : "нет данных о доходе";
+  $("tiles").innerHTML =
+    tile("XIRR — фактическая", m.irr===null?"н/д":pct(m.irr*100),
+      m.irr===null?"появится после первого поступления":"по реальным денежным потокам",
+      m.irr===null?"":(m.irr>=0?"pos":"neg"), true) +
+    tile("XIRR — с учётом оценки", m.irrVal===null?"н/д":pct(m.irrVal*100),
+      m.val>0?("оценка актива "+money(m.val)):"укажите оценку актива",
+      m.irrVal===null?"":(m.irrVal>=0?"pos":"neg"), true) +
+    tile("Вложено всего", money(m.invested), "все расходы и взносы") +
+    tile("Получено всего", money(m.received), "аренда, прочее, продажа") +
+    tile("Чистая позиция", money(m.net), "получено − вложено", m.net>=0?"pos":"neg") +
+    tile("Возврат вложений", m.invested>0?pct(m.received/m.invested*100):"—", "получено ÷ вложено") +
+    tile("Доход за 12 мес.", money(m.inc12), m.inc12>0?("в среднем "+money(m.inc12/12)+" в мес."):"поступлений не было") +
+    tile("Арендная доходность", m.invested>0?pct(m.rent12/m.invested*100):"—", "аренда за 12 мес. ÷ вложено") +
+    tile("Осталось вернуть", money(m.remaining), "до окупаемости номинально") +
+    tile("Окупаемость", okup, m.forecastD? "прогноз: "+m.forecastD.toLocaleDateString("ru-RU",{month:"long",year:"numeric"}) : "");
+
+  renderJournal(m);
+  renderChart(m);
+}
+
+function renderJournal(m){
+  const jr = $("jr");
+  if(!m.rows.length){ jr.innerHTML = `<tbody><tr><td class="empty">Журнал пуст — добавьте первую транзакцию выше.</td></tr></tbody>`; return; }
+  let h = `<thead><tr><th>Дата</th><th>Тип</th><th>Поток</th><th>Нарастающим итогом</th><th>Комментарий</th><th></th></tr></thead><tbody>`;
+  for(const r of [...m.rows].reverse()){
+    h += `<tr><td>${fd(r.tx_date)}</td><td>${esc(r.tx_type)}</td>`+
+      `<td class="${r.flow<0?'neg':'pos'}">${r.flow>0?'+':''}${money(r.flow)}</td>`+
+      `<td class="${r.cum<0?'neg':''}">${money(r.cum)}</td>`+
+      `<td>${esc(r.comment)}</td>`+
+      `<td><button class="del" data-id="${r.id}" title="Удалить">✕</button></td></tr>`;
+  }
+  jr.innerHTML = h + "</tbody>";
+}
+
+function renderChart(m){
+  const host = $("chart"); host.innerHTML = "";
+  if(m.rows.length < 2){ host.innerHTML = `<div class="empty">График появится после двух транзакций.</div>`; return; }
+  const W = Math.max(420, host.clientWidth||600), H = 240;
+  const mL=60, mR=16, mT=14, mB=26, pw=W-mL-mR, ph=H-mT-mB;
+  const NS = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(NS,"svg");
+  svg.setAttribute("viewBox",`0 0 ${W} ${H}`);
+  const pts = m.rows.map(r=>({d: pd(r.tx_date).getTime(), v: r.cum, lbl: fd(r.tx_date)}));
+  const x0 = pts[0].d, x1 = pts[pts.length-1].d || x0+1;
+  let lo = Math.min(0,...pts.map(p=>p.v)), hi = Math.max(0,...pts.map(p=>p.v));
+  const pad=(hi-lo)*.1||1; lo-=pad; hi+=pad;
+  const X = d => mL + pw*((d-x0)/Math.max(1,(x1-x0)));
+  const Y = v => mT + ph*(1-(v-lo)/(hi-lo));
+  const el = (t,a)=>{ const e=document.createElementNS(NS,t); for(const k in a) e.setAttribute(k,a[k]); svg.appendChild(e); return e; };
+  // сетка
+  const span=hi-lo, step0=span/4, mag=Math.pow(10,Math.floor(Math.log10(step0)));
+  let step=mag; for(const k of [1,2,2.5,5,10]) if(mag*k>=step0){step=mag*k;break;}
+  for(let t=Math.ceil(lo/step)*step; t<=hi; t+=step){
+    el("line",{x1:mL,x2:W-mR,y1:Y(t),y2:Y(t),stroke:t===0?"var(--axis)":"var(--grid)","stroke-width":1});
+    const tx=el("text",{x:mL-8,y:Y(t)+4,"text-anchor":"end","font-size":10.5,fill:"var(--muted)"});
+    tx.textContent = Math.abs(t)>=1e6? nf1.format(t/1e6)+" млн" : Math.abs(t)>=1e4? nf0.format(t/1e3)+" тыс." : nf0.format(t);
+  }
+  // подписи дат (первая/последняя + до 3 промежуточных)
+  const nlab=Math.min(5,pts.length);
+  for(let i=0;i<nlab;i++){
+    const p=pts[Math.round(i*(pts.length-1)/(nlab-1))];
+    const tx=el("text",{x:X(p.d),y:H-8,"text-anchor":i===0?"start":i===nlab-1?"end":"middle","font-size":10.5,fill:"var(--muted)"});
+    tx.textContent=p.lbl;
+  }
+  let dPath=""; pts.forEach((p,i)=>{dPath+=(i?"L":"M")+X(p.d).toFixed(1)+","+Y(p.v).toFixed(1);});
+  el("path",{d:dPath,fill:"none",stroke:"var(--blue)","stroke-width":2,"stroke-linejoin":"round","stroke-linecap":"round"});
+  pts.forEach(p=>{
+    const c=el("circle",{cx:X(p.d),cy:Y(p.v),r:4,fill:"var(--blue)",stroke:"var(--surface)","stroke-width":2});
+    const t=document.createElementNS(NS,"title");
+    t.textContent=`${p.lbl}: ${money(p.v)}`; c.appendChild(t);
+  });
+  host.appendChild(svg);
+}
+
+/* ── события ── */
+async function refresh(){
+  const j = await api("data");
+  S.txs = j.transactions; S.settings = j.settings;
+  render();
+}
+async function enter(pw){
+  localStorage.setItem("ht_pw", pw);
+  try{
+    await refresh();
+    document.documentElement.classList.add("authed","ready");
+    $("app").style.display="";
+  }catch(e){
+    localStorage.removeItem("ht_pw");
+    document.documentElement.classList.remove("authed");
+    throw e;
+  }
+}
+$("loginBtn").addEventListener("click", async ()=>{
+  $("lerr").textContent="";
+  try{ await enter($("pw").value.trim()); }
+  catch(e){ $("lerr").textContent = e.message==="auth" ? "Неверный пароль" : "Ошибка соединения — попробуйте ещё раз"; }
+});
+$("pw").addEventListener("keydown", e=>{ if(e.key==="Enter") $("loginBtn").click(); });
+$("logoutBtn").addEventListener("click", ()=>{ localStorage.removeItem("ht_pw"); location.reload(); });
+
+$("addBtn").addEventListener("click", async ()=>{
+  const btn=$("addBtn"); $("addErr").textContent="";
+  const tx_date=$("fDate").value, tx_type=$("fType").value,
+        amount=parseFloat($("fAmt").value), comment=$("fCom").value.trim();
+  if(!tx_date){ $("addErr").textContent="Укажите дату"; return; }
+  if(!isFinite(amount)||amount<=0){ $("addErr").textContent="Сумма должна быть больше нуля"; return; }
+  btn.disabled=true;
+  try{
+    await api("add",{tx_date,tx_type,amount,comment});
+    $("fAmt").value=""; $("fCom").value="";
+    await refresh(); toast("Транзакция добавлена");
+  }catch(e){ $("addErr").textContent = e.message==="auth"?"Сессия истекла — войдите заново":"Ошибка: "+e.message; }
+  finally{ btn.disabled=false; }
+});
+
+$("jr").addEventListener("click", async e=>{
+  const b=e.target.closest(".del"); if(!b) return;
+  if(!confirm("Удалить транзакцию?")) return;
+  try{ await api("del",{id:b.dataset.id}); await refresh(); toast("Удалено"); }
+  catch(err){ toast("Ошибка удаления"); }
+});
+
+let vT=null;
+$("valInp").addEventListener("input", ()=>{
+  clearTimeout(vT);
+  vT=setTimeout(async ()=>{
+    const v=parseFloat($("valInp").value)||0;
+    if(v<0) return;
+    $("saveNote").textContent="сохраняю…";
+    try{ await api("set",{key:"valuation",value:v}); S.settings.valuation=v; render(); $("saveNote").textContent="сохранено"; }
+    catch(e){ $("saveNote").textContent="ошибка сохранения"; }
+    setTimeout(()=>$("saveNote").textContent="",1800);
+  },700);
+});
+$("curSel").addEventListener("change", async ()=>{
+  const v=$("curSel").value;
+  try{ await api("set",{key:"currency",value:v}); S.settings.currency=v; render(); }
+  catch(e){ toast("Ошибка сохранения валюты"); }
+});
+
+let rT=null;
+addEventListener("resize", ()=>{ clearTimeout(rT); rT=setTimeout(()=>render(),200); });
+
+(function init(){
+  const d=new Date();
+  $("fDate").value = d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  const saved = localStorage.getItem("ht_pw");
+  if(saved){
+    enter(saved).catch(()=>{ document.documentElement.classList.remove("authed"); });
+  }
+})();
+</script>
+</body>
+</html>
