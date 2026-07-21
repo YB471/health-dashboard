@@ -147,23 +147,12 @@
   </header>
 
   <div class="tabs">
-    <button class="tab" data-tab="passport">Паспорт</button>
     <button class="tab on" data-tab="metrics">Показатели</button>
     <button class="tab" data-tab="tx">Транзакции</button>
   </div>
 
-  <div id="tab-passport" class="tabsec" style="display:none">
-  <div class="card">
-    <div class="crow"><h2>Паспорт инвестиции</h2>
-      <button class="btn2" id="ppEdit" style="margin-left:auto">Редактировать</button></div>
-    <div class="pp" id="ppView"></div>
-    <div class="ppform" id="ppForm" style="display:none"></div>
-    <div class="ppbtns" id="ppBtns" style="display:none">
-      <button class="save" id="ppSave">Сохранить</button>
-      <button class="btn2" id="ppCancel" style="margin-left:0">Отмена</button>
-    </div>
-  </div>
 
+  <div id="tab-metrics" class="tabsec">
   <div class="card">
     <div class="params">
       <div class="field"><label for="valInp">Оценка актива</label>
@@ -175,15 +164,12 @@
           <option value="₴">UAH — ₴</option><option value="₽">RUB — ₽</option>
         </select></div>
       <div class="field" style="justify-content:center">
-        <div class="note" style="margin:0">Пусто или 0 — оценка равна внесённым деньгам и растёт с каждым взносом. Введите сумму, когда появится рыночная оценка или цена от застройщика — она заменит автоматическую.</div>
+        <div class="note" style="margin:0">Оценка: пусто или 0 — равна внесённым деньгам; введённая сумма используется в «XIRR — с учётом оценки».</div>
       </div>
       <div id="saveNote"></div>
     </div>
   </div>
 
-  </div><!-- /tab-passport -->
-
-  <div id="tab-metrics" class="tabsec">
   <div class="card">
     <div class="crow"><h2>Показатели</h2>
       <button class="btn2" id="tilesCfgBtn" style="margin-left:auto">Настроить</button></div>
@@ -672,17 +658,6 @@ document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click", ()=>{
 }));
 
 /* ── паспорт инвестиции ── */
-const PP_FIELDS = [
-  ["name","Объект"],
-  ["type","Тип актива"],
-  ["country","Страна и регион"],
-  ["address","Адрес"],
-  ["map","Ссылка на карту (Google Maps)"],
-  ["entry","Дата входа"],
-  ["exit","Дата выхода"],
-  ["operator","Оператор / УК"],
-  ["note","Примечание"],
-];
 function ppData(){ const p = S.settings.passport; return (p && typeof p === "object") ? p : {}; }
 function ppAddrHtml(v, mapUrl){
   const mu = (mapUrl||"").trim();
@@ -698,40 +673,7 @@ function renderPassport(){
   $("pageSub").innerHTML = ((p.address || "").trim() || (p.map || "").trim())
     ? ppAddrHtml(p.address, p.map)
     : "Журнал реальных транзакций · показатели считаются автоматически по датам платежей";
-  $("ppView").innerHTML = PP_FIELDS.map(([k,lbl])=>{
-    let v;
-    if(k==="address") v = ppAddrHtml(p[k], p.map);
-    else if(k==="map") v = (p.map||"").trim() ? `<a href="${esc(p.map)}" target="_blank" rel="noopener">Открыть на Google Maps ↗</a>` : "—";
-    else if(k==="entry"||k==="exit") v = /^\d{4}-\d{2}-\d{2}$/.test(p[k]||"") ? fd(p[k]) : esc(p[k]||"") || "—";
-    else v = esc(p[k]||"") || "—";
-    return `<div class="pi"><div class="k">${lbl}</div><div class="v">${v}</div></div>`;
-  }).join("");
 }
-function ppToggle(edit){
-  $("ppView").style.display = edit ? "none" : "";
-  $("ppForm").style.display = edit ? "" : "none";
-  $("ppBtns").style.display = edit ? "" : "none";
-  $("ppEdit").style.display = edit ? "none" : "";
-  if(edit){
-    const p = ppData();
-    $("ppForm").innerHTML = PP_FIELDS.map(([k,lbl])=>{
-      const type = (k==="entry"||k==="exit") ? "date" : "text";
-      const ph = k==="address" ? "текстовый адрес" : k==="map" ? "https://maps.app.goo.gl/…" : "";
-      return `<div class="field"><label>${lbl}</label><input data-pp="${k}" type="${type}" value="${esc(p[k]||"")}" placeholder="${ph}" maxlength="300"></div>`;
-    }).join("");
-  }
-}
-$("ppEdit").addEventListener("click", ()=>ppToggle(true));
-$("ppCancel").addEventListener("click", ()=>ppToggle(false));
-$("ppSave").addEventListener("click", async ()=>{
-  const p = {};
-  document.querySelectorAll("#ppForm [data-pp]").forEach(i=>{ p[i.dataset.pp] = i.value.trim(); });
-  try{
-    await api("set",{key:"passport",value:p});
-    S.settings.passport = p;
-    ppToggle(false); renderPassport(); toast("Паспорт сохранён");
-  }catch(e){ toast("Ошибка сохранения паспорта"); }
-});
 
 /* ── события ── */
 async function refresh(){
