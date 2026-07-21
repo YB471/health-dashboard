@@ -677,28 +677,31 @@ const PP_FIELDS = [
   ["type","Тип актива"],
   ["country","Страна и регион"],
   ["address","Адрес"],
+  ["map","Ссылка на карту (Google Maps)"],
   ["entry","Дата входа"],
   ["exit","Дата выхода"],
   ["operator","Оператор / УК"],
   ["note","Примечание"],
 ];
 function ppData(){ const p = S.settings.passport; return (p && typeof p === "object") ? p : {}; }
-function ppAddrHtml(v){
-  if(!v) return "—";
-  const href = /^https?:\/\//i.test(v) ? v : "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(v);
-  return `<a href="${esc(href)}" target="_blank" rel="noopener">${esc(v)} ↗</a>`;
+function ppAddrHtml(v, mapUrl){
+  const mu = (mapUrl||"").trim();
+  if(!v && !mu) return "—";
+  const href = mu || (/^https?:\/\//i.test(v) ? v : "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(v));
+  return `<a href="${esc(href)}" target="_blank" rel="noopener">${esc(v || "Открыть на Google Maps")} ↗</a>`;
 }
 function renderPassport(){
   const p = ppData();
   const nm = (p.name || "").trim();
   $("pageTitle").textContent = nm || "Инвестиционный трекер";
   document.title = (nm ? nm + " — " : "") + "фактическая доходность";
-  $("pageSub").innerHTML = (p.address || "").trim()
-    ? ppAddrHtml(p.address)
+  $("pageSub").innerHTML = ((p.address || "").trim() || (p.map || "").trim())
+    ? ppAddrHtml(p.address, p.map)
     : "Журнал реальных транзакций · показатели считаются автоматически по датам платежей";
   $("ppView").innerHTML = PP_FIELDS.map(([k,lbl])=>{
     let v;
-    if(k==="address") v = ppAddrHtml(p[k]);
+    if(k==="address") v = ppAddrHtml(p[k], p.map);
+    else if(k==="map") v = (p.map||"").trim() ? `<a href="${esc(p.map)}" target="_blank" rel="noopener">Открыть на Google Maps ↗</a>` : "—";
     else if(k==="entry"||k==="exit") v = /^\d{4}-\d{2}-\d{2}$/.test(p[k]||"") ? fd(p[k]) : esc(p[k]||"") || "—";
     else v = esc(p[k]||"") || "—";
     return `<div class="pi"><div class="k">${lbl}</div><div class="v">${v}</div></div>`;
@@ -713,7 +716,7 @@ function ppToggle(edit){
     const p = ppData();
     $("ppForm").innerHTML = PP_FIELDS.map(([k,lbl])=>{
       const type = (k==="entry"||k==="exit") ? "date" : "text";
-      const ph = k==="address" ? "адрес или ссылка на Google Maps" : "";
+      const ph = k==="address" ? "текстовый адрес" : k==="map" ? "https://maps.app.goo.gl/…" : "";
       return `<div class="field"><label>${lbl}</label><input data-pp="${k}" type="${type}" value="${esc(p[k]||"")}" placeholder="${ph}" maxlength="300"></div>`;
     }).join("");
   }
