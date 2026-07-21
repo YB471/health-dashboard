@@ -159,6 +159,7 @@
   <div class="tabs">
     <button class="tab on" data-tab="metrics">Показатели</button>
     <button class="tab" data-tab="tx">Транзакции</button>
+    <button class="tab" data-tab="info">Справочная информация</button>
   </div>
 
 
@@ -220,29 +221,26 @@
   </div>
 
   <div class="card">
-    <h2>Доходность по годам</h2>
-    <div class="legend">
-      <span class="key"><span class="sw" style="background:var(--lo)"></span>Поступления</span>
-      <span class="key"><span class="sw" style="background:var(--hi)"></span>Взносы и расходы</span>
-      <span class="key"><span class="sw" style="background:var(--warn)"></span>Налоги</span>
+    <div class="crow"><h2>Доходность по периодам</h2></div>
+    <div class="crow" style="gap:8px;margin-bottom:8px">
+      <span class="seg" id="pfPeriod">
+        <button data-v="month" class="on">По месяцам</button>
+        <button data-v="year">По годам</button>
+      </span>
+      <span class="seg" id="pfMetric">
+        <button data-v="flows" class="on">Потоки</button>
+        <button data-v="net">Чистый поток</button>
+        <button data-v="yield">Доходность %</button>
+      </span>
+      <span class="seg" id="pfTax">
+        <button data-v="gross" class="on">До налога</button>
+        <button data-v="net">После налога</button>
+      </span>
     </div>
-    <div class="chart-host" id="yearChart"></div>
-    <div class="tbl-wrap" style="margin-top:14px"><table id="yearTbl"></table></div>
-    <div class="note">Доходность за год — поступления от аренды и прочие доходы (без продажи актива) ÷ вложено на конец года; «после налога» — за вычетом фактически уплаченных налогов периода (транзакции типа «Налоги»).</div>
-  </div>
-
-  <div class="card">
-    <div class="crow">
-      <h2>Доходность по месяцам</h2>
-      <div class="field" style="margin-left:auto"><select id="mYear"></select></div>
-    </div>
-    <div class="legend">
-      <span class="key"><span class="sw" style="background:var(--lo)"></span>Поступления</span>
-      <span class="key"><span class="sw" style="background:var(--hi)"></span>Взносы и расходы</span>
-      <span class="key"><span class="sw" style="background:var(--warn)"></span>Налоги</span>
-    </div>
-    <div class="chart-host" id="monthChart"></div>
-    <div class="tbl-wrap" style="margin-top:14px"><table id="monthTbl"></table></div>
+    <div class="legend" id="pfLegend"></div>
+    <div class="chart-host" id="pfChart"></div>
+    <div class="tbl-wrap" style="margin-top:14px"><table id="pfTbl"></table></div>
+    <div class="note">Доходность — поступления без продажи актива ÷ вложено на конец периода, по месяцам — в годовом выражении (×12); «после налога» — за вычетом фактических налогов периода. Наведите курсор на график — подсказка покажет полный разрез периода.</div>
   </div>
 
   </div><!-- /tab-metrics -->
@@ -273,6 +271,13 @@
     «Нарастающим итогом» — совокупная денежная позиция на дату. XIRR — годовая ставка, при которой приведённая сумма всех потоков равна нулю; «с учётом оценки» — как если бы актив был продан сегодня по текущей оценке (введённой вручную, а если она не задана — равной внесённым деньгам). Прогноз окупаемости — по среднему доходу за последние 12 месяцев. Данные хранятся в отдельном проекте Supabase «Hotel-Invest», доступ только по паролю.</div>
   </div>
   </div><!-- /tab-tx -->
+
+  <div id="tab-info" class="tabsec" style="display:none">
+  <div class="card">
+    <h2>Справочная информация</h2>
+    <div class="empty">Раздел пока пуст — наполним его тем, что вам нужно.</div>
+  </div>
+  </div><!-- /tab-info -->
 </div>
 
 <div id="tip"></div>
@@ -413,7 +418,7 @@ function compute(){
   for(let y=y0; y<=y1; y++){
     const b = byYear.get(y) || {inc:0,out:0,tax:0,incNoSale:0,rent:0};
     investedRun += b.out;
-    years.push({y, inc:b.inc, out:b.out, tax:b.tax, rent:b.rent||0, invEndYear:investedRun, net:b.inc-b.out-b.tax,
+    years.push({y, inc:b.inc, out:b.out, tax:b.tax, rent:b.rent||0, incNoSale:b.incNoSale||0, invEndYear:investedRun, net:b.inc-b.out-b.tax,
       yieldPct: investedRun>0 && b.incNoSale>0 ? b.incNoSale/investedRun*100 : null,
       yieldNet: investedRun>0 && b.incNoSale>0 ? (b.incNoSale-b.tax)/investedRun*100 : null});
   }
@@ -455,8 +460,7 @@ function render(){
   renderRent(m);
   renderJournal(m);
   renderChart(m);
-  renderYearBlock(m);
-  renderMonthBlock(m);
+  renderPeriods(m);
 }
 
 function renderJournal(m){
@@ -576,70 +580,6 @@ function drawBars(host, buckets){
   host.appendChild(svg);
 }
 
-function renderYearBlock(m){
-  drawBars($("yearChart"), m.years.map(x=>({lbl:String(x.y), full:String(x.y), inc:x.inc, out:x.out, tax:x.tax})));
-  const t = $("yearTbl");
-  if(!m.rows.length){ t.innerHTML = `<tbody><tr><td class="empty">Нет данных.</td></tr></tbody>`; return; }
-  let h = `<thead><tr><th>Год</th><th>Взносы и расходы</th><th>Поступления</th><th>Налоги</th><th>Чистый поток</th><th>Нарастающим итогом</th><th>Доходность до налога</th><th>После налога</th></tr></thead><tbody>`;
-  for(const x of m.years){
-    h += `<tr><td>${x.y}</td>`+
-      `<td class="${x.out>0.5?'neg':''}">${x.out>0.5?money(-x.out):'—'}</td>`+
-      `<td class="${x.inc>0.5?'pos':''}">${x.inc>0.5?money(x.inc):'—'}</td>`+
-      `<td class="${x.tax>0.5?'neg':''}">${x.tax>0.5?money(-x.tax):'—'}</td>`+
-      `<td class="${x.net<-0.5?'neg':''}">${money(x.net)}</td>`+
-      `<td class="${x.cum<-0.5?'neg':''}">${money(x.cum)}</td>`+
-      `<td>${x.yieldPct!==null?pct(x.yieldPct):'—'}</td>`+
-      `<td>${x.yieldNet!==null?pct(x.yieldNet):'—'}</td></tr>`;
-  }
-  const totOut = m.years.reduce((s,x)=>s+x.out,0), totInc = m.years.reduce((s,x)=>s+x.inc,0), totTax = m.years.reduce((s,x)=>s+x.tax,0);
-  h += `</tbody><tfoot><tr><td>Итого</td><td class="neg">${money(-totOut)}</td>`+
-       `<td class="${totInc>0.5?'pos':''}">${totInc>0.5?money(totInc):'—'}</td>`+
-       `<td class="${totTax>0.5?'neg':''}">${totTax>0.5?money(-totTax):'—'}</td>`+
-       `<td>${money(totInc-totOut-totTax)}</td><td></td><td></td><td></td></tr></tfoot>`;
-  t.innerHTML = h;
-}
-
-function renderMonthBlock(m){
-  const sel = $("mYear");
-  const cur = sel.value;
-  sel.innerHTML = "";
-  for(let y=m.y1; y>=m.y0; y--){
-    const o=document.createElement("option"); o.value=y; o.textContent=y+" год"; sel.appendChild(o);
-  }
-  if(cur && +cur>=m.y0 && +cur<=m.y1) sel.value = cur;
-  const year = +sel.value;
-  const buckets = [];
-  for(let mo=0; mo<12; mo++){
-    const key = year+"-"+String(mo+1).padStart(2,"0");
-    const b = m.byMonth.get(key) || {inc:0,out:0,tax:0,incNoSale:0};
-    buckets.push({lbl:MONTHS_S[mo], full:MONTHS_S[mo]+" "+year, inc:b.inc, out:b.out, tax:b.tax||0, incNoSale:b.incNoSale||0});
-  }
-  drawBars($("monthChart"), buckets);
-  const t = $("monthTbl");
-  const filled = buckets.map((b,i)=>({...b, i})).filter(b=>b.inc>0.5||b.out>0.5||b.tax>0.5);
-  if(!filled.length){ t.innerHTML = `<tbody><tr><td class="empty">В ${year} году операций не было.</td></tr></tbody>`; return; }
-  let h = `<thead><tr><th>Месяц</th><th>Взносы и расходы</th><th>Поступления</th><th>Налоги</th><th>Чистый поток</th><th>Доходность до налога</th><th>После налога</th></tr></thead><tbody>`;
-  for(const b of filled){
-    const net=b.inc-b.out-b.tax;
-    const key = year+"-"+String(b.i+1).padStart(2,"0");
-    const ie = m.invEnd.get(key) || 0;
-    const yp = (ie>0 && b.incNoSale>0.5) ? b.incNoSale/ie*100 : null;
-    const ypNet = (ie>0 && b.incNoSale>0.5) ? (b.incNoSale-b.tax)/ie*100 : null;
-    h += `<tr><td>${MONTHS_S[b.i]} ${year}</td>`+
-      `<td class="${b.out>0.5?'neg':''}">${b.out>0.5?money(-b.out):'—'}</td>`+
-      `<td class="${b.inc>0.5?'pos':''}">${b.inc>0.5?money(b.inc):'—'}</td>`+
-      `<td class="${b.tax>0.5?'neg':''}">${b.tax>0.5?money(-b.tax):'—'}</td>`+
-      `<td class="${net<-0.5?'neg':''}">${money(net)}</td>`+
-      `<td>${yp!==null?pct(yp):'—'}</td>`+
-      `<td>${ypNet!==null?pct(ypNet):'—'}</td></tr>`;
-  }
-  const sOut=filled.reduce((s,b)=>s+b.out,0), sInc=filled.reduce((s,b)=>s+b.inc,0), sTax=filled.reduce((s,b)=>s+b.tax,0);
-  h += `</tbody><tfoot><tr><td>Итого за год</td><td class="neg">${sOut>0.5?money(-sOut):'—'}</td>`+
-       `<td class="${sInc>0.5?'pos':''}">${sInc>0.5?money(sInc):'—'}</td>`+
-       `<td class="${sTax>0.5?'neg':''}">${sTax>0.5?money(-sTax):'—'}</td>`+
-       `<td>${money(sInc-sOut-sTax)}</td><td></td><td></td></tr></tfoot>`;
-  t.innerHTML = h;
-}
 
 /* ── блок арендной доходности ── */
 const RY = {metric:"income", period:"month", tax:"gross"};
@@ -812,6 +752,232 @@ function drawRentChart(host, series, metric){
   host.appendChild(svg);
 }
 
+/* ── объединённый блок доходности по периодам ── */
+const PF = {period:"month", metric:"flows", tax:"gross"};
+[["pfPeriod","period"],["pfMetric","metric"],["pfTax","tax"]].forEach(([id,prop])=>{
+  $(id).addEventListener("click", e=>{
+    const b = e.target.closest("button"); if(!b) return;
+    [...$(id).querySelectorAll("button")].forEach(x=>x.classList.toggle("on", x===b));
+    PF[prop] = b.dataset.v;
+    if(M) renderPeriods(M);
+  });
+});
+
+function pfSeries(m){
+  const pts = [];
+  const today = new Date();
+  if(PF.period === "month"){
+    let first = null;
+    for(const [k,v] of m.byMonth) if((v.incNoSale||0)>0.5 && (!first || k<first)) first = k;
+    for(let y=m.y0; y<=m.y1; y++) for(let mo=1; mo<=12; mo++){
+      if(y===today.getFullYear() && mo>today.getMonth()+1) break;
+      const key = y+"-"+String(mo).padStart(2,"0");
+      const b = m.byMonth.get(key) || {inc:0,out:0,tax:0,incNoSale:0};
+      pts.push({lbl: MONTHS_S[mo-1]+(mo===1?" "+String(y).slice(2):""), full: MONTHS_S[mo-1]+" "+y,
+        inc:b.inc||0, out:b.out||0, tax:b.tax||0, incNoSale:b.incNoSale||0,
+        ie: m.invEnd.get(key)||0, ann:12, started: first!==null && key>=first});
+    }
+  } else {
+    let started = false;
+    for(const x of m.years){
+      if((x.incNoSale||0)>0.5) started = true;
+      pts.push({lbl:String(x.y), full:String(x.y), inc:x.inc, out:x.out, tax:x.tax,
+        incNoSale:x.incNoSale||0, ie:x.invEndYear||0, ann:1, started});
+    }
+  }
+  return pts;
+}
+function pfTipHtml(p){
+  const netFlow = p.inc - p.out - p.tax;
+  let t = "<b>" + esc(p.full) + "</b>";
+  t += "<br>Поступления: " + (p.inc>0.5?money(p.inc):"—");
+  t += "<br>Взносы и расходы: " + (p.out>0.5?money(-p.out):"—");
+  t += "<br>Налоги: " + (p.tax>0.5?money(-p.tax):"—");
+  t += "<br>Чистый поток: " + money(netFlow);
+  if(p.ie>0){
+    t += "<br>Вложено: " + money(p.ie);
+    if(p.incNoSale>0.5)
+      t += "<br>Доходность (годовая): " + pct(p.incNoSale*p.ann/p.ie*100) + " · чистыми: " + pct((p.incNoSale-p.tax)*p.ann/p.ie*100);
+  }
+  return t;
+}
+function renderPeriods(m){
+  const pts = pfSeries(m);
+  const net = PF.tax === "net";
+  $("pfLegend").innerHTML = PF.metric === "flows"
+    ? `<span class="key"><span class="sw" style="background:var(--lo)"></span>Поступления</span>
+       <span class="key"><span class="sw" style="background:var(--hi)"></span>Взносы и расходы</span>
+       <span class="key"><span class="sw" style="background:var(--warn)"></span>Налоги</span>`
+    : PF.metric === "net"
+    ? `<span class="key"><span class="sw" style="background:var(--lo)"></span>Чистый поток ≥ 0</span>
+       <span class="key"><span class="sw" style="background:var(--hi)"></span>Чистый поток &lt; 0</span>`
+    : "";
+  drawPeriodChart($("pfChart"), pts, m);
+  renderPfTable(m, pts);
+}
+function drawPeriodChart(host, pts, m){
+  host.innerHTML = "";
+  if(!pts.some(p=>p.inc>0.5 || p.out>0.5 || p.tax>0.5)){
+    host.innerHTML = `<div class="empty">Нет данных за период.</div>`; return;
+  }
+  const net = PF.tax === "net";
+  const val = p => PF.metric === "net" ? (net ? p.inc-p.out-p.tax : p.inc-p.out)
+    : PF.metric === "yield" ? ((p.ie>0 && p.started) ? (net ? p.incNoSale-p.tax : p.incNoSale)*p.ann/p.ie*100 : null)
+    : null;
+  const W = Math.max(420, host.clientWidth||600), H = 260;
+  const mL=64, mR=16, mT=14, mB=26, pw=W-mL-mR, ph=H-mT-mB;
+  const NS = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(NS,"svg");
+  svg.setAttribute("viewBox",`0 0 ${W} ${H}`);
+  const el=(t,a,parent)=>{ const e=document.createElementNS(NS,t); for(const k in a) e.setAttribute(k,a[k]); (parent||svg).appendChild(e); return e; };
+  let lo=0, hi=0;
+  if(PF.metric === "flows"){
+    hi = Math.max(...pts.map(p=>p.inc), 0);
+    lo = -Math.max(...pts.map(p=>p.out+p.tax), 0);
+  } else {
+    const vals = pts.map(val).filter(v=>v!==null && isFinite(v));
+    if(vals.length){ lo = Math.min(0, ...vals); hi = Math.max(0, ...vals); }
+  }
+  if(hi===lo) hi = lo+1;
+  const pad=(hi-lo)*.09||1; hi+=pad; if(lo<0) lo-=pad;
+  const Y = v => mT + ph*(1-(v-lo)/(hi-lo));
+  const y0 = Y(0);
+  const isPct = PF.metric === "yield";
+  const fmtAx = v => isPct ? (Math.abs(v)<0.05?"0":nf1.format(v))+" %" : moneyC(v);
+  const span=hi-lo, step0=span/4, mag=Math.pow(10,Math.floor(Math.log10(step0)));
+  let step=mag; for(const k of [1,2,2.5,5,10]) if(mag*k>=step0){step=mag*k;break;}
+  for(let t=Math.ceil(lo/step)*step; t<=hi; t+=step){
+    el("line",{x1:mL,x2:W-mR,y1:Y(t),y2:Y(t),stroke:Math.abs(t)<step*1e-6?"var(--bd2)":"var(--bd)","stroke-width":1});
+    const tx=el("text",{x:mL-8,y:Y(t)+4,"text-anchor":"end","font-size":10.5,fill:"var(--tx3)"});
+    tx.textContent = fmtAx(t);
+  }
+  const n = pts.length, band = pw/Math.max(1,n);
+  const Xc = i => mL + band*i + band/2;
+  let lastX = -1e9;
+  pts.forEach((p,i)=>{
+    const x = Xc(i);
+    if(x - lastX >= 46 || i===n-1){
+      const tx=el("text",{x, y:H-8, "text-anchor":"middle","font-size":10,fill:"var(--tx3)"});
+      tx.textContent = p.lbl; lastX = x;
+    }
+  });
+  const rr = (x,y,w,h,side)=>{
+    const r=Math.max(0,Math.min(4,w/2,h)); if(h<=0||w<=0) return "";
+    return side==="top"
+      ? `M${x},${y+h} L${x},${y+r} Q${x},${y} ${x+r},${y} L${x+w-r},${y} Q${x+w},${y} ${x+w},${y+r} L${x+w},${y+h} Z`
+      : `M${x},${y} L${x+w},${y} L${x+w},${y+h-r} Q${x+w},${y+h} ${x+w-r},${y+h} L${x+r},${y+h} Q${x},${y+h} ${x},${y+h-r} Z`;
+  };
+  if(PF.metric === "yield"){
+    let dPath="", started=false;
+    pts.forEach((p,i)=>{ const v=val(p); if(v===null) return;
+      dPath += (started?"L":"M")+Xc(i).toFixed(1)+","+Y(v).toFixed(1); started=true; });
+    if(dPath) el("path",{d:dPath,fill:"none",stroke:"var(--lo)","stroke-width":2,"stroke-linejoin":"round","stroke-linecap":"round"});
+    pts.forEach((p,i)=>{ const v=val(p); if(v===null) return;
+      el("circle",{cx:Xc(i),cy:Y(v),r:4,fill:"var(--lo)",stroke:"var(--card)","stroke-width":2}); });
+  } else {
+    const barW = Math.min(24, band*0.62);
+    pts.forEach((p,i)=>{
+      const x = Xc(i)-barW/2;
+      if(PF.metric === "flows"){
+        const hInc = Math.abs(Y(p.inc)-y0);
+        if(p.inc>0.5 && hInc>=0.5) el("path",{d:rr(x,y0-hInc,barW,hInc,"top"),fill:"var(--lo)"});
+        let yD = y0;
+        const hOut = Math.abs(Y(-p.out)-y0);
+        if(p.out>0.5 && hOut>=0.5){
+          const bottom = !(p.tax>0.5);
+          const d = bottom ? rr(x,yD,barW,hOut,"bottom")
+            : `M${x},${yD} L${x+barW},${yD} L${x+barW},${yD+hOut} L${x},${yD+hOut} Z`;
+          el("path",{d,fill:"var(--hi)"}); yD += hOut + 2;
+        }
+        const hTax = Math.abs(Y(-p.tax)-y0);
+        if(p.tax>0.5 && hTax>=0.5) el("path",{d:rr(x,yD,barW,hTax,"bottom"),fill:"var(--warn)"});
+      } else {
+        const v = val(p);
+        if(v===null || Math.abs(v)<0.5) return;
+        const h = Math.abs(Y(v)-y0);
+        if(h<0.5) return;
+        el("path",{d: v>=0 ? rr(x,y0-h,barW,h,"top") : rr(x,y0,barW,h,"bottom"), fill: v>=0?"var(--lo)":"var(--hi)"});
+      }
+    });
+  }
+  el("line",{x1:mL,x2:W-mR,y1:y0,y2:y0,stroke:"var(--bd2)","stroke-width":1});
+
+  /* hover */
+  const guide = el("g",{opacity:0});
+  const gl = el("line",{y1:mT,y2:mT+ph,stroke:"var(--bd2)","stroke-width":1}, guide);
+  const gc = el("circle",{r:5.5, fill:"var(--lo)", stroke:"var(--card)","stroke-width":2, opacity:0}, guide);
+  const ov = el("rect",{x:mL,y:mT,width:pw,height:ph,fill:"transparent"});
+  const metricName = PF.metric==="flows" ? null : PF.metric==="net" ? ("Чистый поток"+(net?" (после налога)":" (до налога)")) : ("Доходность (годовая)"+(net?", чистыми":""));
+  ov.addEventListener("mousemove", e=>{
+    const box = svg.getBoundingClientRect();
+    if(!box.width) return;
+    const px = (e.clientX - box.left) * (W / box.width);
+    let i = Math.max(0, Math.min(n-1, Math.round((px - mL - band/2) / band)));
+    let j = -1;
+    for(let d=0; d<n; d++){
+      const ok = k => PF.metric!=="yield" ? true : val(pts[k])!==null;
+      if(i-d>=0 && ok(i-d)){ j=i-d; break; }
+      if(i+d<n && ok(i+d)){ j=i+d; break; }
+    }
+    if(j<0){ guide.setAttribute("opacity",0); hideTip(); return; }
+    const p = pts[j];
+    guide.setAttribute("opacity",1);
+    gl.setAttribute("x1",Xc(j)); gl.setAttribute("x2",Xc(j));
+    const v = val(p);
+    if(PF.metric==="yield" && v!==null){ gc.setAttribute("opacity",1); gc.setAttribute("cx",Xc(j)); gc.setAttribute("cy",Y(v)); }
+    else gc.setAttribute("opacity",0);
+    const head = metricName && v!==null ? "<b>"+metricName+": "+(isPct?pct(v):money(v))+"</b>" : "";
+    showTip("<b>"+esc(p.full)+"</b>" + (head?"<br>"+head:"") + pfTipHtml(p).replace("<b>"+esc(p.full)+"</b>",""), e.clientX, e.clientY);
+  });
+  ov.addEventListener("mouseleave", ()=>{ guide.setAttribute("opacity",0); hideTip(); });
+  host.appendChild(svg);
+}
+function renderPfTable(m, pts){
+  const t = $("pfTbl");
+  if(PF.period === "year"){
+    if(!m.rows.length){ t.innerHTML = `<tbody><tr><td class="empty">Нет данных.</td></tr></tbody>`; return; }
+    let h = `<thead><tr><th>Год</th><th>Взносы и расходы</th><th>Поступления</th><th>Налоги</th><th>Чистый поток</th><th>Нарастающим итогом</th><th>Доходность до налога</th><th>После налога</th></tr></thead><tbody>`;
+    for(const x of m.years){
+      h += `<tr><td>${x.y}</td>`+
+        `<td class="${x.out>0.5?'neg':''}">${x.out>0.5?money(-x.out):'—'}</td>`+
+        `<td class="${x.inc>0.5?'pos':''}">${x.inc>0.5?money(x.inc):'—'}</td>`+
+        `<td class="${x.tax>0.5?'neg':''}">${x.tax>0.5?money(-x.tax):'—'}</td>`+
+        `<td class="${x.net<-0.5?'neg':''}">${money(x.net)}</td>`+
+        `<td class="${x.cum<-0.5?'neg':''}">${money(x.cum)}</td>`+
+        `<td>${x.yieldPct!==null?pct(x.yieldPct):'—'}</td>`+
+        `<td>${x.yieldNet!==null?pct(x.yieldNet):'—'}</td></tr>`;
+    }
+    const totOut = m.years.reduce((s,x)=>s+x.out,0), totInc = m.years.reduce((s,x)=>s+x.inc,0), totTax = m.years.reduce((s,x)=>s+x.tax,0);
+    h += `</tbody><tfoot><tr><td>Итого</td><td class="neg">${money(-totOut)}</td>`+
+         `<td class="${totInc>0.5?'pos':''}">${totInc>0.5?money(totInc):'—'}</td>`+
+         `<td class="${totTax>0.5?'neg':''}">${totTax>0.5?money(-totTax):'—'}</td>`+
+         `<td>${money(totInc-totOut-totTax)}</td><td></td><td></td><td></td></tr></tfoot>`;
+    t.innerHTML = h;
+  } else {
+    const filled = pts.filter(p=>p.inc>0.5||p.out>0.5||p.tax>0.5);
+    if(!filled.length){ t.innerHTML = `<tbody><tr><td class="empty">Операций не было.</td></tr></tbody>`; return; }
+    let h = `<thead><tr><th>Месяц</th><th>Взносы и расходы</th><th>Поступления</th><th>Налоги</th><th>Чистый поток</th><th>Доходность до налога</th><th>После налога</th></tr></thead><tbody>`;
+    for(const b of filled){
+      const netF = b.inc-b.out-b.tax;
+      const yp = (b.ie>0 && b.incNoSale>0.5) ? b.incNoSale*b.ann/b.ie*100 : null;
+      const ypNet = (b.ie>0 && b.incNoSale>0.5) ? (b.incNoSale-b.tax)*b.ann/b.ie*100 : null;
+      h += `<tr><td>${b.full}</td>`+
+        `<td class="${b.out>0.5?'neg':''}">${b.out>0.5?money(-b.out):'—'}</td>`+
+        `<td class="${b.inc>0.5?'pos':''}">${b.inc>0.5?money(b.inc):'—'}</td>`+
+        `<td class="${b.tax>0.5?'neg':''}">${b.tax>0.5?money(-b.tax):'—'}</td>`+
+        `<td class="${netF<-0.5?'neg':''}">${money(netF)}</td>`+
+        `<td>${yp!==null?pct(yp):'—'}</td>`+
+        `<td>${ypNet!==null?pct(ypNet):'—'}</td></tr>`;
+    }
+    const sOut=filled.reduce((s,b)=>s+b.out,0), sInc=filled.reduce((s,b)=>s+b.inc,0), sTax=filled.reduce((s,b)=>s+b.tax,0);
+    h += `</tbody><tfoot><tr><td>Итого</td><td class="neg">${sOut>0.5?money(-sOut):'—'}</td>`+
+         `<td class="${sInc>0.5?'pos':''}">${sInc>0.5?money(sInc):'—'}</td>`+
+         `<td class="${sTax>0.5?'neg':''}">${sTax>0.5?money(-sTax):'—'}</td>`+
+         `<td>${money(sInc-sOut-sTax)}</td><td></td><td></td></tr></tfoot>`;
+    t.innerHTML = h;
+  }
+}
+
 /* ── настраиваемые плитки показателей ── */
 const TILE_DEFS = [
   {id:"xirr", name:"XIRR фактическая", hero:true, b:m=>[
@@ -887,7 +1053,7 @@ document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click", ()=>{
   document.querySelectorAll(".tabsec").forEach(sec=>{
     sec.style.display = sec.id === "tab-"+b.dataset.tab ? "" : "none";
   });
-  if(b.dataset.tab === "metrics" && M){ renderRent(M); renderChart(M); renderYearBlock(M); renderMonthBlock(M); }
+  if(b.dataset.tab === "metrics" && M){ renderRent(M); renderChart(M); renderPeriods(M); }
 }));
 
 /* ── паспорт инвестиции ── */
@@ -979,7 +1145,6 @@ $("curSel").addEventListener("change", async ()=>{
   try{ await api("set",{key:"currency",value:v}); S.settings.currency=v; render(); }
   catch(e){ toast("Ошибка сохранения валюты"); }
 });
-$("mYear").addEventListener("change", ()=>{ if(M) renderMonthBlock(M); });
 
 let rT=null;
 addEventListener("resize", ()=>{ clearTimeout(rT); rT=setTimeout(()=>render(),200); });
