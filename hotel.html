@@ -3,123 +3,97 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ATLANTIDA — фактическая доходность инвестиции</title>
+<title>Доходность инвестиции — ATLANTIDA</title>
 <script>try{if(localStorage.getItem("ht_pw"))document.documentElement.className+=" authed";}catch(e){}</script>
 <style>
-  :root{
-    color-scheme: light dark;
-    /* палитра брендбука ATLANTIDA: #EBE4D4 #948F74 #213024 #4F2E17 #2C1F0F */
-    --plane:#EBE4D4; --surface:#F8F5EC; --ink:#2C1F0F; --ink2:#4F3A26; --muted:#948F74;
-    --grid:#DFD8C4; --axis:#C6BFA6; --border:rgba(44,31,15,.12);
-    --accent:#213024; --accent-ink:#EBE4D4; --accent-soft:rgba(33,48,36,.08);
-    --blue:#2a72c8; --red:#b8402f; --good:#2e5c38;
-    --shadow:0 1px 2px rgba(44,31,15,.06),0 4px 16px rgba(44,31,15,.06);
-  }
-  @media (prefers-color-scheme: dark){
-    :root{
-      --plane:#141b16; --surface:#213024; --ink:#EBE4D4; --ink2:#cfc8b2; --muted:#948F74;
-      --grid:#2e4234; --axis:#3e5645; --border:rgba(235,228,212,.13);
-      --accent:#bcb695; --accent-ink:#213024; --accent-soft:rgba(148,143,116,.16);
-      --blue:#5b9be8; --red:#e07b6b; --good:#8fbf7f;
-      --shadow:0 1px 2px rgba(0,0,0,.35),0 4px 16px rgba(0,0,0,.3);
-    }
+  :root{--bg:#faf9f7;--card:#fff;--bd:rgba(0,0,0,.1);--bd2:rgba(0,0,0,.2);--tx:#1a1a18;--tx2:#5f5e5a;--tx3:#8a8983;--tk:rgba(0,0,0,.05);
+    --ok:#1d9e75;--okbg:rgba(29,158,117,.16);--hi:#d4453f;--lo:#2f7dd4;--warn:#ba7517;--hibg:rgba(212,69,63,.11)}
+  @media(prefers-color-scheme:dark){
+    :root{--bg:#1c1c1a;--card:#262624;--bd:rgba(255,255,255,.12);--bd2:rgba(255,255,255,.22);--tx:#ededeb;--tx2:#b4b2a9;--tx3:#88877f;--tk:rgba(255,255,255,.06);
+      --okbg:rgba(29,158,117,.28);--hi:#e8635d;--lo:#5b9be8;--warn:#d39233;--hibg:rgba(232,99,93,.2)}
   }
   *{box-sizing:border-box}
   html,body{margin:0}
-  body{background:var(--plane);color:var(--ink);
-    font:15px/1.5 -apple-system,BlinkMacSystemFont,system-ui,Roboto,Helvetica,Arial,sans-serif;
-    -webkit-font-smoothing:antialiased}
-  .wrap{max-width:1080px;margin:0 auto;padding:28px 20px 60px}
+  body{background:var(--bg);color:var(--tx);
+    font-family:-apple-system,BlinkMacSystemFont,system-ui,Roboto,Helvetica,Arial,sans-serif;
+    font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:960px;margin:0 auto;padding:22px 18px 80px}
 
   /* login */
-  #login{position:fixed;inset:0;background:var(--plane);display:flex;align-items:center;justify-content:center;z-index:40}
+  #login{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:40}
   html.authed #login{display:none}
-  .lbox{background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);padding:30px 32px;width:min(370px,90vw);text-align:center}
-  .wordmark{letter-spacing:.42em;font-weight:600;font-size:20px;color:var(--accent);text-indent:.42em}
-  .wordsub{letter-spacing:.3em;font-size:9.5px;text-transform:uppercase;color:var(--muted);margin-top:3px;text-indent:.3em}
-  .lbox h1{font-size:15px;font-weight:600;margin:18px 0 14px;color:var(--ink2)}
-  .lbox input{width:100%;font:15px system-ui;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--plane);color:var(--ink);text-align:center}
-  .lbox button{width:100%;margin-top:10px;font:600 14px system-ui;padding:10px;border:0;border-radius:8px;background:var(--accent);color:var(--accent-ink);cursor:pointer}
-  #lerr{color:var(--red);font-size:12.5px;margin-top:8px;min-height:16px}
-  #boot{position:fixed;inset:0;background:var(--plane);display:none;align-items:center;justify-content:center;z-index:50}
+  .lbox{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:28px 30px;width:min(360px,90vw)}
+  .lbox h1{font-size:18px;font-weight:500;margin:0 0 4px}
+  .lbox .lsub{font-size:12.5px;color:var(--tx3);margin-bottom:16px}
+  .lbox input{width:100%;font:15px system-ui;padding:10px 12px;border:1px solid var(--bd2);border-radius:8px;background:var(--bg);color:var(--tx)}
+  .lbox button{width:100%;margin-top:10px;padding:10px;font-size:15px;border:0;border-radius:8px;background:var(--ok);color:#fff;cursor:pointer}
+  #lerr{color:var(--hi);font-size:12.5px;margin-top:8px;min-height:16px}
+  #boot{position:fixed;inset:0;background:var(--bg);display:none;align-items:center;justify-content:center;z-index:50}
   html.authed #boot{display:flex}
   html.authed.ready #boot{display:none}
-  .spin{width:34px;height:34px;border:3px solid var(--grid);border-top-color:var(--accent);border-radius:50%;animation:sp 1s linear infinite}
+  .spin{width:34px;height:34px;border:3px solid var(--tk);border-top-color:var(--ok);border-radius:50%;animation:sp 1s linear infinite}
   @keyframes sp{to{transform:rotate(360deg)}}
 
-  /* masthead */
-  .mast{border-bottom:2px solid var(--accent);padding-bottom:16px;margin-bottom:16px}
-  .brandrow{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
-  .mast h1{font-size:clamp(21px,3.6vw,29px);font-weight:700;line-height:1.15;margin:10px 0 4px;letter-spacing:-.01em}
-  .mast .sub{color:var(--ink2);font-size:13.5px}
-  .mrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;align-items:center}
-  .chip{font-size:12px;color:var(--ink2);border:1px solid var(--border);border-radius:999px;padding:4px 12px;background:var(--surface)}
-  .chip b{color:var(--ink)}
-  .btn{font:600 12.5px system-ui;color:var(--accent);background:var(--accent-soft);border:1px solid transparent;border-radius:8px;padding:6px 12px;cursor:pointer}
-  .btn:hover{border-color:var(--accent)}
-  .btn.ghost{color:var(--muted);background:transparent;border-color:var(--border);margin-left:auto}
-
-  /* hotel card */
-  .hotel{display:flex;gap:18px;align-items:center;background:var(--accent);color:var(--accent-ink);
-    border-radius:14px;box-shadow:var(--shadow);padding:18px 22px;margin-bottom:16px;flex-wrap:wrap}
-  @media (prefers-color-scheme: dark){ .hotel{background:var(--surface);color:var(--ink);border:1px solid var(--border)} }
-  .hotel svg{flex:0 0 auto;opacity:.9}
-  .hotel .ht{flex:1 1 260px;min-width:240px}
-  .hotel .hname{letter-spacing:.35em;font-weight:600;font-size:15px;text-indent:.35em}
-  .hotel .hsub{letter-spacing:.26em;font-size:9px;text-transform:uppercase;opacity:.75;margin-top:2px;text-indent:.26em}
-  .hotel .hdesc{font-size:12.5px;opacity:.85;margin-top:8px;line-height:1.55;max-width:56ch}
-  .hotel .htag{font-size:12px;font-style:italic;opacity:.7;margin-top:6px}
+  /* header */
+  header{margin-bottom:16px}
+  header h1{font-size:18px;font-weight:500;margin:0 0 2px}
+  .sub{color:var(--tx2);font-size:13px}
+  .mrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center}
+  .chip{font-size:12px;color:var(--tx2);border:1px solid var(--bd);border-radius:999px;padding:4px 12px;background:var(--card)}
+  .chip b{color:var(--tx)}
+  .btn2{padding:7px 12px;font-size:13px;border:1px solid var(--bd2);border-radius:8px;background:transparent;color:inherit;cursor:pointer;margin-left:auto}
 
   /* cards */
-  .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);padding:18px 20px;margin-bottom:16px}
-  .card h2{font-size:16.5px;font-weight:700;margin:0 0 12px;letter-spacing:-.01em}
+  .card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:16px 18px;margin-bottom:14px}
+  .card h2{font-size:15px;font-weight:600;margin:0 0 12px}
   .card .crow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
   .card .crow h2{margin:0}
   .params{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-end}
   .field{display:flex;flex-direction:column;gap:4px}
-  .field label{font-size:11.5px;color:var(--ink2)}
-  .field input,.field select{font:14px system-ui;color:var(--ink);background:var(--plane);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-variant-numeric:tabular-nums}
+  .field label{font-size:11.5px;color:var(--tx2)}
+  .field input,.field select{font:14px system-ui;color:var(--tx);background:var(--bg);border:1px solid var(--bd2);border-radius:8px;padding:8px 10px;font-variant-numeric:tabular-nums}
   .field input[type=number]{text-align:right;width:140px}
-  #saveNote{font-size:11.5px;color:var(--muted);align-self:center}
+  #saveNote{font-size:11.5px;color:var(--tx3);align-self:center}
 
-  .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
-  .tile{background:var(--plane);border:1px solid var(--border);border-radius:10px;padding:11px 13px}
-  .tile .lbl{font-size:11px;color:var(--ink2);line-height:1.3}
-  .tile .val{font-size:19px;font-weight:650;margin-top:2px;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
-  .tile .sub{font-size:10.5px;color:var(--muted);margin-top:2px}
-  .tile.hero{background:var(--accent-soft);border-color:var(--accent)}
-  .tile .val.pos{color:var(--good)} .tile .val.neg{color:var(--red)}
+  .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:9px}
+  .tile{background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:10px 12px}
+  .tile .lbl{font-size:11px;color:var(--tx2);line-height:1.3}
+  .tile .val{font-size:19px;font-weight:600;margin-top:2px;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+  .tile .sub{font-size:10.5px;color:var(--tx3);margin-top:2px}
+  .tile.hero{background:var(--okbg);border-color:var(--ok)}
+  .tile .val.pos{color:var(--ok)} .tile .val.neg{color:var(--hi)}
 
   .chart-host{width:100%;margin-top:4px}
   .chart-host svg{display:block;width:100%;height:auto}
-  .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--ink2);margin:0 0 6px}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--tx2);margin:0 0 6px}
   .key{display:inline-flex;align-items:center;gap:6px}
   .sw{width:10px;height:10px;border-radius:3px;display:inline-block}
 
   /* add form */
   .addrow{display:grid;grid-template-columns:150px 1fr 130px 1fr auto;gap:8px;align-items:end}
   @media (max-width:760px){.addrow{grid-template-columns:1fr 1fr}.addrow .field.wide{grid-column:1/-1}}
-  .addrow button{font:600 13px system-ui;background:var(--accent);color:var(--accent-ink);border:0;border-radius:8px;padding:9px 16px;cursor:pointer;height:37px}
+  .addrow button{padding:9px 16px;font-size:14px;border:0;border-radius:8px;background:var(--ok);color:#fff;cursor:pointer;height:37px}
   .addrow button:disabled{opacity:.5}
-  #addErr{color:var(--red);font-size:12px;margin-top:6px;min-height:14px}
+  #addErr{color:var(--hi);font-size:12px;margin-top:6px;min-height:14px}
 
   /* tables */
-  .tbl-wrap{overflow-x:auto;border:1px solid var(--grid);border-radius:10px}
+  .tbl-wrap{overflow-x:auto;border:1px solid var(--bd);border-radius:10px}
   table{border-collapse:collapse;width:100%;font-size:13px}
   #jr{min-width:640px}
   th,td{padding:8px 12px;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
   th:first-child,td:first-child{text-align:left}
   #jr th:nth-child(2),#jr td:nth-child(2),#jr th:nth-child(5),#jr td:nth-child(5){text-align:left}
-  #jr td:nth-child(5){white-space:normal;min-width:160px;color:var(--ink2);font-size:12.5px}
-  thead th{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2);border-bottom:1px solid var(--axis);background:var(--plane);position:sticky;top:0}
-  tbody tr+tr td{border-top:1px solid var(--grid)}
-  tfoot td{border-top:2px solid var(--axis);font-weight:650;background:var(--plane)}
-  td.neg{color:var(--red)} td.pos{color:var(--good)}
-  .del{border:0;background:none;color:var(--muted);cursor:pointer;font-size:15px;padding:2px 6px;border-radius:6px}
-  .del:hover{color:var(--red);background:var(--accent-soft)}
-  .empty{padding:22px;text-align:center;color:var(--muted);font-size:13px}
-  .note{font-size:11.5px;color:var(--muted);margin-top:10px;line-height:1.5}
-  #toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--plane);font-size:13px;padding:8px 16px;border-radius:9px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:60}
+  #jr td:nth-child(5){white-space:normal;min-width:160px;color:var(--tx2);font-size:12.5px}
+  thead th{font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--tx2);border-bottom:1px solid var(--bd2);background:var(--bg);position:sticky;top:0}
+  tbody tr+tr td{border-top:1px solid var(--bd)}
+  tbody tr:hover td{background:var(--tk)}
+  tfoot td{border-top:2px solid var(--bd2);font-weight:600;background:var(--bg)}
+  td.neg{color:var(--hi)} td.pos{color:var(--ok)}
+  .del{border:0;background:none;color:var(--tx3);cursor:pointer;font-size:15px;padding:2px 6px;border-radius:6px}
+  .del:hover{color:var(--hi);background:var(--hibg)}
+  .empty{padding:22px;text-align:center;color:var(--tx3);font-size:13px}
+  .note{font-size:11.5px;color:var(--tx3);margin-top:10px;line-height:1.5}
+  #toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--tx);color:var(--bg);font-size:13px;padding:8px 16px;border-radius:9px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:60}
 </style>
 </head>
 <body>
@@ -128,9 +102,8 @@
 
 <div id="login">
   <div class="lbox">
-    <div class="wordmark">ATLANTIDA</div>
-    <div class="wordsub">Boutique Hotel</div>
-    <h1>Учёт доходности инвестиции</h1>
+    <h1>Доходность инвестиции</h1>
+    <div class="lsub">Номер в отеле ATLANTIDA · журнал транзакций</div>
     <input id="pw" type="password" placeholder="Пароль" autocomplete="current-password">
     <button id="loginBtn">Войти</button>
     <div id="lerr"></div>
@@ -138,49 +111,29 @@
 </div>
 
 <div class="wrap" id="app" style="display:none">
-  <header class="mast">
-    <div class="brandrow">
-      <span class="wordmark" style="font-size:14px">ATLANTIDA</span>
-      <span class="wordsub" style="margin-top:0">Boutique Hotel · Карпаты</span>
-    </div>
+  <header>
     <h1>Фактическая доходность инвестиции</h1>
-    <div class="sub">Журнал реальных транзакций · показатели считаются автоматически по датам платежей</div>
+    <div class="sub">Объект: номер в бутик-отеле ATLANTIDA (Карпаты) под управлением оператора · показатели считаются автоматически по датам платежей</div>
     <div class="mrow">
       <span class="chip">Вложено: <b id="chipInv">—</b></span>
+      <span class="chip">Оценка актива: <b id="chipVal">—</b></span>
       <span class="chip">Операций: <b id="chipN">—</b></span>
       <span class="chip">Обновлено: <b id="chipUpd">—</b></span>
-      <button class="btn ghost" id="logoutBtn">Выйти</button>
+      <button class="btn2" id="logoutBtn">Выйти</button>
     </div>
   </header>
 
-  <div class="hotel">
-    <svg width="64" height="40" viewBox="0 0 64 40" fill="none" aria-hidden="true">
-      <path d="M2 38 L14 10 L23 30 L32 6 L41 30 L50 10 L62 38" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-      <path d="M2 38 H62" stroke="currentColor" stroke-width="1" opacity=".4"/>
-    </svg>
-    <div class="ht">
-      <div class="hname">ATLANTIDA</div>
-      <div class="hsub">Boutique Hotel · Active &amp; Silent</div>
-      <div class="hdesc">Объект инвестиции — номер в бутик-отеле под управлением оператора. Знак бренда — три буквы «А», соединённые волной: три горы, символ региона.</div>
-      <div class="htag">«Silence when you need it. Power when you're ready.»</div>
-    </div>
-  </div>
-
   <div class="card">
     <div class="params">
-      <div class="field"><label for="valMode">Оценка актива</label>
-        <select id="valMode">
-          <option value="auto">= внесённые деньги (авто)</option>
-          <option value="manual">вручную</option>
-        </select></div>
-      <div class="field" id="valInpWrap"><label for="valInp">Сумма оценки</label>
-        <input id="valInp" type="number" min="0" step="1000"></div>
       <div class="field"><label for="curSel">Валюта</label>
         <select id="curSel">
           <option value="$">USD — $</option><option value="€">EUR — €</option>
           <option value="AED">AED</option><option value="฿">THB — ฿</option>
           <option value="₴">UAH — ₴</option><option value="₽">RUB — ₽</option>
         </select></div>
+      <div class="field" style="justify-content:center">
+        <div class="note" style="margin:0">Текущая оценка актива равна внесённым деньгам и обновляется автоматически с каждым взносом.</div>
+      </div>
       <div id="saveNote"></div>
     </div>
   </div>
@@ -198,8 +151,8 @@
   <div class="card">
     <h2>Доходность по годам</h2>
     <div class="legend">
-      <span class="key"><span class="sw" style="background:var(--blue)"></span>Поступления</span>
-      <span class="key"><span class="sw" style="background:var(--red)"></span>Взносы и расходы</span>
+      <span class="key"><span class="sw" style="background:var(--lo)"></span>Поступления</span>
+      <span class="key"><span class="sw" style="background:var(--hi)"></span>Взносы и расходы</span>
     </div>
     <div class="chart-host" id="yearChart"></div>
     <div class="tbl-wrap" style="margin-top:14px"><table id="yearTbl"></table></div>
@@ -212,8 +165,8 @@
       <div class="field" style="margin-left:auto"><select id="mYear"></select></div>
     </div>
     <div class="legend">
-      <span class="key"><span class="sw" style="background:var(--blue)"></span>Поступления</span>
-      <span class="key"><span class="sw" style="background:var(--red)"></span>Взносы и расходы</span>
+      <span class="key"><span class="sw" style="background:var(--lo)"></span>Поступления</span>
+      <span class="key"><span class="sw" style="background:var(--hi)"></span>Взносы и расходы</span>
     </div>
     <div class="chart-host" id="monthChart"></div>
     <div class="tbl-wrap" style="margin-top:14px"><table id="monthTbl"></table></div>
@@ -241,7 +194,7 @@
     <h2>Журнал транзакций</h2>
     <div class="tbl-wrap"><table id="jr"></table></div>
     <div class="note">Знак определяется типом: взносы, сборы, мебель и прочие расходы — отток; аренда, прочий доход и продажа — приток.
-    «Нарастающим итогом» — совокупная денежная позиция на дату. XIRR — годовая ставка, при которой приведённая сумма всех потоков равна нулю; «с учётом оценки» — как если бы актив был продан сегодня по текущей оценке (в режиме «авто» оценка равна внесённым деньгам). Прогноз окупаемости — по среднему доходу за последние 12 месяцев. Данные хранятся в отдельном проекте Supabase «Hotel-Invest», доступ только по паролю.</div>
+    «Нарастающим итогом» — совокупная денежная позиция на дату. XIRR — годовая ставка, при которой приведённая сумма всех потоков равна нулю; «с учётом оценки» — как если бы актив был продан сегодня по текущей оценке (оценка равна внесённым деньгам). Прогноз окупаемости — по среднему доходу за последние 12 месяцев. Данные хранятся в отдельном проекте Supabase «Hotel-Invest», доступ только по паролю.</div>
   </div>
 </div>
 
@@ -256,7 +209,7 @@ const $ = id => document.getElementById(id);
 const nf0 = new Intl.NumberFormat('ru-RU',{maximumFractionDigits:0});
 const nf1 = new Intl.NumberFormat('ru-RU',{minimumFractionDigits:1,maximumFractionDigits:1});
 const PRE = new Set(["$","€","AED","฿"]);
-let S = { txs: [], settings: { valuation: 0, currency: "$", val_mode: "auto" } };
+let S = { txs: [], settings: { currency: "$" } };
 
 function money(v){
   if(!isFinite(v)) return "—";
@@ -328,8 +281,8 @@ function compute(){
   const yrs = d => (d - t0) / 31536000000;
   const cfs = rows.map(r => ({t: yrs(pd(r.tx_date)), v: r.flow}));
   const irr = xirr(cfs);
-  const valMode = S.settings.val_mode === "manual" ? "manual" : "auto";
-  const val = valMode === "auto" ? invested : (Number(S.settings.valuation) || 0);
+  /* текущая оценка актива = внесённые деньги */
+  const val = invested;
   const irrVal = val > 0 ? xirr(cfs.concat([{t: yrs(today), v: val}])) : null;
 
   let paybackDate = null, wasNeg = false;
@@ -345,8 +298,7 @@ function compute(){
     forecastD = fdt;
   }
 
-  /* по годам и месяцам */
-  const byYear = new Map(), byMonth = new Map(); // byMonth: "yyyy-mm" -> {inc,out}
+  const byYear = new Map(), byMonth = new Map();
   for(const r of rows){
     const y = pd(r.tx_date).getFullYear();
     const mKey = r.tx_date.slice(0,7);
@@ -368,7 +320,7 @@ function compute(){
   }
   let cumRun=0; years.forEach(x=>{ cumRun += x.net; x.cum = cumRun; });
 
-  return {rows, invested, received, net: received-invested, inc12, rent12, irr, irrVal, val, valMode,
+  return {rows, invested, received, net: received-invested, inc12, rent12, irr, irrVal, val,
           paybackDate, remaining, forecastM, forecastD, years, byMonth, y0, y1};
 }
 
@@ -381,11 +333,9 @@ function render(){
   M = compute();
   const m = M;
   $("chipInv").textContent = money(m.invested);
+  $("chipVal").textContent = money(m.val);
   $("chipN").textContent = m.rows.length;
   $("chipUpd").textContent = new Date().toLocaleDateString("ru-RU");
-  $("valMode").value = m.valMode;
-  $("valInpWrap").style.display = m.valMode === "manual" ? "" : "none";
-  if(m.valMode === "manual") $("valInp").value = (Number(S.settings.valuation)||0) || "";
   $("curSel").value = S.settings.currency || "$";
 
   const okup = m.invested<=0 ? "нет данных"
@@ -396,9 +346,7 @@ function render(){
       m.irr===null?(m.received>0?"поступления пока слишком малы для годовой ставки":"появится после первого поступления"):"по реальным денежным потокам",
       m.irr===null?"":(m.irr>0.0005?"pos":m.irr<-0.0005?"neg":""), true) +
     tile("XIRR — с учётом оценки", m.irrVal===null?"н/д":pct(m.irrVal*100),
-      m.valMode==="auto"
-        ? (m.val>0?("оценка = внесённые деньги, "+money(m.val)):"появится после первого взноса")
-        : (m.val>0?("оценка актива "+money(m.val)):"укажите сумму оценки"),
+      m.val>0?("оценка = внесённые деньги, "+money(m.val)):"появится после первого взноса",
       m.irrVal===null?"":(m.irrVal>0.0005?"pos":m.irrVal<-0.0005?"neg":""), true) +
     tile("Вложено всего", money(m.invested), "все расходы и взносы") +
     tile("Получено всего", money(m.received), "аренда, прочее, продажа") +
@@ -429,7 +377,6 @@ function renderJournal(m){
   jr.innerHTML = h + "</tbody>";
 }
 
-/* линия нарастающим итогом */
 function renderChart(m){
   const host = $("chart"); host.innerHTML = "";
   if(m.rows.length < 2){ host.innerHTML = `<div class="empty">График появится после двух транзакций.</div>`; return; }
@@ -448,8 +395,8 @@ function renderChart(m){
   const span=hi-lo, step0=span/4, mag=Math.pow(10,Math.floor(Math.log10(step0)));
   let step=mag; for(const k of [1,2,2.5,5,10]) if(mag*k>=step0){step=mag*k;break;}
   for(let t=Math.ceil(lo/step)*step; t<=hi; t+=step){
-    el("line",{x1:mL,x2:W-mR,y1:Y(t),y2:Y(t),stroke:t===0?"var(--axis)":"var(--grid)","stroke-width":1});
-    const tx=el("text",{x:mL-8,y:Y(t)+4,"text-anchor":"end","font-size":10.5,fill:"var(--muted)"});
+    el("line",{x1:mL,x2:W-mR,y1:Y(t),y2:Y(t),stroke:Math.abs(t)<step*1e-6?"var(--bd2)":"var(--bd)","stroke-width":1});
+    const tx=el("text",{x:mL-8,y:Y(t)+4,"text-anchor":"end","font-size":10.5,fill:"var(--tx3)"});
     tx.textContent = moneyC(t);
   }
   const lastPx = X(pts[pts.length-1].d);
@@ -460,20 +407,19 @@ function renderChart(m){
   }
   if(pts.length>1) chosen.push({x:lastPx, p:pts[pts.length-1], a:"end"});
   for(const c of chosen){
-    const tx=el("text",{x:c.x,y:H-8,"text-anchor":c.a,"font-size":10.5,fill:"var(--muted)"});
+    const tx=el("text",{x:c.x,y:H-8,"text-anchor":c.a,"font-size":10.5,fill:"var(--tx3)"});
     tx.textContent=c.p.lbl;
   }
   let dPath=""; pts.forEach((p,i)=>{dPath+=(i?"L":"M")+X(p.d).toFixed(1)+","+Y(p.v).toFixed(1);});
-  el("path",{d:dPath,fill:"none",stroke:"var(--blue)","stroke-width":2,"stroke-linejoin":"round","stroke-linecap":"round"});
+  el("path",{d:dPath,fill:"none",stroke:"var(--lo)","stroke-width":2,"stroke-linejoin":"round","stroke-linecap":"round"});
   pts.forEach(p=>{
-    const c=el("circle",{cx:X(p.d),cy:Y(p.v),r:4,fill:"var(--blue)",stroke:"var(--surface)","stroke-width":2});
+    const c=el("circle",{cx:X(p.d),cy:Y(p.v),r:4,fill:"var(--lo)",stroke:"var(--card)","stroke-width":2});
     const t=document.createElementNS(NS,"title");
     t.textContent=`${p.lbl}: ${money(p.v)}`; c.appendChild(t);
   });
   host.appendChild(svg);
 }
 
-/* столбцы: поступления вверх (синий), расходы вниз (красный) */
 function drawBars(host, buckets){
   host.innerHTML = "";
   if(!buckets.some(b=>b.inc>0.5 || b.out>0.5)){
@@ -494,11 +440,11 @@ function drawBars(host, buckets){
   const span=hi-lo, step0=span/4, mag=Math.pow(10,Math.floor(Math.log10(step0)));
   let step=mag; for(const k of [1,2,2.5,5,10]) if(mag*k>=step0){step=mag*k;break;}
   for(let t=Math.ceil(lo/step)*step; t<=hi; t+=step){
-    el("line",{x1:mL,x2:W-mR,y1:Y(t),y2:Y(t),stroke:Math.abs(t)<step*1e-6?"var(--axis)":"var(--grid)","stroke-width":1});
-    const tx=el("text",{x:mL-8,y:Y(t)+4,"text-anchor":"end","font-size":10.5,fill:"var(--muted)"});
+    el("line",{x1:mL,x2:W-mR,y1:Y(t),y2:Y(t),stroke:Math.abs(t)<step*1e-6?"var(--bd2)":"var(--bd)","stroke-width":1});
+    const tx=el("text",{x:mL-8,y:Y(t)+4,"text-anchor":"end","font-size":10.5,fill:"var(--tx3)"});
     tx.textContent = moneyC(t);
   }
-  const rr = (x,y,w,h,side)=>{ // скруглённый дальний торец
+  const rr = (x,y,w,h,side)=>{
     const r=Math.max(0,Math.min(4,w/2,h));
     if(h<=0||w<=0) return "";
     return side==="top"
@@ -513,15 +459,15 @@ function drawBars(host, buckets){
       t.textContent = `${b.full||b.lbl} · ${label}: ${money(amt)}`; p.appendChild(t);
     };
     const hInc = Math.abs(y0 - Y(b.inc)), hOut = Math.abs(Y(-b.out) - y0);
-    if(b.inc>0.5 && hInc>=0.5) seg(rr(x, y0-hInc, barW, hInc, "top"), "var(--blue)", "поступления", b.inc);
-    if(b.out>0.5 && hOut>=0.5) seg(rr(x, y0, barW, hOut, "bottom"), "var(--red)", "взносы и расходы", -b.out);
+    if(b.inc>0.5 && hInc>=0.5) seg(rr(x, y0-hInc, barW, hInc, "top"), "var(--lo)", "поступления", b.inc);
+    if(b.out>0.5 && hOut>=0.5) seg(rr(x, y0, barW, hOut, "bottom"), "var(--hi)", "взносы и расходы", -b.out);
     const showEvery = Math.ceil(buckets.length/12);
     if(i % showEvery === 0){
-      const tx=el("text",{x:cx,y:H-8,"text-anchor":"middle","font-size":10.5,fill:"var(--muted)"});
+      const tx=el("text",{x:cx,y:H-8,"text-anchor":"middle","font-size":10.5,fill:"var(--tx3)"});
       tx.textContent=b.lbl;
     }
   });
-  el("line",{x1:mL,x2:W-mR,y1:y0,y2:y0,stroke:"var(--axis)","stroke-width":1});
+  el("line",{x1:mL,x2:W-mR,y1:y0,y2:y0,stroke:"var(--bd2)","stroke-width":1});
   host.appendChild(svg);
 }
 
@@ -626,23 +572,6 @@ $("jr").addEventListener("click", async e=>{
   catch(err){ toast("Ошибка удаления"); }
 });
 
-$("valMode").addEventListener("change", async ()=>{
-  const v=$("valMode").value;
-  try{ await api("set",{key:"val_mode",value:v}); S.settings.val_mode=v; render(); toast(v==="auto"?"Оценка считается по внесённым деньгам":"Режим ручной оценки"); }
-  catch(e){ toast("Ошибка сохранения режима"); }
-});
-let vT=null;
-$("valInp").addEventListener("input", ()=>{
-  clearTimeout(vT);
-  vT=setTimeout(async ()=>{
-    const v=parseFloat($("valInp").value)||0;
-    if(v<0) return;
-    $("saveNote").textContent="сохраняю…";
-    try{ await api("set",{key:"valuation",value:v}); S.settings.valuation=v; render(); $("saveNote").textContent="сохранено"; }
-    catch(e){ $("saveNote").textContent="ошибка сохранения"; }
-    setTimeout(()=>$("saveNote").textContent="",1800);
-  },700);
-});
 $("curSel").addEventListener("change", async ()=>{
   const v=$("curSel").value;
   try{ await api("set",{key:"currency",value:v}); S.settings.currency=v; render(); }
