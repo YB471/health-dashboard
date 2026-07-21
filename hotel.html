@@ -164,6 +164,8 @@
 
   <div class="card">
     <div class="params">
+      <div class="field"><label for="valInp">Оценка актива</label>
+        <input id="valInp" type="number" min="0" step="1000" placeholder="авто"></div>
       <div class="field"><label for="curSel">Валюта</label>
         <select id="curSel">
           <option value="$">USD — $</option><option value="€">EUR — €</option>
@@ -171,7 +173,7 @@
           <option value="₴">UAH — ₴</option><option value="₽">RUB — ₽</option>
         </select></div>
       <div class="field" style="justify-content:center">
-        <div class="note" style="margin:0">Текущая оценка актива равна внесённым деньгам и обновляется автоматически с каждым взносом.</div>
+        <div class="note" style="margin:0">Пусто или 0 — оценка равна внесённым деньгам и растёт с каждым взносом. Введите сумму, когда появится рыночная оценка или цена от застройщика — она заменит автоматическую.</div>
       </div>
       <div id="saveNote"></div>
     </div>
@@ -243,7 +245,7 @@
     <h2>Журнал транзакций</h2>
     <div class="tbl-wrap"><table id="jr"></table></div>
     <div class="note">Знак определяется типом: взносы, сборы, мебель, налоги и прочие расходы — отток; аренда, прочий доход и продажа — приток. Налоги не входят во «вложено» и в оценку актива — это операционный расход.
-    «Нарастающим итогом» — совокупная денежная позиция на дату. XIRR — годовая ставка, при которой приведённая сумма всех потоков равна нулю; «с учётом оценки» — как если бы актив был продан сегодня по текущей оценке (оценка равна внесённым деньгам). Прогноз окупаемости — по среднему доходу за последние 12 месяцев. Данные хранятся в отдельном проекте Supabase «Hotel-Invest», доступ только по паролю.</div>
+    «Нарастающим итогом» — совокупная денежная позиция на дату. XIRR — годовая ставка, при которой приведённая сумма всех потоков равна нулю; «с учётом оценки» — как если бы актив был продан сегодня по текущей оценке (введённой вручную, а если она не задана — равной внесённым деньгам). Прогноз окупаемости — по среднему доходу за последние 12 месяцев. Данные хранятся в отдельном проекте Supabase «Hotel-Invest», доступ только по паролю.</div>
   </div>
   </div><!-- /tab-tx -->
 </div>
@@ -334,8 +336,10 @@ function compute(){
   const yrs = d => (d - t0) / 31536000000;
   const cfs = rows.map(r => ({t: yrs(pd(r.tx_date)), v: r.flow}));
   const irr = xirr(cfs);
-  /* текущая оценка актива = внесённые деньги */
-  const val = invested;
+  /* оценка: введённая вручную, иначе = внесённые деньги */
+  const manualVal = Number(S.settings.valuation) || 0;
+  const valManual = manualVal > 0;
+  const val = valManual ? manualVal : invested;
   const irrVal = val > 0 ? xirr(cfs.concat([{t: yrs(today), v: val}])) : null;
 
   let paybackDate = null, wasNeg = false;
@@ -387,7 +391,7 @@ function compute(){
   }
 
   return {rows, invested, taxesTotal, received, net: received-invested-taxesTotal, inc12, rent12, taxes12,
-          irr, irrVal, val, paybackDate, remaining, forecastM, forecastD, years, byMonth, invEnd, y0, y1};
+          irr, irrVal, val, valManual, paybackDate, remaining, forecastM, forecastD, years, byMonth, invEnd, y0, y1};
 }
 
 /* ── рендер ── */
@@ -403,6 +407,7 @@ function render(){
   $("chipN").textContent = m.rows.length;
   $("chipUpd").textContent = new Date().toLocaleDateString("ru-RU");
   $("curSel").value = S.settings.currency || "$";
+  if(document.activeElement !== $("valInp")) $("valInp").value = m.valManual ? (Number(S.settings.valuation)||"") : "";
   renderPassport();
 
   renderTiles(m);
@@ -602,7 +607,7 @@ const TILE_DEFS = [
     m.irr===null?"":(m.irr>0.0005?"pos":m.irr<-0.0005?"neg":"")]},
   {id:"xirrVal", name:"XIRR с оценкой", hero:true, b:m=>[
     "XIRR — с учётом оценки", m.irrVal===null?"н/д":pct(m.irrVal*100),
-    m.val>0?("оценка = внесённые деньги, "+money(m.val)):"появится после первого взноса",
+    m.val>0?((m.valManual?"оценка актива (вручную): ":"оценка = внесённые деньги, ")+money(m.val)):"появится после первого взноса",
     m.irrVal===null?"":(m.irrVal>0.0005?"pos":m.irrVal<-0.0005?"neg":"")]},
   {id:"invested", name:"Вложено всего", b:m=>["Вложено всего", money(m.invested), "все расходы и взносы", ""]},
   {id:"received", name:"Получено всего", b:m=>["Получено всего", money(m.received), "аренда, прочее, продажа", ""]},
@@ -765,6 +770,17 @@ $("jr").addEventListener("click", async e=>{
   catch(err){ toast("Ошибка удаления"); }
 });
 
+let vT=null;
+$("valInp").addEventListener("input", ()=>{
+  clearTimeout(vT);
+  vT=setTimeout(async ()=>{
+    const v = Math.max(0, parseFloat($("valInp").value)||0);
+    $("saveNote").textContent="сохраняю…";
+    try{ await api("set",{key:"valuation",value:v}); S.settings.valuation=v; render(); $("saveNote").textContent="сохранено"; }
+    catch(e){ $("saveNote").textContent="ошибка сохранения"; }
+    setTimeout(()=>$("saveNote").textContent="",1800);
+  },700);
+});
 $("curSel").addEventListener("change", async ()=>{
   const v=$("curSel").value;
   try{ await api("set",{key:"currency",value:v}); S.settings.currency=v; render(); }
