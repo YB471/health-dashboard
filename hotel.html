@@ -629,7 +629,7 @@ const TILE_DEFS = [
     m.rentAnnual!==null?pct(m.rentAnnual):"—",
     m.rentAnnualNet!==null && m.taxesTotal>0.5 ? ("после налога: "+pct(m.rentAnnualNet)) : "среднегодовая, за период аренды", ""]},
   {id:"remaining", name:"Осталось вернуть", b:m=>["Осталось вернуть", money(m.remaining), "до окупаемости номинально", ""]},
-  {id:"payback", name:"Окупаемость", b:m=>{
+  {id:"payback", name:"Ориентировочная окупаемость", b:m=>{
     const yearsRu = mo => {
       const r = Math.round(mo/12*10)/10;
       if(Number.isInteger(r)){
@@ -640,9 +640,9 @@ const TILE_DEFS = [
     };
     const okup = m.invested<=0 ? "нет данных"
       : m.received>=m.invested+m.taxesTotal ? "достигнута" + (m.paybackDate? " · "+fd(m.paybackDate):"")
-      : m.forecastM!==null ? `через ~${yearsRu(m.forecastM)}` : "нет данных о доходе";
-    return ["Окупаемость", okup,
-      m.forecastD? "прогноз: "+m.forecastD.toLocaleDateString("ru-RU",{month:"long",year:"numeric"}) : "", ""];
+      : m.forecastM!==null ? `~${yearsRu(m.forecastM)}` : "нет данных о доходе";
+    return ["Ориентировочная окупаемость",okup,
+      (m.forecastD? "к "+m.forecastD.toLocaleDateString("ru-RU",{month:"long",year:"numeric"})+" · " : "")+"по чистому темпу поступлений, без учёта стоимости актива", ""];
   }},
 ];
 function enabledTileIds(){
