@@ -91,9 +91,10 @@
 
   .tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
   #rentStats{grid-template-columns:repeat(5,1fr)}
-  @media(max-width:900px){#rentStats{grid-template-columns:repeat(3,1fr)}}
+  #tiles{grid-template-columns:repeat(4,1fr)}
+  @media(max-width:900px){#rentStats{grid-template-columns:repeat(3,1fr)}#tiles{grid-template-columns:1fr 1fr}}
   @media(max-width:700px){.tiles{grid-template-columns:1fr 1fr}#rentStats{grid-template-columns:1fr 1fr}}
-  @media(max-width:440px){.tiles{grid-template-columns:1fr}#rentStats{grid-template-columns:1fr}}
+  @media(max-width:440px){.tiles{grid-template-columns:1fr}#rentStats{grid-template-columns:1fr}#tiles{grid-template-columns:1fr}}
   .tile{background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:10px 12px}
   .tile .lbl{font-size:11px;color:var(--tx2);line-height:1.3}
   .tile .val{font-size:19px;font-weight:600;margin-top:2px;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
@@ -735,7 +736,8 @@ function renderRent(m){
   const has = m.rentTotal>0.5;
   $("rentStats").innerHTML =
     tile("Валовой арендный доход", has?money(m.rentTotal):"—", "накопленным итогом за период владения", "", true) +
-    tile("Чистый арендный доход", has?money(m.rentTotal-m.taxesTotal):"—", "после налогов") +
+    tile("Чистый арендный доход", has?money(m.rentTotal-m.taxesTotal):"—",
+      (has && m.taxesTotal>0.5) ? ("после налогов · налоги "+pct(m.taxesTotal/m.rentTotal*100)+" от валового дохода") : "после налогов") +
     tile("Валовая арендная доходность", m.rentAnnual!==null?pct(m.rentAnnual):"—", "% годовых, на средневзвешенный капитал", "", true) +
     tile("Чистая арендная доходность", m.rentAnnualNet!==null?pct(m.rentAnnualNet):"—", "% годовых, после налогов") +
     tile("Реальная арендная доходность", m.rentAnnualReal!==null?pct(m.rentAnnualReal):"—",
