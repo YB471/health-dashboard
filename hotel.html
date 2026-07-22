@@ -483,12 +483,18 @@ function compute(){
   const cfs = rows.map(r => ({t: yrs(pd(r.tx_date)), v: r.flow}));
   const irr = xirr(cfs);
 
+  const y0 = rows.length ? pd(rows[0].tx_date).getFullYear() : today.getFullYear();
+  const y1 = Math.max(today.getFullYear(), rows.length ? pd(rows[rows.length-1].tx_date).getFullYear() : y0);
+  const lastTx = rows.length ? pd(rows[rows.length-1].tx_date) : today;
+  const endBound = lastTx > today ? lastTx : today;
+  const endY = endBound.getFullYear(), endM = endBound.getMonth()+1;
+
   /* индекс инфляции: I[месяц] = произведение (1+π) за месяцы ДО данного, база — месяц первого платежа */
   const infl = (S.settings.inflation && typeof S.settings.inflation === "object" && !Array.isArray(S.settings.inflation)) ? S.settings.inflation : {};
   const baseMK = rows.length ? rows[0].tx_date.slice(0,7) : iso(today).slice(0,7);
   const nextMK = k => { let [y,mo] = k.split("-").map(Number); mo++; if(mo>12){mo=1;y++;} return y+"-"+String(mo).padStart(2,"0"); };
   const inflIdx = new Map();
-  { const endMK = (m => m > baseMK ? m : baseMK)(String(Math.max(y1+1,2100)) === "" ? baseMK : (y1+1)+"-01");
+  { const endMK = (y1+1)+"-01";
     let k = baseMK, I = 1, guard = 0;
     while(k <= endMK && guard++ < 1200){
       inflIdx.set(k, I);
@@ -549,12 +555,6 @@ function compute(){
     }
     else { b.out += -r.flow; m.out += -r.flow; }
   }
-  const y0 = rows.length ? pd(rows[0].tx_date).getFullYear() : today.getFullYear();
-  const y1 = Math.max(today.getFullYear(), rows.length ? pd(rows[rows.length-1].tx_date).getFullYear() : y0);
-  const lastTx = rows.length ? pd(rows[rows.length-1].tx_date) : today;
-  const endBound = lastTx > today ? lastTx : today;
-  const endY = endBound.getFullYear(), endM = endBound.getMonth()+1;
-
   /* средневзвешенный капитал по периодам */
   const avgInvM = new Map(), avgInvY = new Map();
   for(let y=y0; y<=y1; y++){
