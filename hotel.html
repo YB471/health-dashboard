@@ -612,6 +612,10 @@ const TILE_DEFS = [
     return ["XIRR — с учётом оценки", m.irrVal===null?"н/д":pct(m.irrVal*100), sub,
       m.irrVal===null?"":(m.irrVal>0.0005?"pos":m.irrVal<-0.0005?"neg":"")];
   }},
+  {id:"xirrValReal", name:"XIRR с оценкой и инфляцией", hero:true, b:m=>[
+    "XIRR — с учётом оценки и инфляции", m.irrValReal===null?"н/д":pct(m.irrValReal*100),
+    m.inflFilled ? "условная продажа по оценке, потоки дефлированы" : "инфляция не заполнена (вкладка «Инфляция»)",
+    m.irrValReal===null?"":(m.irrValReal>0.0005?"pos":m.irrValReal<-0.0005?"neg":"")]},
   {id:"invested", name:"Вложено всего", b:m=>["Вложено всего", money(m.invested), "взносы и расходы минус возвраты, без налогов", ""]},
   {id:"received", name:"Получено всего", b:m=>["Получено всего", money(m.received),
     (m.invested>0 && m.received>0.5) ? (pct(m.received/m.invested*100)+" от вложенного капитала") : "аренда, прочий доход, продажа", ""]},
