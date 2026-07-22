@@ -186,29 +186,6 @@
 
   <div id="tab-metrics" class="tabsec">
   <div class="card">
-    <h2>Параметры учёта</h2>
-    <div class="params">
-      <div class="field"><label for="valMode">Оценка актива</label>
-        <select id="valMode">
-          <option value="auto">= внесённые деньги (авто)</option>
-          <option value="manual">вручную</option>
-        </select></div>
-      <div class="field"><label for="valInp">Сумма оценки</label>
-        <input id="valInp" type="number" min="0" step="1000">
-        <span id="valDateNote"></span></div>
-      <div class="field"><label for="curSel">Валюта учёта</label>
-        <select id="curSel">
-          <option value="USDT">USDT</option>
-          <option value="$">USD — $</option><option value="€">EUR — €</option>
-          <option value="AED">AED</option><option value="฿">THB — ฿</option>
-          <option value="₴">UAH — ₴</option><option value="₽">RUB — ₽</option>
-        </select></div>
-      <div id="saveNote"></div>
-    </div>
-    <div class="note">Оценка «авто» равна внесённым деньгам и растёт с каждым взносом; «вручную» — ваша оценка с фиксацией даты. Валюта — подпись к суммам: конвертаций нет, учёт ведётся в одной валюте.</div>
-  </div>
-
-  <div class="card">
     <div class="crow"><h2>Фактические показатели</h2>
       <button class="btn2 push" id="tilesCfgBtn">Настроить</button></div>
     <div id="tileCfgWrap" style="display:none"></div>
@@ -280,6 +257,29 @@
   </div><!-- /tab-infl -->
 
   <div id="tab-info" class="tabsec" style="display:none">
+  <div class="card">
+    <h2>Параметры учёта</h2>
+    <div class="params">
+      <div class="field"><label for="valMode">Оценка актива</label>
+        <select id="valMode">
+          <option value="auto">= внесённые деньги (авто)</option>
+          <option value="manual">вручную</option>
+        </select></div>
+      <div class="field"><label for="valInp">Сумма оценки</label>
+        <input id="valInp" type="number" min="0" step="1000">
+        <span id="valDateNote"></span></div>
+      <div class="field"><label for="curSel">Валюта учёта</label>
+        <select id="curSel">
+          <option value="USDT">USDT</option>
+          <option value="$">USD — $</option><option value="€">EUR — €</option>
+          <option value="AED">AED</option><option value="฿">THB — ฿</option>
+          <option value="₴">UAH — ₴</option><option value="₽">RUB — ₽</option>
+        </select></div>
+      <div id="saveNote"></div>
+    </div>
+    <div class="note">Оценка «авто» равна внесённым деньгам и растёт с каждым взносом; «вручную» — ваша оценка с фиксацией даты. Валюта — подпись к суммам: конвертаций нет, учёт ведётся в одной валюте.</div>
+  </div>
+
   <div class="card">
     <div class="crow"><h2>Паспорт инвестиции</h2>
       <button class="btn2 push" id="ppEdit">Редактировать</button></div>
