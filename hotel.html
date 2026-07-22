@@ -597,7 +597,25 @@ function tile(lbl, val, sub, cls="", hero=false){
   return `<div class="tile${hero?' hero':''}"><div class="lbl">${lbl}</div><div class="val ${cls}">${val}</div><div class="sub">${sub||""}</div></div>`;
 }
 const TILE_DEFS = [
-  {id:"xirr", name:"XIRR фактическая", hero:true, b:m=>[
+  {id:"invested", name:"Вложено всего", b:m=>["Вложено всего", money(m.invested), "взносы и расходы минус возвраты, без налогов", ""]},
+  {id:"received", name:"Получено всего", b:m=>["Получено всего", money(m.received),
+    (m.invested>0 && m.received>0.5) ? (pct(m.received/m.invested*100)+" от вложенного капитала") : "аренда, прочий доход, продажа", ""]},
+  {id:"net", name:"Чистая позиция", b:m=>["Чистая позиция", money(m.net), "получено − вложено − налоги", m.net>=0?"pos":"neg"]},
+  {id:"payback", name:"Ориентировочная окупаемость", b:m=>{
+    const yearsRu = mo => {
+      const r = Math.round(mo/12*10)/10;
+      if(Number.isInteger(r)){
+        const w = r%10, h = r%100;
+        return nf0.format(r)+" "+((w===1&&h!==11)?"год":(w>=2&&w<=4&&(h<10||h>=20))?"года":"лет");
+      }
+      return nf1.format(r)+" года";
+    };
+    const okup = m.invested<=0 ? "нет данных"
+      : m.received>=m.invested+m.taxesTotal ? "достигнута" + (m.paybackDate? " · "+fd(m.paybackDate):"")
+      : m.forecastM!==null ? `~${yearsRu(m.forecastM)}` : "нет данных о доходе";
+    return ["Ориентировочная окупаемость",okup,
+      (m.forecastD? "к "+m.forecastD.toLocaleDateString("ru-RU",{month:"long",year:"numeric"})+" · " : "")+"по чистому темпу поступлений, без учёта стоимости актива", ""];
+  }},  {id:"xirr", name:"XIRR фактическая", hero:true, b:m=>[
     "XIRR — фактическая", m.irr===null?"н/д":pct(m.irr*100),
     m.irr===null?(m.received>0?"поступления пока слишком малы для годовой ставки":"появится после первого поступления"):"по реальным денежным потокам",
     m.irr===null?"":(m.irr>0.0005?"pos":m.irr<-0.0005?"neg":"")]},
@@ -617,10 +635,6 @@ const TILE_DEFS = [
     "XIRR — с учётом оценки и инфляции", m.irrValReal===null?"н/д":pct(m.irrValReal*100),
     m.inflFilled ? "условная продажа по оценке, потоки дефлированы" : "инфляция не заполнена (вкладка «Инфляция»)",
     m.irrValReal===null?"":(m.irrValReal>0.0005?"pos":m.irrValReal<-0.0005?"neg":"")]},
-  {id:"invested", name:"Вложено всего", b:m=>["Вложено всего", money(m.invested), "взносы и расходы минус возвраты, без налогов", ""]},
-  {id:"received", name:"Получено всего", b:m=>["Получено всего", money(m.received),
-    (m.invested>0 && m.received>0.5) ? (pct(m.received/m.invested*100)+" от вложенного капитала") : "аренда, прочий доход, продажа", ""]},
-  {id:"net", name:"Чистая позиция", b:m=>["Чистая позиция", money(m.net), "получено − вложено − налоги", m.net>=0?"pos":"neg"]},
   {id:"taxes", name:"Налоги", b:m=>["Налоги уплачено", m.taxesTotal>0.5?money(-m.taxesTotal):"—",
     m.taxes12>0.5?("за 12 мес.: "+money(-m.taxes12)):"по транзакциям типа «Налоги»", m.taxesTotal>0.5?"neg":""]},
   {id:"inc12", name:"Поступления за 12 мес.", b:m=>["Поступления за 12 мес.", money(m.inc12),
@@ -629,21 +643,7 @@ const TILE_DEFS = [
     m.rentAnnual!==null?pct(m.rentAnnual):"—",
     m.rentAnnualNet!==null && m.taxesTotal>0.5 ? ("после налога: "+pct(m.rentAnnualNet)) : "среднегодовая, за период аренды", ""]},
   {id:"remaining", name:"Осталось вернуть", b:m=>["Осталось вернуть", money(m.remaining), "до окупаемости номинально", ""]},
-  {id:"payback", name:"Ориентировочная окупаемость", b:m=>{
-    const yearsRu = mo => {
-      const r = Math.round(mo/12*10)/10;
-      if(Number.isInteger(r)){
-        const w = r%10, h = r%100;
-        return nf0.format(r)+" "+((w===1&&h!==11)?"год":(w>=2&&w<=4&&(h<10||h>=20))?"года":"лет");
-      }
-      return nf1.format(r)+" года";
-    };
-    const okup = m.invested<=0 ? "нет данных"
-      : m.received>=m.invested+m.taxesTotal ? "достигнута" + (m.paybackDate? " · "+fd(m.paybackDate):"")
-      : m.forecastM!==null ? `~${yearsRu(m.forecastM)}` : "нет данных о доходе";
-    return ["Ориентировочная окупаемость",okup,
-      (m.forecastD? "к "+m.forecastD.toLocaleDateString("ru-RU",{month:"long",year:"numeric"})+" · " : "")+"по чистому темпу поступлений, без учёта стоимости актива", ""];
-  }},
+
 ];
 function enabledTileIds(){
   const t = S.settings.tiles;
