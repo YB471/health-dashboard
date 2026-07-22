@@ -518,14 +518,19 @@ function compute(){
   }
   const y0 = rows.length ? pd(rows[0].tx_date).getFullYear() : today.getFullYear();
   const y1 = Math.max(today.getFullYear(), rows.length ? pd(rows[rows.length-1].tx_date).getFullYear() : y0);
+  const lastTx = rows.length ? pd(rows[rows.length-1].tx_date) : today;
+  const endBound = lastTx > today ? lastTx : today;
+  const endY = endBound.getFullYear(), endM = endBound.getMonth()+1;
 
   /* средневзвешенный капитал по периодам */
   const avgInvM = new Map(), avgInvY = new Map();
   for(let y=y0; y<=y1; y++){
-    const ys = new Date(y,0,1).getTime(), ye = Math.min(new Date(y+1,0,1).getTime(), tomorrow);
+    const ys = new Date(y,0,1).getTime(), yf = new Date(y+1,0,1).getTime();
+    const ye = ys >= tomorrow ? yf : Math.min(yf, tomorrow);
     if(ye>ys) avgInvY.set(y, avgCap(ys, ye));
     for(let mo=1; mo<=12; mo++){
-      const ms = new Date(y,mo-1,1).getTime(), me = Math.min(new Date(y,mo,1).getTime(), tomorrow);
+      const ms = new Date(y,mo-1,1).getTime(), mf = new Date(y,mo,1).getTime();
+      const me = ms >= tomorrow ? mf : Math.min(mf, tomorrow);
       if(me>ms) avgInvM.set(y+"-"+String(mo).padStart(2,"0"), avgCap(ms, me));
     }
   }
@@ -549,7 +554,7 @@ function compute(){
           inc12, rent12, taxes12, rentTotal, avg12,
           irr, irrVal, val, valManual, valDateStr, valStale,
           paybackDate, remaining, forecastM, forecastD,
-          years, byMonth, avgInvM, avgInvY, y0, y1, hasSale, hasRent};
+          years, byMonth, avgInvM, avgInvY, y0, y1, endY, endM, hasSale, hasRent};
 }
 
 /* ── плитки ── */
@@ -733,7 +738,7 @@ function rentSeries(m){
     let first = null;
     for(const [k,v] of m.byMonth) if((v.rent||0)>0.5 && (!first || k<first)) first = k;
     for(let y=m.y0; y<=m.y1; y++) for(let mo=1; mo<=12; mo++){
-      if(y===today.getFullYear() && mo>today.getMonth()+1) break;
+      if(y>m.endY || (y===m.endY && mo>m.endM)) break;
       const key = y+"-"+String(mo).padStart(2,"0");
       const b = m.byMonth.get(key) || {rent:0,tax:0};
       pts.push({lbl: MONTHS_S[mo-1]+(mo===1?" "+String(y).slice(2):""), full: MONTHS_S[mo-1]+" "+y,
@@ -896,7 +901,7 @@ function pfSeries(m){
   const today = new Date();
   if(PF.period === "month"){
     for(let y=m.y0; y<=m.y1; y++) for(let mo=1; mo<=12; mo++){
-      if(y===today.getFullYear() && mo>today.getMonth()+1) break;
+      if(y>m.endY || (y===m.endY && mo>m.endM)) break;
       const key = y+"-"+String(mo).padStart(2,"0");
       const b = m.byMonth.get(key) || {inc:0,out:0,tax:0,incNoSale:0};
       pts.push({lbl: MONTHS_S[mo-1]+(mo===1?" "+String(y).slice(2):""), full: MONTHS_S[mo-1]+" "+y,
