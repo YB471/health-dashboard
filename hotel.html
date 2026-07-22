@@ -170,10 +170,6 @@
   <header>
     <h1 id="pageTitle">Инвестиционный трекер</h1>
     <div class="sub" id="pageSub">Журнал реальных транзакций · показатели считаются автоматически по датам платежей</div>
-    <div class="mrow">
-      <button class="btn2 push" id="printBtn">Печать / PDF</button>
-      <button class="btn2" id="logoutBtn">Выйти</button>
-    </div>
   </header>
 
   <div class="tabs">
@@ -213,21 +209,6 @@
       <button class="btn2 push" id="tilesCfgBtn">Настроить</button></div>
     <div id="tileCfgWrap" style="display:none"></div>
     <div class="tiles" id="tiles"></div>
-  </div>
-
-  <div class="card">
-    <div class="crow"><h2>Платежи по договору — план-факт</h2>
-      <button class="btn2 push" id="planEdit">Редактировать план</button></div>
-    <div id="planView"></div>
-    <div id="planFormWrap" style="display:none">
-      <div id="planForm"></div>
-      <div class="ppbtns">
-        <button class="btn2" id="planAddRow" style="margin-left:0">+ строка</button>
-        <button class="savebtn" id="planSave">Сохранить план</button>
-        <button class="btn2" id="planCancel" style="margin-left:0">Отмена</button>
-      </div>
-    </div>
-    <div class="note">Факт — транзакции типа «Взнос по договору». Статус транша: «оплачен», когда накопленные взносы покрывают накопленный план по этот транш включительно.</div>
   </div>
 
   <div class="card">
@@ -690,92 +671,6 @@ $("tileCfgWrap").addEventListener("click", async e=>{
   catch(err){ toast("Ошибка сохранения набора блоков"); }
 });
 
-/* ── план-факт платежей ── */
-let PLAN_EDIT = null;
-function planData(){ const p = S.settings.plan; return Array.isArray(p) ? p : []; }
-function renderPlan(m){
-  const plan = planData();
-  const v = $("planView");
-  if(!plan.length){
-    v.innerHTML = `<div class="empty">План платежей не заполнен. Нажмите «Редактировать план» и внесите транши из договора — появится план-факт: сколько внесено, сколько осталось и ближайший платёж.</div>`;
-    return;
-  }
-  const today = iso(new Date());
-  const factTotal = m.rows.filter(r=>r.tx_type==="Взнос по договору").reduce((s,r)=>s+Number(r.amount),0);
-  let cumPlan = 0, nextDue = null;
-  const rowsH = plan.map((p,i)=>{
-    cumPlan += p.amount;
-    const paid = factTotal + 0.01 >= cumPlan;
-    const late = !paid && p.date < today;
-    if(!paid && !nextDue) nextDue = p;
-    const st = paid ? `<span class="st paid">оплачен</span>` : late ? `<span class="st late">просрочен</span>` : `<span class="st due">ожидается</span>`;
-    return `<tr><td>${i+1}</td><td>${fd(p.date)}</td><td style="text-align:left">${esc(p.label)||"Транш "+(i+1)}</td>`+
-      `<td>${money(p.amount)}</td><td>${money(cumPlan)}</td><td style="text-align:center">${st}</td></tr>`;
-  }).join("");
-  const planTotal = plan.reduce((s,p)=>s+p.amount,0);
-  const left = Math.max(0, planTotal - factTotal);
-  v.innerHTML = `
-    <div class="tiles" style="margin-bottom:12px">
-      ${tile("Всего по договору", money(planTotal), plan.length+" траншей")}
-      ${tile("Внесено взносов", money(factTotal), factTotal>=planTotal-0.01?"план исполнен":"по журналу транзакций")}
-      ${tile("Осталось внести", money(left), left>0.5?"будущие обязательства":"—", left>0.5?"neg":"pos")}
-      ${tile("Ближайший транш", nextDue?money(nextDue.amount):"—", nextDue?("до "+fd(nextDue.date)):"все транши оплачены")}
-    </div>
-    <div class="tbl-wrap"><table>
-      <thead><tr><th>№</th><th>Срок</th><th>Назначение</th><th>Сумма</th><th>План нарастающим</th><th style="text-align:center">Статус</th></tr></thead>
-      <tbody>${rowsH}</tbody>
-    </table></div>`;
-}
-function planFormRow(p, i){
-  return `<div class="params" data-plan-row style="margin-bottom:8px">
-    <div class="field"><label>Срок</label><input type="date" data-pf="date" value="${esc(p.date||"")}"></div>
-    <div class="field"><label>Сумма</label><input type="number" min="0" step="100" data-pf="amount" value="${p.amount||""}"></div>
-    <div class="field" style="flex:1"><label>Назначение</label><input type="text" maxlength="100" data-pf="label" value="${esc(p.label||"")}" placeholder="Транш ${i+1}" style="width:100%"></div>
-    <button class="btn2" data-plan-del style="margin-left:0">✕</button>
-  </div>`;
-}
-function renderPlanForm(){
-  $("planForm").innerHTML = PLAN_EDIT.map((p,i)=>planFormRow(p,i)).join("") ||
-    `<div class="empty">Строк нет — добавьте первую.</div>`;
-}
-$("planEdit").addEventListener("click", ()=>{
-  PLAN_EDIT = planData().map(p=>({...p}));
-  if(!PLAN_EDIT.length) PLAN_EDIT.push({date:"",amount:"",label:""});
-  renderPlanForm();
-  $("planView").style.display="none"; $("planFormWrap").style.display=""; $("planEdit").style.display="none";
-});
-$("planCancel").addEventListener("click", ()=>{
-  $("planView").style.display=""; $("planFormWrap").style.display="none"; $("planEdit").style.display="";
-});
-$("planAddRow").addEventListener("click", ()=>{
-  collectPlanForm(); PLAN_EDIT.push({date:"",amount:"",label:""}); renderPlanForm();
-});
-$("planForm").addEventListener("click", e=>{
-  const b = e.target.closest("[data-plan-del]"); if(!b) return;
-  collectPlanForm();
-  const rows = [...document.querySelectorAll("[data-plan-row]")];
-  const idx = rows.indexOf(b.closest("[data-plan-row]"));
-  if(idx>=0) PLAN_EDIT.splice(idx,1);
-  renderPlanForm();
-});
-function collectPlanForm(){
-  PLAN_EDIT = [...document.querySelectorAll("[data-plan-row]")].map(r=>({
-    date: r.querySelector('[data-pf="date"]').value,
-    amount: parseFloat(r.querySelector('[data-pf="amount"]').value)||0,
-    label: r.querySelector('[data-pf="label"]').value.trim(),
-  }));
-}
-$("planSave").addEventListener("click", async ()=>{
-  collectPlanForm();
-  const rows = PLAN_EDIT.filter(p=>p.date && p.amount>0);
-  try{
-    await api("set",{key:"plan",value:rows});
-    S.settings.plan = rows.sort((a,b)=>a.date.localeCompare(b.date));
-    $("planView").style.display=""; $("planFormWrap").style.display="none"; $("planEdit").style.display="";
-    if(M) renderPlan(M);
-    toast("План сохранён");
-  }catch(e){ toast("Ошибка: проверьте даты и суммы строк"); }
-});
 
 /* ── блок арендной доходности ── */
 const RY = {period:"year", tax:"gross"};
@@ -1208,7 +1103,6 @@ function exportCSV(){
   a.click(); URL.revokeObjectURL(a.href);
 }
 $("csvBtn").addEventListener("click", exportCSV);
-$("printBtn").addEventListener("click", ()=>window.print());
 
 /* ── паспорт ── */
 const PP_FIELDS = [
@@ -1354,7 +1248,6 @@ function render(){
 
   renderPassport();
   renderTiles(m);
-  renderPlan(m);
   renderRent(m);
   renderChart(m);
   renderPeriods(m);
@@ -1386,7 +1279,6 @@ $("loginBtn").addEventListener("click", async ()=>{
   catch(e){ $("lerr").textContent = e.message==="auth" ? "Неверный пароль" : "Ошибка соединения — попробуйте ещё раз"; }
 });
 $("pw").addEventListener("keydown", e=>{ if(e.key==="Enter") $("loginBtn").click(); });
-$("logoutBtn").addEventListener("click", ()=>{ localStorage.removeItem("ht_pw"); location.reload(); });
 
 /* добавление / исправление транзакций */
 let editId = null;
