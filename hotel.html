@@ -181,6 +181,7 @@
 
   <div id="tab-metrics" class="tabsec">
   <div class="card">
+    <h2>Параметры учёта</h2>
     <div class="params">
       <div class="field"><label for="valMode">Оценка актива</label>
         <select id="valMode">
@@ -197,11 +198,9 @@
           <option value="AED">AED</option><option value="฿">THB — ฿</option>
           <option value="₴">UAH — ₴</option><option value="₽">RUB — ₽</option>
         </select></div>
-      <div class="field" style="justify-content:center;max-width:360px">
-        <div class="note" style="margin:0">Учёт ведётся в одной валюте — выбор меняет только подпись, суммы не пересчитываются. Оценка «авто» равна внесённым деньгам; «вручную» — ваша оценка с датой.</div>
-      </div>
       <div id="saveNote"></div>
     </div>
+    <div class="note">Оценка «авто» равна внесённым деньгам и растёт с каждым взносом; «вручную» — ваша оценка с фиксацией даты. Валюта — подпись к суммам: конвертаций нет, учёт ведётся в одной валюте.</div>
   </div>
 
   <div class="card">
@@ -229,28 +228,6 @@
     <div class="note">Валовой арендный доход — транзакции типа «Доход от аренды»; чистый — после фактических налогов. Доходности — в % годовых на средневзвешенный вложенный капитал (по месяцам — простая аннуализация ×12). Реальная доходность — чистая, скорректированная на инфляцию по уравнению Фишера (вкладка «Инфляция»). Кумулятивная — доход накопленным итогом ÷ вложенный капитал.</div>
   </div>
 
-  <div class="card">
-    <h2>Денежная позиция нарастающим итогом</h2>
-    <div class="chart-host" id="chart"></div>
-  </div>
-
-  <div class="card">
-    <div class="crow"><h2>Потоки по периодам</h2></div>
-    <div class="crow" style="gap:8px;margin-bottom:8px">
-      <span class="seg" id="pfPeriod">
-        <button data-v="month" class="on">По месяцам</button>
-        <button data-v="year">По годам</button>
-      </span>
-      <span class="seg" id="pfMetric">
-        <button data-v="flows" class="on">Потоки</button>
-        <button data-v="net">Чистый поток</button>
-      </span>
-    </div>
-    <div class="legend" id="pfLegend"></div>
-    <div class="chart-host" id="pfChart"></div>
-    <div class="tbl-wrap" style="margin-top:14px"><table id="pfTbl"></table></div>
-    <div class="note">Доходность в таблице — поступления без продажи актива ÷ средневзвешенный вложенный капитал периода (по месяцам — ×12, простая аннуализация); «после налога» — за вычетом фактических налогов периода. Доходность именно аренды — в блоке «Арендная доходность».</div>
-  </div>
   </div><!-- /tab-metrics -->
 
   <div id="tab-tx" class="tabsec" style="display:none">
@@ -286,14 +263,14 @@
   <div class="card">
     <h2>Влияние инфляции</h2>
     <div class="tiles" id="inflStats"></div>
-    <div class="note">Реальные показатели: каждый денежный поток дефлируется накопленным индексом инфляции на месяц платежа (база — месяц первого платежа; пустой месяц = 0 %). Реальный XIRR — доходность сверх введённой инфляции.</div>
+    <div class="note">Реальные показатели: каждый денежный поток дефлируется накопленным индексом инфляции на месяц платежа (база — месяц первого платежа; пустой месяц = 0 %). Ставки вносятся в годовом выражении, месячный шаг индекса = (1 + ставка)^(1/12). Реальный XIRR — доходность сверх введённой инфляции.</div>
   </div>
   <div class="card">
-    <div class="crow"><h2>Инфляция по месяцам, %</h2>
+    <div class="crow"><h2>Инфляция, % годовых</h2>
       <button class="savebtn push" id="inflSave">Сохранить</button>
       <span id="inflSaveNote" class="note" style="margin:0"></span></div>
     <div class="tbl-wrap" style="max-height:430px;overflow:auto"><table id="inflTbl"></table></div>
-    <div class="note">Вносите инфляцию за месяц (например 0,4). Допустима отрицательная (дефляция). Значения сохраняются кнопкой «Сохранить».</div>
+    <div class="note">Вносите годовую ставку инфляции, действующую в данном месяце (например 8 = 8 % годовых). Месячный индекс = (1 + ставка)^(1/12). Допустима отрицательная ставка (дефляция). Значения сохраняются кнопкой «Сохранить».</div>
   </div>
   </div><!-- /tab-infl -->
 
@@ -318,7 +295,7 @@
         <li><b>XIRR (фактическая)</b> — годовая ставка r, при которой сумма всех потоков CF·(1+r)^(−t) равна нулю; t — время платежа в годах. Считается по реальным датам транзакций.</li>
         <li><b>XIRR с учётом оценки</b> — те же потоки плюс условная продажа по текущей оценке: в режиме «авто» — по внесённым деньгам на сегодня; в ручном режиме — по вашей оценке на её дату (оценка старше 90 дней помечается как устаревшая).</li>
         <li><b>Арендные доходности.</b> Валовая (gross rental yield) — арендный доход ÷ средневзвешенный вложенный капитал, в % годовых; чистая (net yield) — после фактических налогов; реальная (real yield) — чистая, скорректированная на инфляцию по уравнению Фишера: (1 + чистая) ÷ (1 + инфляция) − 1. Кумулятивная доходность — доход накопленным итогом ÷ вложенный капитал. В таблицах потоков доходность считается по всем поступлениям без продажи. По месяцам — простая аннуализация ×12.</li>
-        <li><b>Реальный XIRR</b> — XIRR по дефлированным потокам: каждый поток делится на накопленный индекс инфляции своего месяца (вкладка «Инфляция», база — месяц первого платежа). Показывает доходность сверх введённой инфляции.</li>
+        <li><b>Реальный XIRR</b> — XIRR по дефлированным потокам: каждый поток делится на накопленный индекс инфляции своего месяца (вкладка «Инфляция»; ставки вносятся в % годовых, месячный шаг индекса = (1 + ставка)^(1/12); база — месяц первого платежа). Показывает доходность сверх введённой инфляции.</li>
         <li><b>Окупаемость</b> — факт: первый выход накопленного потока в ноль после понесённых вложений (номинально, без дисконтирования); прогноз — остаток ÷ чистый темп поступлений за последние 12 месяцев, в годах.</li>
         <li><b>Оценка актива</b> — не рыночная котировка: «авто» равна внесённым деньгам (консервативная учётная база), ручная — ваша оценка с фиксацией даты.</li>
         <li>При будущей продаже актива итоговая доходность будет разделена на операционную (аренда) и капитальную (прирост стоимости) составляющие.</li>
@@ -479,7 +456,7 @@ function compute(){
     let k = baseMK, I = 1, guard = 0;
     while(k <= endMK && guard++ < 1200){
       inflIdx.set(k, I);
-      I *= 1 + (Number(infl[k]) || 0)/100;
+      I *= Math.pow(1 + (Number(infl[k]) || 0)/100, 1/12);
       k = nextMK(k);
     } }
   const deflOf = mk => inflIdx.get(mk) || (mk < baseMK ? 1 : [...inflIdx.values()].pop() || 1);
@@ -490,7 +467,7 @@ function compute(){
   let totalIdx = 1, mkCount = 0;
   { let k = baseMK; const endDataMK = endY+"-"+String(endM).padStart(2,"0");
     let guard = 0;
-    while(k <= endDataMK && guard++ < 1200){ totalIdx *= 1 + (Number(infl[k])||0)/100; mkCount++; k = nextMK(k); } }
+    while(k <= endDataMK && guard++ < 1200){ totalIdx *= Math.pow(1 + (Number(infl[k])||0)/100, 1/12); mkCount++; k = nextMK(k); } }
   const cumInflPct = (totalIdx - 1) * 100;
   const annInflPct = mkCount > 0 ? (Math.pow(totalIdx, 12/mkCount) - 1) * 100 : 0;
 
@@ -581,7 +558,7 @@ function compute(){
   const inflY = new Map();
   for(let y=y0; y<=y1; y++){
     let ix = 1;
-    for(let mo=1; mo<=12; mo++) ix *= 1 + (Number(infl[y+"-"+String(mo).padStart(2,"0")])||0)/100;
+    for(let mo=1; mo<=12; mo++) ix *= Math.pow(1 + (Number(infl[y+"-"+String(mo).padStart(2,"0")])||0)/100, 1/12);
     inflY.set(y, (ix-1)*100);
   }
   let idxRent = 1, rentMonths = 0;
@@ -589,7 +566,7 @@ function compute(){
     let k = iso(new Date(firstRentT)).slice(0,7);
     const endDataMK = endY+"-"+String(endM).padStart(2,"0");
     let guard = 0;
-    while(k <= endDataMK && guard++ < 1200){ idxRent *= 1 + (Number(infl[k])||0)/100; rentMonths++; k = nextMK(k); }
+    while(k <= endDataMK && guard++ < 1200){ idxRent *= Math.pow(1 + (Number(infl[k])||0)/100, 1/12); rentMonths++; k = nextMK(k); }
   }
   const annInflRentPct = rentMonths > 0 ? (Math.pow(idxRent, 12/rentMonths) - 1) * 100 : 0;
   const fisher = (nomPct, inflPct) => ((1 + nomPct/100) / (1 + inflPct/100) - 1) * 100;
@@ -867,241 +844,7 @@ function drawRentChart(host, series, net){
   host.appendChild(svg);
 }
 
-/* ── потоки по периодам ── */
-const PF = {period:"month", metric:"flows"};
-[["pfPeriod","period"],["pfMetric","metric"]].forEach(([id,prop])=>{
-  $(id).addEventListener("click", e=>{
-    const b = e.target.closest("button"); if(!b) return;
-    [...$(id).querySelectorAll("button")].forEach(x=>x.classList.toggle("on", x===b));
-    PF[prop] = b.dataset.v;
-    if(M) renderPeriods(M);
-  });
-});
-function pfSeries(m){
-  const pts = [];
-  const today = new Date();
-  if(PF.period === "month"){
-    for(let y=m.y0; y<=m.y1; y++) for(let mo=1; mo<=12; mo++){
-      if(y>m.endY || (y===m.endY && mo>m.endM)) break;
-      const key = y+"-"+String(mo).padStart(2,"0");
-      const b = m.byMonth.get(key) || {inc:0,out:0,tax:0,incNoSale:0};
-      pts.push({lbl: MONTHS_S[mo-1]+(mo===1?" "+String(y).slice(2):""), full: MONTHS_S[mo-1]+" "+y,
-        inc:b.inc||0, out:b.out||0, tax:b.tax||0, incNoSale:b.incNoSale||0,
-        avg: m.avgInvM.get(key)||0, ann:12});
-    }
-  } else {
-    for(const x of m.years){
-      pts.push({lbl:String(x.y), full:String(x.y), inc:x.inc, out:x.out, tax:x.tax,
-        incNoSale:x.incNoSale||0, avg:x.avg||0, ann:1});
-    }
-  }
-  return pts;
-}
-function pfTipHtml(p){
-  const netFlow = p.inc - p.out - p.tax;
-  let t = "<b>" + esc(p.full) + "</b>";
-  t += "<br>Поступления: " + (p.inc>0.5?money(p.inc):"—");
-  t += "<br>Взносы и расходы: " + (p.out>0.5?money(-p.out):"—");
-  t += "<br>Налоги: " + (p.tax>0.5?money(-p.tax):"—");
-  t += "<br>Чистый поток: " + money(netFlow);
-  if(p.avg>0){
-    t += "<br>Вложено (средн. за период): " + money(p.avg);
-    if(p.incNoSale>0.5)
-      t += "<br>Доходность (годовая): " + pct(p.incNoSale*p.ann/p.avg*100) + " · чистыми: " + pct((p.incNoSale-p.tax)*p.ann/p.avg*100);
-  }
-  return t;
-}
-function renderPeriods(m){
-  const pts = pfSeries(m);
-  $("pfLegend").innerHTML = PF.metric === "flows"
-    ? `<span class="key"><span class="sw" style="background:var(--lo)"></span>Поступления</span>
-       <span class="key"><span class="sw" style="background:var(--hi)"></span>Взносы и расходы</span>
-       <span class="key"><span class="sw" style="background:var(--warn)"></span>Налоги</span>`
-    : `<span class="key"><span class="sw" style="background:var(--lo)"></span>Чистый поток ≥ 0</span>
-       <span class="key"><span class="sw" style="background:var(--hi)"></span>Чистый поток &lt; 0</span>`;
-  drawPeriodChart($("pfChart"), pts);
-  renderPfTable(m, pts);
-}
-function drawPeriodChart(host, pts){
-  host.innerHTML = "";
-  if(!pts.some(p=>p.inc>0.5 || p.out>0.5 || p.tax>0.5)){
-    host.innerHTML = `<div class="empty">Нет данных за период.</div>`; return;
-  }
-  const val = p => p.inc - p.out - p.tax;
-  const W = Math.max(420, host.clientWidth||600), H = 260;
-  const mL=64, mR=16, mT=14, mB=26, pw=W-mL-mR, ph=H-mT-mB;
-  const NS = "http://www.w3.org/2000/svg";
-  const svg = document.createElementNS(NS,"svg");
-  svg.setAttribute("viewBox",`0 0 ${W} ${H}`);
-  const el=(t,a,parent)=>{ const e=document.createElementNS(NS,t); for(const k in a) e.setAttribute(k,a[k]); (parent||svg).appendChild(e); return e; };
-  let lo=0, hi=0;
-  if(PF.metric === "flows"){
-    hi = Math.max(...pts.map(p=>p.inc), 0);
-    lo = -Math.max(...pts.map(p=>p.out+p.tax), 0);
-  } else {
-    const vals = pts.map(val);
-    lo = Math.min(0, ...vals); hi = Math.max(0, ...vals);
-  }
-  if(hi===lo) hi = lo+1;
-  const pad=(hi-lo)*.09||1; hi+=pad; if(lo<0) lo-=pad;
-  const Y = v => mT + ph*(1-(v-lo)/(hi-lo));
-  const y0 = Y(0);
-  const span=hi-lo, step0=span/4, mag=Math.pow(10,Math.floor(Math.log10(step0)));
-  let step=mag; for(const k of [1,2,2.5,5,10]) if(mag*k>=step0){step=mag*k;break;}
-  for(let t=Math.ceil(lo/step)*step; t<=hi; t+=step){
-    el("line",{x1:mL,x2:W-mR,y1:Y(t),y2:Y(t),stroke:Math.abs(t)<step*1e-6?"var(--bd2)":"var(--bd)","stroke-width":1});
-    const tx=el("text",{x:mL-8,y:Y(t)+4,"text-anchor":"end","font-size":10.5,fill:"var(--tx3)"});
-    tx.textContent = moneyC(t);
-  }
-  const n = pts.length, band = pw/Math.max(1,n);
-  const Xc = i => mL + band*i + band/2;
-  let lastX = -1e9;
-  pts.forEach((p,i)=>{
-    const x = Xc(i);
-    if(x - lastX >= 46 || i===n-1){
-      const tx=el("text",{x, y:H-8, "text-anchor":"middle","font-size":10,fill:"var(--tx3)"});
-      tx.textContent = p.lbl; lastX = x;
-    }
-  });
-  const rr = (x,y,w,h,side)=>{
-    const r=Math.max(0,Math.min(4,w/2,h)); if(h<=0||w<=0) return "";
-    return side==="top"
-      ? `M${x},${y+h} L${x},${y+r} Q${x},${y} ${x+r},${y} L${x+w-r},${y} Q${x+w},${y} ${x+w},${y+r} L${x+w},${y+h} Z`
-      : `M${x},${y} L${x+w},${y} L${x+w},${y+h-r} Q${x+w},${y+h} ${x+w-r},${y+h} L${x+r},${y+h} Q${x},${y+h} ${x},${y+h-r} Z`;
-  };
-  const barW = Math.min(24, band*0.62);
-  pts.forEach((p,i)=>{
-    const x = Xc(i)-barW/2;
-    if(PF.metric === "flows"){
-      const hInc = Math.abs(Y(p.inc)-y0);
-      if(p.inc>0.5 && hInc>=0.5) el("path",{d:rr(x,y0-hInc,barW,hInc,"top"),fill:"var(--lo)"});
-      let yD = y0;
-      const hOut = Math.abs(Y(-p.out)-y0);
-      if(p.out>0.5 && hOut>=0.5){
-        const bottom = !(p.tax>0.5);
-        const d = bottom ? rr(x,yD,barW,hOut,"bottom")
-          : `M${x},${yD} L${x+barW},${yD} L${x+barW},${yD+hOut} L${x},${yD+hOut} Z`;
-        el("path",{d,fill:"var(--hi)"}); yD += hOut + 2;
-      }
-      const hTax = Math.abs(Y(-p.tax)-y0);
-      if(p.tax>0.5 && hTax>=0.5) el("path",{d:rr(x,yD,barW,hTax,"bottom"),fill:"var(--warn)"});
-    } else {
-      const v = val(p);
-      if(Math.abs(v)<0.5) return;
-      const h = Math.abs(Y(v)-y0);
-      if(h<0.5) return;
-      el("path",{d: v>=0 ? rr(x,y0-h,barW,h,"top") : rr(x,y0,barW,h,"bottom"), fill: v>=0?"var(--lo)":"var(--hi)"});
-    }
-  });
-  el("line",{x1:mL,x2:W-mR,y1:y0,y2:y0,stroke:"var(--bd2)","stroke-width":1});
 
-  const guide = el("g",{opacity:0});
-  const gl = el("line",{y1:mT,y2:mT+ph,stroke:"var(--bd2)","stroke-width":1}, guide);
-  const ov = el("rect",{x:mL,y:mT,width:pw,height:ph,fill:"transparent"});
-  ov.addEventListener("mousemove", e=>{
-    const box = svg.getBoundingClientRect();
-    if(!box.width) return;
-    const px = (e.clientX - box.left) * (W / box.width);
-    const j = Math.max(0, Math.min(n-1, Math.round((px - mL - band/2) / band)));
-    const p = pts[j];
-    guide.setAttribute("opacity",1);
-    gl.setAttribute("x1",Xc(j)); gl.setAttribute("x2",Xc(j));
-    const v = p.inc - p.out - p.tax;
-    const head = PF.metric==="net" ? "<b>Чистый поток: "+money(v)+"</b><br>" : "";
-    showTip("<b>"+esc(p.full)+"</b><br>" + head + pfTipHtml(p).replace("<b>"+esc(p.full)+"</b><br>","").replace("<b>"+esc(p.full)+"</b>",""), e.clientX, e.clientY);
-  });
-  ov.addEventListener("mouseleave", ()=>{ guide.setAttribute("opacity",0); hideTip(); });
-  host.appendChild(svg);
-}
-function renderPfTable(m, pts){
-  const t = $("pfTbl");
-  if(PF.period === "year"){
-    if(!m.rows.length){ t.innerHTML = `<tbody><tr><td class="empty">Нет данных.</td></tr></tbody>`; return; }
-    let h = `<thead><tr><th>Год</th><th>Взносы и расходы</th><th>Поступления</th><th>Налоги</th><th>Чистый поток</th><th>Нарастающим итогом</th><th>Доходность до налога</th><th>После налога</th></tr></thead><tbody>`;
-    for(const x of m.years){
-      h += `<tr><td>${x.y}</td>`+
-        `<td class="${x.out>0.5?'neg':''}">${x.out>0.5?money(-x.out):'—'}</td>`+
-        `<td class="${x.inc>0.5?'pos':''}">${x.inc>0.5?money(x.inc):'—'}</td>`+
-        `<td class="${x.tax>0.5?'wrn':''}">${x.tax>0.5?money(-x.tax):'—'}</td>`+
-        `<td class="${x.net<-0.5?'neg':''}">${money(x.net)}</td>`+
-        `<td class="${x.cum<-0.5?'neg':''}">${money(x.cum)}</td>`+
-        `<td>${x.yieldPct!==null?pct(x.yieldPct):'—'}</td>`+
-        `<td>${x.yieldNet!==null?pct(x.yieldNet):'—'}</td></tr>`;
-    }
-    const totOut = m.years.reduce((s,x)=>s+x.out,0), totInc = m.years.reduce((s,x)=>s+x.inc,0), totTax = m.years.reduce((s,x)=>s+x.tax,0);
-    h += `</tbody><tfoot><tr><td>Итого</td><td class="neg">${money(-totOut)}</td>`+
-         `<td class="${totInc>0.5?'pos':''}">${totInc>0.5?money(totInc):'—'}</td>`+
-         `<td class="${totTax>0.5?'wrn':''}">${totTax>0.5?money(-totTax):'—'}</td>`+
-         `<td>${money(totInc-totOut-totTax)}</td><td></td><td></td><td></td></tr></tfoot>`;
-    t.innerHTML = h;
-  } else {
-    const filled = pts.filter(p=>p.inc>0.5||p.out>0.5||p.tax>0.5);
-    if(!filled.length){ t.innerHTML = `<tbody><tr><td class="empty">Операций не было.</td></tr></tbody>`; return; }
-    let h = `<thead><tr><th>Месяц</th><th>Взносы и расходы</th><th>Поступления</th><th>Налоги</th><th>Чистый поток</th><th>Доходность до налога</th><th>После налога</th></tr></thead><tbody>`;
-    for(const b of filled){
-      const netF = b.inc-b.out-b.tax;
-      const yp = (b.avg>0 && b.incNoSale>0.5) ? b.incNoSale*b.ann/b.avg*100 : null;
-      const ypNet = (b.avg>0 && b.incNoSale>0.5) ? (b.incNoSale-b.tax)*b.ann/b.avg*100 : null;
-      h += `<tr><td>${b.full}</td>`+
-        `<td class="${b.out>0.5?'neg':''}">${b.out>0.5?money(-b.out):'—'}</td>`+
-        `<td class="${b.inc>0.5?'pos':''}">${b.inc>0.5?money(b.inc):'—'}</td>`+
-        `<td class="${b.tax>0.5?'wrn':''}">${b.tax>0.5?money(-b.tax):'—'}</td>`+
-        `<td class="${netF<-0.5?'neg':''}">${money(netF)}</td>`+
-        `<td>${yp!==null?pct(yp):'—'}</td>`+
-        `<td>${ypNet!==null?pct(ypNet):'—'}</td></tr>`;
-    }
-    const sOut=filled.reduce((s,b)=>s+b.out,0), sInc=filled.reduce((s,b)=>s+b.inc,0), sTax=filled.reduce((s,b)=>s+b.tax,0);
-    h += `</tbody><tfoot><tr><td>Итого</td><td class="neg">${sOut>0.5?money(-sOut):'—'}</td>`+
-         `<td class="${sInc>0.5?'pos':''}">${sInc>0.5?money(sInc):'—'}</td>`+
-         `<td class="${sTax>0.5?'wrn':''}">${sTax>0.5?money(-sTax):'—'}</td>`+
-         `<td>${money(sInc-sOut-sTax)}</td><td></td><td></td></tr></tfoot>`;
-    t.innerHTML = h;
-  }
-}
-
-/* ── линия накопленной позиции ── */
-function renderChart(m){
-  const host = $("chart"); host.innerHTML = "";
-  if(m.rows.length < 2){ host.innerHTML = `<div class="empty">График появится после двух транзакций.</div>`; return; }
-  const W = Math.max(420, host.clientWidth||600), H = 240;
-  const mL=64, mR=16, mT=14, mB=26, pw=W-mL-mR, ph=H-mT-mB;
-  const NS = "http://www.w3.org/2000/svg";
-  const svg = document.createElementNS(NS,"svg");
-  svg.setAttribute("viewBox",`0 0 ${W} ${H}`);
-  const pts = m.rows.map(r=>({d: pd(r.tx_date).getTime(), v: r.cum, lbl: fd(r.tx_date)}));
-  const x0 = pts[0].d, x1 = pts[pts.length-1].d || x0+1;
-  let lo = Math.min(0,...pts.map(p=>p.v)), hi = Math.max(0,...pts.map(p=>p.v));
-  const pad=(hi-lo)*.1||1; lo-=pad; hi+=pad;
-  const X = d => mL + pw*((d-x0)/Math.max(1,(x1-x0)));
-  const Y = v => mT + ph*(1-(v-lo)/(hi-lo));
-  const el = (t,a)=>{ const e=document.createElementNS(NS,t); for(const k in a) e.setAttribute(k,a[k]); svg.appendChild(e); return e; };
-  const span=hi-lo, step0=span/4, mag=Math.pow(10,Math.floor(Math.log10(step0)));
-  let step=mag; for(const k of [1,2,2.5,5,10]) if(mag*k>=step0){step=mag*k;break;}
-  for(let t=Math.ceil(lo/step)*step; t<=hi; t+=step){
-    el("line",{x1:mL,x2:W-mR,y1:Y(t),y2:Y(t),stroke:Math.abs(t)<step*1e-6?"var(--bd2)":"var(--bd)","stroke-width":1});
-    const tx=el("text",{x:mL-8,y:Y(t)+4,"text-anchor":"end","font-size":10.5,fill:"var(--tx3)"});
-    tx.textContent = moneyC(t);
-  }
-  const lastPx = X(pts[pts.length-1].d);
-  const chosen = [{x:X(pts[0].d), p:pts[0], a:"start"}];
-  for(let i=1;i<pts.length-1;i++){
-    const x = X(pts[i].d);
-    if(x - chosen[chosen.length-1].x > 85 && lastPx - x > 85) chosen.push({x, p:pts[i], a:"middle"});
-  }
-  if(pts.length>1) chosen.push({x:lastPx, p:pts[pts.length-1], a:"end"});
-  for(const c of chosen){
-    const tx=el("text",{x:c.x,y:H-8,"text-anchor":c.a,"font-size":10.5,fill:"var(--tx3)"});
-    tx.textContent=c.p.lbl;
-  }
-  let dPath=""; pts.forEach((p,i)=>{dPath+=(i?"L":"M")+X(p.d).toFixed(1)+","+Y(p.v).toFixed(1);});
-  el("path",{d:dPath,fill:"none",stroke:"var(--lo)","stroke-width":2,"stroke-linejoin":"round","stroke-linecap":"round"});
-  pts.forEach(p=>{
-    const c=el("circle",{cx:X(p.d),cy:Y(p.v),r:4,fill:"var(--lo)",stroke:"var(--card)","stroke-width":2});
-    const t=document.createElementNS(NS,"title");
-    t.textContent=`${p.lbl}: ${money(p.v)}`; c.appendChild(t);
-  });
-  host.appendChild(svg);
-}
 
 /* ── журнал ── */
 function renderJournal(m){
@@ -1219,7 +962,7 @@ function renderInfl(m){
     tile("XIRR с оценкой, номин.", m.irrVal===null?"н/д":pct(m.irrVal*100), "с условной продажей по оценке") +
     tile("XIRR с оценкой, реальная", m.irrValReal===null?"н/д":pct(m.irrValReal*100), "сверх инфляции", "", true);
   const keys = monthKeysAll(m);
-  let h = `<thead><tr><th>Месяц</th><th style="text-align:right">Инфляция за месяц, %</th></tr></thead><tbody>`;
+  let h = `<thead><tr><th>Месяц</th><th style="text-align:right">Ставка, % годовых</th></tr></thead><tbody>`;
   for(const k of keys){
     const [y,mo] = k.split("-").map(Number);
     const v = infl[k];
@@ -1253,7 +996,7 @@ document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click", ()=>{
   document.querySelectorAll(".tabsec").forEach(sec=>{
     sec.style.display = sec.id === "tab-"+b.dataset.tab ? "" : "none";
   });
-  if(b.dataset.tab === "metrics" && M){ renderRent(M); renderChart(M); renderPeriods(M); }
+  if(b.dataset.tab === "metrics" && M){ renderRent(M); }
 }));
 
 /* ── рендер ── */
@@ -1276,8 +1019,6 @@ function render(){
   renderPassport();
   renderTiles(m);
   renderRent(m);
-  renderChart(m);
-  renderPeriods(m);
   renderJournal(m);
   renderInfl(m);
 }
