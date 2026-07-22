@@ -171,11 +171,6 @@
     <h1 id="pageTitle">Инвестиционный трекер</h1>
     <div class="sub" id="pageSub">Журнал реальных транзакций · показатели считаются автоматически по датам платежей</div>
     <div class="mrow">
-      <span class="chip phase" id="chipPhase">Этап: <b>—</b></span>
-      <span class="chip">Вложено: <b id="chipInv">—</b></span>
-      <span class="chip">Оценка актива: <b id="chipVal">—</b></span>
-      <span class="chip">Операций: <b id="chipN">—</b></span>
-      <span class="chip">Отчёт на: <b id="chipUpd">—</b></span>
       <button class="btn2 push" id="printBtn">Печать / PDF</button>
       <button class="btn2" id="logoutBtn">Выйти</button>
     </div>
@@ -184,6 +179,7 @@
   <div class="tabs">
     <button class="tab on" data-tab="metrics">Показатели</button>
     <button class="tab" data-tab="tx">Транзакции</button>
+    <button class="tab" data-tab="infl">Инфляция</button>
     <button class="tab" data-tab="info">Справочная информация</button>
   </div>
 
@@ -305,6 +301,21 @@
   </div>
   </div><!-- /tab-tx -->
 
+  <div id="tab-infl" class="tabsec" style="display:none">
+  <div class="card">
+    <h2>Влияние инфляции</h2>
+    <div class="tiles" id="inflStats"></div>
+    <div class="note">Реальные показатели: каждый денежный поток дефлируется накопленным индексом инфляции на месяц платежа (база — месяц первого платежа; пустой месяц = 0 %). Реальный XIRR — доходность сверх введённой инфляции.</div>
+  </div>
+  <div class="card">
+    <div class="crow"><h2>Инфляция по месяцам, %</h2>
+      <button class="savebtn push" id="inflSave">Сохранить</button>
+      <span id="inflSaveNote" class="note" style="margin:0"></span></div>
+    <div class="tbl-wrap" style="max-height:430px;overflow:auto"><table id="inflTbl"></table></div>
+    <div class="note">Вносите инфляцию за месяц (например 0,4). Допустима отрицательная (дефляция). Значения сохраняются кнопкой «Сохранить».</div>
+  </div>
+  </div><!-- /tab-infl -->
+
   <div id="tab-info" class="tabsec" style="display:none">
   <div class="card">
     <div class="crow"><h2>Паспорт инвестиции</h2>
@@ -326,6 +337,7 @@
         <li><b>XIRR (фактическая)</b> — годовая ставка r, при которой сумма всех потоков CF·(1+r)^(−t) равна нулю; t — время платежа в годах. Считается по реальным датам транзакций.</li>
         <li><b>XIRR с учётом оценки</b> — те же потоки плюс условная продажа по текущей оценке: в режиме «авто» — по внесённым деньгам на сегодня; в ручном режиме — по вашей оценке на её дату (оценка старше 90 дней помечается как устаревшая).</li>
         <li><b>Доходность периода</b> — поступления периода (для арендного блока — только аренда; в таблицах потоков — все поступления без продажи) ÷ средневзвешенный вложенный капитал периода. По месяцам приводится к годовому выражению простой аннуализацией (×12).</li>
+        <li><b>Реальный XIRR</b> — XIRR по дефлированным потокам: каждый поток делится на накопленный индекс инфляции своего месяца (вкладка «Инфляция», база — месяц первого платежа). Показывает доходность сверх введённой инфляции.</li>
         <li><b>Окупаемость</b> — факт: первый выход накопленного потока в ноль после понесённых вложений (номинально, без дисконтирования); прогноз — остаток ÷ чистый темп поступлений за последние 12 месяцев, в годах.</li>
         <li><b>Оценка актива</b> — не рыночная котировка: «авто» равна внесённым деньгам (консервативная учётная база), ручная — ваша оценка с фиксацией даты.</li>
         <li>При будущей продаже актива итоговая доходность будет разделена на операционную (аренда) и капитальную (прирост стоимости) составляющие.</li>
@@ -471,6 +483,30 @@ function compute(){
   const cfs = rows.map(r => ({t: yrs(pd(r.tx_date)), v: r.flow}));
   const irr = xirr(cfs);
 
+  /* индекс инфляции: I[месяц] = произведение (1+π) за месяцы ДО данного, база — месяц первого платежа */
+  const infl = (S.settings.inflation && typeof S.settings.inflation === "object" && !Array.isArray(S.settings.inflation)) ? S.settings.inflation : {};
+  const baseMK = rows.length ? rows[0].tx_date.slice(0,7) : iso(today).slice(0,7);
+  const nextMK = k => { let [y,mo] = k.split("-").map(Number); mo++; if(mo>12){mo=1;y++;} return y+"-"+String(mo).padStart(2,"0"); };
+  const inflIdx = new Map();
+  { const endMK = (m => m > baseMK ? m : baseMK)(String(Math.max(y1+1,2100)) === "" ? baseMK : (y1+1)+"-01");
+    let k = baseMK, I = 1, guard = 0;
+    while(k <= endMK && guard++ < 1200){
+      inflIdx.set(k, I);
+      I *= 1 + (Number(infl[k]) || 0)/100;
+      k = nextMK(k);
+    } }
+  const deflOf = mk => inflIdx.get(mk) || (mk < baseMK ? 1 : [...inflIdx.values()].pop() || 1);
+  const inflFilled = Object.keys(infl).some(k => Number(infl[k]) !== 0);
+  const realCfs = rows.map(r => ({t: yrs(pd(r.tx_date)), v: r.flow / deflOf(r.tx_date.slice(0,7))}));
+  const irrReal = xirr(realCfs);
+  /* накопленная и среднегодовая инфляция за период данных */
+  let totalIdx = 1, mkCount = 0;
+  { let k = baseMK; const endDataMK = endY+"-"+String(endM).padStart(2,"0");
+    let guard = 0;
+    while(k <= endDataMK && guard++ < 1200){ totalIdx *= 1 + (Number(infl[k])||0)/100; mkCount++; k = nextMK(k); } }
+  const cumInflPct = (totalIdx - 1) * 100;
+  const annInflPct = mkCount > 0 ? (Math.pow(totalIdx, 12/mkCount) - 1) * 100 : 0;
+
   /* оценка актива */
   const valManual = S.settings.val_mode === "manual";
   const manualVal = Number(S.settings.valuation) || 0;
@@ -479,6 +515,7 @@ function compute(){
   const valDate = valManual && /^\d{4}-\d{2}-\d{2}$/.test(valDateStr) ? pd(valDateStr) : today;
   const valStale = valManual && valDateStr && (today - valDate) > 90*DAY;
   const irrVal = val > 0 ? xirr(cfs.concat([{t: yrs(valDate), v: val}])) : null;
+  const irrValReal = val > 0 ? xirr(realCfs.concat([{t: yrs(valDate), v: val / deflOf(iso(valDate).slice(0,7))}])) : null;
 
   let paybackDate = null, wasNeg = false;
   for(const r of rows){
@@ -568,7 +605,8 @@ function compute(){
           irr, irrVal, val, valManual, valDateStr, valStale,
           paybackDate, remaining, forecastM, forecastD,
           years, byMonth, avgInvM, avgInvY, y0, y1, endY, endM, hasSale, hasRent,
-          rentAnnual, rentAnnualNet, rentCum, rentCumNet};
+          rentAnnual, rentAnnualNet, rentCum, rentCumNet,
+          irrReal, irrValReal, cumInflPct, annInflPct, inflFilled};
 }
 
 /* ── плитки ── */
@@ -580,6 +618,10 @@ const TILE_DEFS = [
     "XIRR — фактическая", m.irr===null?"н/д":pct(m.irr*100),
     m.irr===null?(m.received>0?"поступления пока слишком малы для годовой ставки":"появится после первого поступления"):"по реальным денежным потокам",
     m.irr===null?"":(m.irr>0.0005?"pos":m.irr<-0.0005?"neg":"")]},
+  {id:"xirrReal", name:"XIRR реальная", hero:true, b:m=>[
+    "XIRR — реальная", m.irrReal===null?"н/д":pct(m.irrReal*100),
+    m.inflFilled ? ("сверх инфляции · накоплено "+pct(m.cumInflPct)) : "инфляция не заполнена (вкладка «Инфляция»)",
+    m.irrReal===null?"":(m.irrReal>0.0005?"pos":m.irrReal<-0.0005?"neg":"")]},
   {id:"xirrVal", name:"XIRR с оценкой", hero:true, b:m=>{
     let sub;
     if(m.val<=0) sub = m.valManual?"введите сумму оценки":"появится после первого взноса";
@@ -1228,28 +1270,61 @@ $("ppSave").addEventListener("click", async ()=>{
     await api("set",{key:"passport",value:p});
     S.settings.passport = p;
     ppToggle(false); renderPassport();
-    if(M) renderPhase(M);
     toast("Паспорт сохранён");
   }catch(e){ toast("Ошибка сохранения паспорта"); }
 });
 
-/* ── фаза ── */
-function renderPhase(m){
-  const p = ppData();
-  const chip = $("chipPhase");
-  let txt, oper = false;
-  if(m.hasSale){ txt = "Продан"; oper = true; }
-  else if(m.hasRent){ txt = "Эксплуатация"; oper = true; }
-  else {
-    txt = "Строительство";
-    if(/^\d{4}-\d{2}-\d{2}$/.test(p.handover||"")){
-      const d = pd(p.handover);
-      txt += " · сдача " + MONTHS_S[d.getMonth()] + " " + d.getFullYear();
-    }
+/* ── инфляция ── */
+function monthKeysAll(m){
+  const keys = [];
+  const start = m.rows.length ? m.rows[0].tx_date.slice(0,7) : iso(new Date()).slice(0,7);
+  let [y,mo] = start.split("-").map(Number);
+  const endKey = m.endY+"-"+String(m.endM).padStart(2,"0");
+  let k = start, guard = 0;
+  while(k <= endKey && guard++ < 1200){
+    keys.push(k);
+    mo++; if(mo>12){mo=1;y++;}
+    k = y+"-"+String(mo).padStart(2,"0");
   }
-  chip.classList.toggle("oper", oper);
-  chip.innerHTML = "Этап: <b>"+esc(txt)+"</b>";
+  return keys;
 }
+function renderInfl(m){
+  const infl = (S.settings.inflation && typeof S.settings.inflation === "object") ? S.settings.inflation : {};
+  $("inflStats").innerHTML =
+    tile("Накопленная инфляция", m.inflFilled?pct(m.cumInflPct):"—", "за период данных", "", true) +
+    tile("Среднегодовая инфляция", m.inflFilled?pct(m.annInflPct):"—", "в годовом выражении") +
+    tile("XIRR номинальная", m.irr===null?"н/д":pct(m.irr*100), "по денежным потокам") +
+    tile("XIRR реальная", m.irrReal===null?"н/д":pct(m.irrReal*100), "сверх инфляции", m.irrReal!==null&&m.irrReal<-0.0005?"neg":"", true) +
+    tile("XIRR с оценкой, номин.", m.irrVal===null?"н/д":pct(m.irrVal*100), "с условной продажей по оценке") +
+    tile("XIRR с оценкой, реальная", m.irrValReal===null?"н/д":pct(m.irrValReal*100), "сверх инфляции", "", true);
+  const keys = monthKeysAll(m);
+  let h = `<thead><tr><th>Месяц</th><th style="text-align:right">Инфляция за месяц, %</th></tr></thead><tbody>`;
+  for(const k of keys){
+    const [y,mo] = k.split("-").map(Number);
+    const v = infl[k];
+    h += `<tr><td>${MONTHS_S[mo-1]} ${y}</td>`+
+      `<td style="text-align:right"><input data-infl="${k}" type="number" step="0.1" min="-50" max="100" value="${v!==undefined?v:""}" `+
+      `style="width:110px;text-align:right;font:13px system-ui;color:var(--tx);background:var(--bg);border:1px solid var(--bd2);border-radius:6px;padding:5px 8px"></td></tr>`;
+  }
+  $("inflTbl").innerHTML = h + "</tbody>";
+}
+$("inflSave").addEventListener("click", async ()=>{
+  const obj = {};
+  document.querySelectorAll("[data-infl]").forEach(i=>{
+    const raw = i.value.trim();
+    if(raw === "") return;
+    const v = parseFloat(raw);
+    if(isFinite(v)) obj[i.dataset.infl] = v;
+  });
+  $("inflSaveNote").textContent = "сохраняю…";
+  try{
+    await api("set",{key:"inflation",value:obj});
+    S.settings.inflation = obj;
+    render();
+    $("inflSaveNote").textContent = "сохранено";
+  }catch(e){ $("inflSaveNote").textContent = "ошибка сохранения"; }
+  setTimeout(()=>$("inflSaveNote").textContent="",2000);
+});
 
 /* ── вкладки ── */
 document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click", ()=>{
@@ -1265,10 +1340,6 @@ let M = null;
 function render(){
   M = compute();
   const m = M;
-  $("chipInv").textContent = money(m.invested);
-  $("chipVal").textContent = money(m.val);
-  $("chipN").textContent = m.rows.length;
-  $("chipUpd").textContent = new Date().toLocaleDateString("ru-RU");
   $("valMode").value = m.valManual ? "manual" : "auto";
   $("valInp").disabled = !m.valManual;
   if(document.activeElement !== $("valInp"))
@@ -1281,7 +1352,6 @@ function render(){
   } else { vd.textContent = ""; vd.className = ""; }
   $("curSel").value = S.settings.currency || "USDT";
 
-  renderPhase(m);
   renderPassport();
   renderTiles(m);
   renderPlan(m);
@@ -1289,6 +1359,7 @@ function render(){
   renderChart(m);
   renderPeriods(m);
   renderJournal(m);
+  renderInfl(m);
 }
 
 /* ── события ── */
