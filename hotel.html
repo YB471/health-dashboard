@@ -219,14 +219,14 @@
         <button data-v="month">По месяцам</button>
       </span>
       <span class="seg" id="ryTax">
-        <button data-v="gross" class="on">До налога</button>
-        <button data-v="net">После налога</button>
+        <button data-v="gross" class="on">Валовая</button>
+        <button data-v="net">Чистая (после налогов)</button>
       </span>
     </div>
     <div class="tiles" id="rentStats" style="margin-bottom:12px"></div>
     <div class="chart-host" id="rentChart"></div>
     <div class="tbl-wrap" style="margin-top:14px"><table id="rentTbl"></table></div>
-    <div class="note">Доход — только транзакции типа «Доход от аренды»; «после налога» — за вычетом всех налогов периода. Годовая доходность — аренда года ÷ средневзвешенный вложенный капитал года; по месяцам — в годовом выражении (простая аннуализация ×12). Накопленная доходность — аренда за всё время ÷ вложено; среднегодовая — на средневзвешенный капитал за период аренды.</div>
+    <div class="note">Валовой арендный доход — транзакции типа «Доход от аренды»; чистый — после фактических налогов. Доходности — в % годовых на средневзвешенный вложенный капитал (по месяцам — простая аннуализация ×12). Реальная доходность — чистая, скорректированная на инфляцию по уравнению Фишера (вкладка «Инфляция»). Кумулятивная — доход накопленным итогом ÷ вложенный капитал.</div>
   </div>
 
   <div class="card">
@@ -317,7 +317,7 @@
         <li><b>Вложено</b> — все оттоки, кроме налогов, минус «Возврат средств». Налоги — операционный расход: уменьшают чистую позицию и XIRR, но не «вложено» и не оценку актива.</li>
         <li><b>XIRR (фактическая)</b> — годовая ставка r, при которой сумма всех потоков CF·(1+r)^(−t) равна нулю; t — время платежа в годах. Считается по реальным датам транзакций.</li>
         <li><b>XIRR с учётом оценки</b> — те же потоки плюс условная продажа по текущей оценке: в режиме «авто» — по внесённым деньгам на сегодня; в ручном режиме — по вашей оценке на её дату (оценка старше 90 дней помечается как устаревшая).</li>
-        <li><b>Доходность периода</b> — поступления периода (для арендного блока — только аренда; в таблицах потоков — все поступления без продажи) ÷ средневзвешенный вложенный капитал периода. По месяцам приводится к годовому выражению простой аннуализацией (×12).</li>
+        <li><b>Арендные доходности.</b> Валовая (gross rental yield) — арендный доход ÷ средневзвешенный вложенный капитал, в % годовых; чистая (net yield) — после фактических налогов; реальная (real yield) — чистая, скорректированная на инфляцию по уравнению Фишера: (1 + чистая) ÷ (1 + инфляция) − 1. Кумулятивная доходность — доход накопленным итогом ÷ вложенный капитал. В таблицах потоков доходность считается по всем поступлениям без продажи. По месяцам — простая аннуализация ×12.</li>
         <li><b>Реальный XIRR</b> — XIRR по дефлированным потокам: каждый поток делится на накопленный индекс инфляции своего месяца (вкладка «Инфляция», база — месяц первого платежа). Показывает доходность сверх введённой инфляции.</li>
         <li><b>Окупаемость</b> — факт: первый выход накопленного потока в ноль после понесённых вложений (номинально, без дисконтирования); прогноз — остаток ÷ чистый темп поступлений за последние 12 месяцев, в годах.</li>
         <li><b>Оценка актива</b> — не рыночная котировка: «авто» равна внесённым деньгам (консервативная учётная база), ручная — ваша оценка с фиксацией даты.</li>
@@ -577,6 +577,25 @@ function compute(){
   const rentCum = invested > 0 ? rentTotal / invested * 100 : null;
   const rentCumNet = invested > 0 ? (rentTotal - taxesTotal) / invested * 100 : null;
 
+  /* инфляция по годам и за период аренды; реальные доходности (уравнение Фишера) */
+  const inflY = new Map();
+  for(let y=y0; y<=y1; y++){
+    let ix = 1;
+    for(let mo=1; mo<=12; mo++) ix *= 1 + (Number(infl[y+"-"+String(mo).padStart(2,"0")])||0)/100;
+    inflY.set(y, (ix-1)*100);
+  }
+  let idxRent = 1, rentMonths = 0;
+  if(firstRentT !== null){
+    let k = iso(new Date(firstRentT)).slice(0,7);
+    const endDataMK = endY+"-"+String(endM).padStart(2,"0");
+    let guard = 0;
+    while(k <= endDataMK && guard++ < 1200){ idxRent *= 1 + (Number(infl[k])||0)/100; rentMonths++; k = nextMK(k); }
+  }
+  const annInflRentPct = rentMonths > 0 ? (Math.pow(idxRent, 12/rentMonths) - 1) * 100 : 0;
+  const fisher = (nomPct, inflPct) => ((1 + nomPct/100) / (1 + inflPct/100) - 1) * 100;
+  const rentAnnualReal = rentAnnualNet !== null ? fisher(rentAnnualNet, annInflRentPct) : null;
+  const rentCumReal = rentCumNet !== null ? ((1 + rentCumNet/100) / idxRent - 1) * 100 : null;
+
   /* фаза */
   const hasSale = rows.some(r=>r.tx_type==="Продажа актива");
   const hasRent = rentRows.length > 0;
@@ -587,6 +606,7 @@ function compute(){
           paybackDate, remaining, forecastM, forecastD,
           years, byMonth, avgInvM, avgInvY, y0, y1, endY, endM, hasSale, hasRent,
           rentAnnual, rentAnnualNet, rentCum, rentCumNet,
+          rentAnnualReal, rentCumReal, inflY, annInflRentPct,
           irrReal, irrValReal, cumInflPct, annInflPct, inflFilled};
 }
 
@@ -710,10 +730,10 @@ function rentTipHtml(p, metricLine){
   const net = p.rent - p.tax;
   let t = "<b>" + esc(p.full) + "</b>";
   if(metricLine) t += "<br>" + metricLine;
-  t += "<br>Аренда: " + money(p.rent) + "<br>Налоги: " + (p.tax>0.5?money(-p.tax):"—") + "<br>После налога: " + money(net);
+  t += "<br>Валовой доход: " + money(p.rent) + "<br>Налоги: " + (p.tax>0.5?money(-p.tax):"—") + "<br>Чистый доход: " + money(net);
   if(p.avg>0){
     t += "<br>Вложено (средн. за период): " + money(p.avg);
-    t += "<br>Доходность (годовая): " + pct(p.rent*p.ann/p.avg*100) + " · чистыми: " + pct(net*p.ann/p.avg*100);
+    t += "<br>Валовая доходность: " + pct(p.rent*p.ann/p.avg*100) + " · чистая: " + pct(net*p.ann/p.avg*100);
   }
   return t;
 }
@@ -725,15 +745,18 @@ function renderRent(m){
   const cum = net ? m.rentCumNet : m.rentCum;
   const ann = net ? m.rentAnnualNet : m.rentAnnual;
 
-  /* сводные плитки: всего и доходность, цифрами и процентами */
+  /* лестница доходностей: валовая → чистая → реальная */
   const rentYears = m.years.filter(x=>(x.rent||0)>0.5);
-  let best = null;
-  for(const x of rentYears){ const v = net ? x.rent-x.tax : x.rent; if(!best || v>best.v) best = {y:x.y, v}; }
+  const has = m.rentTotal>0.5;
   $("rentStats").innerHTML =
-    tile("Аренда всего"+sfx, m.rentTotal>0.5?money(totR):"—", "за всё время", "", true) +
-    tile("Накопленная доходность"+sfx, cum!==null && m.rentTotal>0.5 ? pct(cum) : "—", "аренда всего ÷ вложено", "", true) +
-    tile("Среднегодовая доходность"+sfx, ann!==null ? pct(ann) : "—", "на средневзвешенный капитал за период аренды") +
-    tile("Лучший год", best ? money(best.v) : "—", best ? best.y+" год" : "появится с первой арендой");
+    tile("Валовой арендный доход", has?money(m.rentTotal):"—", "накопленным итогом за период владения", "", true) +
+    tile("Чистый арендный доход", has?money(m.rentTotal-m.taxesTotal):"—", "после налогов") +
+    tile("Кумулятивная доходность на капитал", has && m.rentCum!==null ? pct(m.rentCum) : "—",
+      has && m.rentCumNet!==null ? "валовая · чистая: "+pct(m.rentCumNet) : "доход накопленным итогом ÷ вложено") +
+    tile("Валовая арендная доходность", m.rentAnnual!==null?pct(m.rentAnnual):"—", "% годовых, на средневзвешенный капитал", "", true) +
+    tile("Чистая арендная доходность", m.rentAnnualNet!==null?pct(m.rentAnnualNet):"—", "% годовых, после налогов") +
+    tile("Реальная арендная доходность", m.rentAnnualReal!==null?pct(m.rentAnnualReal):"—",
+      "% годовых, после налогов и инфляции"+(m.inflFilled?"":" · инфляция не заполнена"), "", true);
 
   const pts = rentSeries(m);
   if(!pts.some(p=>p.rent>0.5)){
@@ -746,23 +769,27 @@ function renderRent(m){
 function renderRentTable(m, rentYears, net){
   const t = $("rentTbl");
   if(!rentYears.length){ t.innerHTML = ""; return; }
-  let h = `<thead><tr><th>Год</th><th>Аренда</th><th>Налоги</th><th>Чистыми</th><th>Доходность</th><th>После налога</th></tr></thead><tbody>`;
+  const fisher = (nomPct, inflPct) => ((1 + nomPct/100) / (1 + inflPct/100) - 1) * 100;
+  let h = `<thead><tr><th>Год</th><th>Валовой доход</th><th>Налоги</th><th>Чистый доход</th><th>Валовая доходность</th><th>Чистая доходность</th><th>Реальная доходность</th></tr></thead><tbody>`;
   for(const x of rentYears){
     const yG = x.avg>0 ? x.rent/x.avg*100 : null;
     const yN = x.avg>0 ? (x.rent-x.tax)/x.avg*100 : null;
+    const yR = yN!==null ? fisher(yN, m.inflY.get(x.y)||0) : null;
     h += `<tr><td>${x.y}</td>`+
       `<td class="pos">${money(x.rent)}</td>`+
       `<td class="${x.tax>0.5?'wrn':''}">${x.tax>0.5?money(-x.tax):'—'}</td>`+
       `<td>${money(x.rent-x.tax)}</td>`+
       `<td>${yG!==null?pct(yG):'—'}</td>`+
-      `<td>${yN!==null?pct(yN):'—'}</td></tr>`;
+      `<td>${yN!==null?pct(yN):'—'}</td>`+
+      `<td>${yR!==null?pct(yR):'—'}</td></tr>`;
   }
   const sR = rentYears.reduce((a,x)=>a+x.rent,0), sT = rentYears.reduce((a,x)=>a+x.tax,0);
   h += `</tbody><tfoot><tr><td>Итого</td><td class="pos">${money(sR)}</td>`+
        `<td class="${sT>0.5?'wrn':''}">${sT>0.5?money(-sT):'—'}</td>`+
        `<td>${money(sR-sT)}</td>`+
        `<td>${m.rentCum!==null?pct(m.rentCum):'—'}</td>`+
-       `<td>${m.rentCumNet!==null?pct(m.rentCumNet):'—'}</td></tr></tfoot>`;
+       `<td>${m.rentCumNet!==null?pct(m.rentCumNet):'—'}</td>`+
+       `<td>${m.rentCumReal!==null?pct(m.rentCumReal):'—'}</td></tr></tfoot>`;
   t.innerHTML = h;
 }
 function drawRentChart(host, series, net){
@@ -834,7 +861,7 @@ function drawRentChart(host, series, net){
     const p = series[j];
     guide.setAttribute("opacity",1);
     gl.setAttribute("x1",Xc(j)); gl.setAttribute("x2",Xc(j));
-    showTip(rentTipHtml(p, "<b>"+(net?"Аренда после налога":"Аренда")+": "+money(val(p))+"</b>"), e.clientX, e.clientY);
+    showTip(rentTipHtml(p, "<b>"+(net?"Чистый арендный доход":"Валовой арендный доход")+": "+money(val(p))+"</b>"), e.clientX, e.clientY);
   });
   ov.addEventListener("mouseleave", ()=>{ guide.setAttribute("opacity",0); hideTip(); });
   host.appendChild(svg);
