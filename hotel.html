@@ -730,8 +730,6 @@ function renderRent(m){
   $("rentStats").innerHTML =
     tile("Валовой арендный доход", has?money(m.rentTotal):"—", "накопленным итогом за период владения", "", true) +
     tile("Чистый арендный доход", has?money(m.rentTotal-m.taxesTotal):"—", "после налогов") +
-    tile("Кумулятивная доходность на капитал", has && m.rentCum!==null ? pct(m.rentCum) : "—",
-      has && m.rentCumNet!==null ? "валовая · чистая: "+pct(m.rentCumNet) : "доход накопленным итогом ÷ вложено") +
     tile("Валовая арендная доходность", m.rentAnnual!==null?pct(m.rentAnnual):"—", "% годовых, на средневзвешенный капитал", "", true) +
     tile("Чистая арендная доходность", m.rentAnnualNet!==null?pct(m.rentAnnualNet):"—", "% годовых, после налогов") +
     tile("Реальная арендная доходность", m.rentAnnualReal!==null?pct(m.rentAnnualReal):"—",
